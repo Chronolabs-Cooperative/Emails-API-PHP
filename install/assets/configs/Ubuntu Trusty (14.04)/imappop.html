@@ -1,0 +1,293 @@
+<style>
+.info {
+	border-radius: 3px;
+	border: 1px solid #d1d5d8;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.shell, .filecontent {
+	font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	border: 1px solid #d1d5d8;
+	border-radius: 3px; 
+	padding: 10px;
+	background-image: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.shell {
+	color: #bbb;
+	background-color: #333;
+}
+</style>
+<article>
+<section>
+			<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>apt-get install dovecot-imapd dovecot-pop3d dovecot-mysql mail-stack-delivery</textarea>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/dovecot/conf.d/99-mail-stack-delivery.conf</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>mv "/etc/dovecot/conf.d/99-mail-stack-delivery.conf" "/etc/dovecot/conf.d/99-mail-stack-delivery.conf.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/dovecot/conf.d/99-mail-stack-delivery.conf</textarea>
+	<textarea class="filecontent" rows="21" readonly># Some general options
+protocols = imap pop3 sieve
+disable_plaintext_auth = no
+ssl = yes
+ssl_cert = &lt;/etc/ssl/certs/ssl-mail.pem
+ssl_key = &lt;/etc/ssl/private/ssl-mail.key
+ssl_cipher_list = ALL:!LOW:!SSLv2:ALL:!aNULL:!ADH:!eNULL:!EXP:RC4+RSA:+HIGH:+MEDIUM
+mail_location = maildir:~/Maildir
+auth_username_chars = abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890.-_@
+
+# IMAP configuration
+protocol imap {
+        mail_plugins = quota imap_quota
+        mail_max_userip_connections = 10
+	imap_client_workarounds = delay-newmail
+
+	# IMAP logout format string:
+	#  %i - total number of bytes read from client
+	#  %o - total number of bytes sent to client
+	imap_logout_format = in=%i out=%o
+}
+
+# POP3 configuration
+protocol pop3 {
+        mail_max_userip_connections = 10
+        pop3_client_workarounds = outlook-no-nuls oe-ns-eoh
+	pop3_uidl_format = UID%u-%v
+	mail_plugins = quota
+
+	# POP3 logout format string:
+	# %i - total number of bytes read from client
+	# %o - total number of bytes sent to client
+	# %t - number of TOP commands
+	# %p - number of bytes sent to client as a result of TOP command
+	# %r - number of RETR commands
+	# %b - number of bytes sent to client as a result of RETR command
+	# %d - number of deleted messages
+	# %m - number of messages (before deletion)
+	# %s - mailbox size in bytes (before deletion)
+	# %u - old/new UIDL hash. may help finding out if UIDLs changed unexpectedly
+	pop3_logout_format = in=%i out=%o top=%t/%p retr=%r/%b del=%d/%m size=%s
+}
+
+# LDA configuration
+protocol lda {
+        postmaster_address = postmaster@localhost
+	mail_plugins = sieve quota
+        quota_full_tempfail = yes
+        deliver_log_format = msgid=%m: %$
+        rejection_reason = Your message to &lt;%t&gt; was automatically rejected:%n%r
+}
+
+# Plugins configuration
+plugin {
+        sieve=~/.dovecot.sieve
+        sieve_dir=~/sieve
+	quota = maildir
+}
+
+# Authentication configuration
+auth_mechanisms = plain login
+
+service auth {
+  # Postfix smtp-auth
+  unix_listener /var/spool/postfix/private/dovecot-auth {
+    mode = 0660
+    user = postfix
+    group = postfix
+  }
+}</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0644 "/etc/dovecot/conf.d/99-mail-stack-delivery.conf"
+chown root:root "/etc/dovecot/conf.d/99-mail-stack-delivery.conf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/dovecot/conf.d/10-auth.conf</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>mv "/etc/dovecot/conf.d/10-auth.conf" "/etc/dovecot/conf.d/10-auth.conf.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/dovecot/conf.d/10-auth.conf</textarea>
+	<textarea class="filecontent" rows="21" readonly>##
+## Authentication processes
+##
+
+# Disable LOGIN command and all other plaintext authentications unless
+# SSL/TLS is used (LOGINDISABLED capability). Note that if the remote IP
+# matches the local IP (ie. you're connecting from the same computer), the
+# connection is considered secure and plaintext authentication is allowed.
+#disable_plaintext_auth = yes
+
+# Authentication cache size (e.g. 10M). 0 means it's disabled. Note that
+# bsdauth, PAM and vpopmail require cache_key to be set for caching to be used.
+#auth_cache_size = 0
+# Time to live for cached data. After TTL expires the cached record is no
+# longer used, *except* if the main database lookup returns internal failure.
+# We also try to handle password changes automatically: If user's previous
+# authentication was successful, but this one wasn't, the cache isn't used.
+# For now this works only with plaintext authentication.
+#auth_cache_ttl = 1 hour
+# TTL for negative hits (user not found, password mismatch).
+# 0 disables caching them completely.
+#auth_cache_negative_ttl = 1 hour
+
+# Space separated list of realms for SASL authentication mechanisms that need
+# them. You can leave it empty if you don't want to support multiple realms.
+# Many clients simply use the first one listed here, so keep the default realm
+# first.
+#auth_realms =
+
+# Default realm/domain to use if none was specified. This is used for both
+# SASL realms and appending @domain to username in plaintext logins.
+#auth_default_realm =
+
+# List of allowed characters in username. If the user-given username contains
+# a character not listed in here, the login automatically fails. This is just
+# an extra check to make sure user can't exploit any potential quote escaping
+# vulnerabilities with SQL/LDAP databases. If you want to allow all characters,
+# set this value to empty.
+#auth_username_chars = abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890.-_@
+
+# Username character translations before it's looked up from databases. The
+# value contains series of from -&gt; to characters. For example &quot;#@/@&quot; means
+# that '#' and '/' characters are translated to '@'.
+#auth_username_translation =
+
+# Username formatting before it's looked up from databases. You can use
+# the standard variables here, eg. %Lu would lowercase the username, %n would
+# drop away the domain if it was given, or &quot;%n-AT-%d&quot; would change the '@' into
+# &quot;-AT-&quot;. This translation is done after auth_username_translation changes.
+#auth_username_format =
+
+# If you want to allow master users to log in by specifying the master
+# username within the normal username string (ie. not using SASL mechanism's
+# support for it), you can specify the separator character here. The format
+# is then &lt;username&gt;&lt;separator&gt;&lt;master username&gt;. UW-IMAP uses &quot;*&quot; as the
+# separator, so that could be a good choice.
+#auth_master_user_separator =
+
+# Username to use for users logging in with ANONYMOUS SASL mechanism
+#auth_anonymous_username = anonymous
+
+# Maximum number of dovecot-auth worker processes. They're used to execute
+# blocking passdb and userdb queries (eg. MySQL and PAM). They're
+# automatically created and destroyed as needed.
+#auth_worker_max_count = 30
+
+# Host name to use in GSSAPI principal names. The default is to use the
+# name returned by gethostname(). Use &quot;$ALL&quot; (with quotes) to allow all keytab
+# entries.
+#auth_gssapi_hostname =
+
+# Kerberos keytab to use for the GSSAPI mechanism. Will use the system
+# default (usually /etc/krb5.keytab) if not specified. You may need to change
+# the auth service to run as root to be able to read this file.
+#auth_krb5_keytab =
+
+# Do NTLM and GSS-SPNEGO authentication using Samba's winbind daemon and
+# ntlm_auth helper. &lt;doc/wiki/Authentication/Mechanisms/Winbind.txt&gt;
+#auth_use_winbind = no
+
+# Path for Samba's ntlm_auth helper binary.
+#auth_winbind_helper_path = /usr/bin/ntlm_auth
+
+# Time to delay before replying to failed authentications.
+#auth_failure_delay = 2 secs
+
+# Require a valid SSL client certificate or the authentication fails.
+#auth_ssl_require_client_cert = no
+
+# Take the username from client's SSL certificate, using
+# X509_NAME_get_text_by_NID() which returns the subject's DN's
+# CommonName.
+#auth_ssl_username_from_cert = no
+
+# Space separated list of wanted authentication mechanisms:
+#   plain login digest-md5 cram-md5 ntlm rpa apop anonymous gssapi otp skey
+#   gss-spnego
+# NOTE: See also disable_plaintext_auth setting.
+auth_mechanisms = plain login
+
+##
+## Password and user databases
+##
+
+#
+# Password database is used to verify user's password (and nothing more).
+# You can have multiple passdbs and userdbs. This is useful if you want to
+# allow both system users (/etc/passwd) and virtual users to login without
+# duplicating the system users into virtual database.
+#
+# &lt;doc/wiki/PasswordDatabase.txt&gt;
+#
+# User database specifies where mails are located and what user/group IDs
+# own them. For single-UID configuration use &quot;static&quot; userdb.
+#
+# &lt;doc/wiki/UserDatabase.txt&gt;
+
+#!include auth-deny.conf.ext
+#!include auth-master.conf.ext
+
+#!include auth-system.conf.ext
+!include auth-sql.conf.ext
+#!include auth-ldap.conf.ext
+#!include auth-passwdfile.conf.ext
+#!include auth-checkpassword.conf.ext
+#!include auth-vpopmail.conf.ext
+#!include auth-static.conf.ext</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0644 "/etc/dovecot/conf.d/10-auth.conf"
+chown root:root "/etc/dovecot/conf.d/10-auth.conf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/dovecot/dovecot-sql.conf.ext</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>mv "/etc/dovecot/dovecot-sql.conf.ext" "/etc/dovecot/dovecot-sql.conf.ext.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/dovecot/dovecot-sql.conf.ext</textarea>
+	<textarea class="filecontent" rows="6" readonly>driver = mysql
+connect = host=%dbhost dbname=%dbname user=%dbuser password=%dbpassword
+default_pass_scheme = CRYPT
+password_query = SELECT username AS user, password_enc AS password, CONCAT(homedir, maildir) AS userdb_home, uid AS userdb_uid, gid AS userdb_gid,  CONCAT('maildir:', homedir, maildir) AS userdb_mail, CONCAT('*:storage=', quota, 'M') as userdb_quota_rule FROM %tablemailusers WHERE (username = '%u' OR email = '%u') AND ((imap = 1 AND '%Ls' = 'imap') OR (pop3 = 1 AND '%Ls' = 'pop3') OR '%Ls' = 'smtp' OR '%Ls' = 'sieve')
+user_query = SELECT CONCAT(homedir, maildir) AS home, CONCAT('maildir:', homedir, maildir) AS mail, uid, gid, CONCAT('*:storage=', quota, 'M') as quota_rule FROM %tablemailusers WHERE (username = '%u' OR email = '%u')
+iterate_query = SELECT username AS user FROM %tablemailusers WHERE (imap = 1 OR pop3 = 1)</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/dovecot/dovecot-sql.conf.ext"
+chown root:0 "/etc/dovecot/dovecot-sql.conf.ext"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>service dovecot restart</textarea>
+</div>
+
+		</section>
+</article>

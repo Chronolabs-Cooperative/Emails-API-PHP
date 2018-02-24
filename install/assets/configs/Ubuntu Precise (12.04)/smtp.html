@@ -1,0 +1,330 @@
+<style>
+.info {
+	border-radius: 3px;
+	border: 1px solid #d1d5d8;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.shell, .filecontent {
+	font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	border: 1px solid #d1d5d8;
+	border-radius: 3px; 
+	padding: 10px;
+	background-image: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.shell {
+	color: #bbb;
+	background-color: #333;
+}
+</style>
+<article>
+<section>
+			<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>groupadd -g 2000 vmail
+useradd -u 2000 -g vmail vmail</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>apt-get install postfix postfix-mysql</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="5" readonly>mkdir -p /var/spool/postfix/etc/pam.d
+mkdir -p /var/spool/postfix/var/run/mysqld
+mkdir -p /var/customers/mail/
+chown -R 2000:2000 /var/customers/mail/
+chmod 0750  /var/customers/mail/</textarea>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/main.cf</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>mv "/etc/postfix/main.cf" "/etc/postfix/main.cf.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/main.cf</textarea>
+	<textarea class="filecontent" rows="21" readonly>## General Postfix configuration
+# FQDN from Emails REST API
+mydomain = %apidomain
+
+# set myhostname to $mydomain because Emails REST API alrady uses a FQDN
+myhostname = $mydomain
+
+mydestination = $myhostname,
+	$mydomain,
+	localhost.$myhostname,
+	localhost.$mydomain,
+	localhost
+mynetworks = 127.0.0.0/8
+inet_interfaces = all
+append_dot_mydomain = no
+biff = no
+
+# Postfix performance settings
+default_destination_concurrency_limit = 20
+local_destination_concurrency_limit = 2
+
+# SMTPD Settings
+smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+smtpd_helo_required = yes
+smtpd_recipient_restrictions = permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_unauth_destination,
+	reject_unauth_pipelining,
+	reject_non_fqdn_recipient
+smtpd_sender_restrictions = permit_mynetworks,
+	reject_sender_login_mismatch,
+	permit_sasl_authenticated,
+	reject_unknown_helo_hostname,
+	reject_unknown_recipient_domain,
+	reject_unknown_sender_domain
+smtpd_client_restrictions = permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_unknown_client_hostname
+
+# Postfix 2.10 requires this option. Postfix &lt; 2.10 ignores this.
+# The option is intentionally left empty.
+smtpd_relay_restrictions =
+
+# Maximum size of Message in bytes (50MB)
+message_size_limit = 52428800
+
+## SASL Auth Settings
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_local_domain = $myhostname
+broken_sasl_auth_clients = yes
+## Dovecot Settings for deliver, SASL Auth and virtual transport
+smtpd_sasl_type = dovecot
+virtual_transport = dovecot
+dovecot_destination_recipient_limit = 1
+smtpd_sasl_path = private/dovecot-auth
+
+# Virtual delivery settings
+virtual_mailbox_base = /
+virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual_mailbox_maps.cf
+virtual_mailbox_domains = mysql:/etc/postfix/mysql-virtual_mailbox_domains.cf
+virtual_alias_maps = mysql:/etc/postfix/mysql-virtual_alias_maps.cf
+smtpd_sender_login_maps = mysql:/etc/postfix/mysql-virtual_sender_permissions.cf
+virtual_uid_maps = static:2000
+virtual_gid_maps = static:2000
+
+# Local delivery settings
+local_transport = local
+alias_maps = $alias_database
+
+# Default Mailbox size, is set to 0 which means unlimited!
+mailbox_size_limit = 0
+virtual_mailbox_limit = 0
+
+### TLS settings
+###
+## TLS for outgoing mails from the server to another server
+#smtp_tls_security_level = may
+#smtp_tls_note_starttls_offer = yes
+## TLS for incoming connections (clients or other mail servers)
+#smtpd_tls_security_level = may
+#smtpd_tls_cert_file = /etc/ssl/server/localhost.pem
+#smtpd_tls_key_file = $smtpd_tls_cert_file
+#smtpd_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+#smtpd_tls_loglevel = 1
+#smtpd_tls_received_header = yes
+
+debugger_command =
+         PATH=/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin
+         ddd $daemon_directory/$process_name $process_id &amp; sleep 5</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0644 "/etc/postfix/main.cf"
+chown root:root "/etc/postfix/main.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_alias_maps.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_alias_maps.cf</textarea>
+	<textarea class="filecontent" rows="5" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = SELECT destination FROM %tablemailvirtual WHERE email = '%s' AND trim(destination) &lt;&gt; ''</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_alias_maps.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_alias_maps.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_mailbox_domains.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_mailbox_domains.cf</textarea>
+	<textarea class="filecontent" rows="5" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = SELECT domain FROM %tablepaneldomains WHERE domain = '%s' AND isemaildomain = '1'</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_mailbox_domains.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_mailbox_domains.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_mailbox_maps.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_mailbox_maps.cf</textarea>
+	<textarea class="filecontent" rows="6" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+expansion_limit = 1
+hosts = %dbhost
+query = SELECT CONCAT(homedir,maildir) FROM %tablemailusers WHERE email = '%s'</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_mailbox_maps.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_mailbox_maps.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_sender_permissions.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_sender_permissions.cf</textarea>
+	<textarea class="filecontent" rows="5" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = SELECT DISTINCT username FROM %tablemailusers WHERE email in ((SELECT %tablemailvirtual.email_full FROM %tablemailvirtual WHERE %tablemailvirtual.email = '%s' UNION SELECT %tablemailvirtual.destination FROM %tablemailvirtual WHERE %tablemailvirtual.email = '%s'));</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_sender_permissions.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_sender_permissions.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_uid_maps.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_uid_maps.cf</textarea>
+	<textarea class="filecontent" rows="6" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+expansion_limit = 1
+hosts = %dbhost
+query = SELECT uid FROM %tablemailusers WHERE email = '%s'</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_uid_maps.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_uid_maps.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/mysql-virtual_gid_maps.cf</legend>
+		
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/mysql-virtual_gid_maps.cf</textarea>
+	<textarea class="filecontent" rows="6" readonly>user = %dbuser
+password = %dbpassword
+dbname = %dbname
+expansion_limit = 1
+hosts = %dbhost
+query = SELECT gid FROM %tablemailusers WHERE email = '%s'</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0640 "/etc/postfix/mysql-virtual_gid_maps.cf"
+chown root:postfix "/etc/postfix/mysql-virtual_gid_maps.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/aliases</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>mv "/etc/aliases" "/etc/aliases.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/aliases</textarea>
+	<textarea class="filecontent" rows="16" readonly># /etc/aliases
+mailer-daemon: postmaster
+postmaster: root
+nobody: root
+hostmaster: root
+usenet: root
+news: root
+webmaster: root
+www: root
+ftp: root
+abuse: root
+noc: root
+security: root
+
+# change this to a valid e-mail address you can access
+root:               %licenseemail</textarea>
+</div>
+
+		
+	</fieldset>
+</div>
+<div class="filesub">
+	<fieldset class="file">
+		<legend>/etc/postfix/master.cf</legend>
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>cp "/etc/postfix/master.cf" "/etc/postfix/master.cf.frx.bak"</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>/usr/bin/nano /etc/postfix/master.cf</textarea>
+	<textarea class="filecontent" rows="4" readonly># Add these lines to be able to use dovecot as delivery agent
+# Dovecot LDA
+dovecot	  unix	-	n	n	-	-	pipe
+	flags=DRhu user=vmail:vmail argv=/usr/lib/dovecot/deliver -d ${recipient}</textarea>
+</div>
+
+		<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>chmod 0644 "/etc/postfix/master.cf"
+chown root:root "/etc/postfix/master.cf"</textarea>
+</div>
+
+	</fieldset>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>newaliases
+/etc/init.d/postfix restart</textarea>
+</div>
+
+		</section>
+</article>
