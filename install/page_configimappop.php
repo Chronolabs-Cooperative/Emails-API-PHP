@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     return 302;
 }
 ob_start();
+
 ?>
     <div class="panel panel-info">
         <div class="panel-heading"><?php echo API_CONFIG_IMAPPOP; ?></div>
@@ -51,29 +52,36 @@ ob_start();
     	    <label for="platform"><?php echo API_PLATFORM_LABEL; ?></label>
             <div class="xoform-help alert alert-info"><?php echo API_PLATFORM_HELP; ?></div>
             <select type="text" class="form-control" name="platform" id="platform" />
+            	<option value="" id="emptyselect" class="emptyselect">(select server's operating system)</option>
             <?php foreach(APILists::getDirListAsArray(__DIR__ . '/assets/configs') as $folder) { 
                 echo '                  <option value="'.$folder.'">' . $folder . '</option>\n';
             }?>
             </select>
-            <script>
-            $('.platform').change(function() {
-                var folder = $(this).find(':selected')[0].id;
+           
+           <div class="form-group">
+                <div id="article" class="article">&nbsp;</div>
+           </div>
+           
+        </div>
+        
+   </div>
+   <script>
+    $(document).ready(function(){ 
+        $(function() {
+            $( "#platform" ).change(function(  event  ) {
+            	$( "option.emptyselect" ).replaceWith( "<!-- <option value=\"\" id=\"emptyselect\" class=\"emptyselect\">(select server's operating system)</option> -->" );
+            	var folder = $( "#platform" ).val();
                 $.ajax({
                     type:'POST',
-                    url:'./json.getconfig.php',
-                    data:{'folder':folder,'typal':'imappop.html'},
+                    url:'<?php echo API_URL; ?>/install/json.getconfig.php?folder='+folder+"&typal=imappop.html",
                     success:function(data){
-                        $(".article").html(data.article);
+                        $("#article").html(data.article);
                     }
                 });
             });
-        </script>
-        </div>
-        <div class="form-group">
-            <div id="article" class="article">&nbsp;</div>
-       </div>
-   </div>
-
+        });
+    });
+    </script>
 <?php
 $content = ob_get_contents();
 ob_end_clean();

@@ -1,8 +1,8 @@
 ## Chronolabs Cooperative presents
 
-# Emails REST API Services
+# Emails/Aliases Account's Propogation REST API Services
 
-## Version: 1.0.1 (pre-alpha)
+## Version: 1.1.11 (pre-alpha)
 
 ### Author: Dr. Simon Antony Roberts <simon@snails.email>
 

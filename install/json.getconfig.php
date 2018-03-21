@@ -34,30 +34,20 @@ include_once __DIR__ . '/class/dbmanager.php';
 defined('API_INSTALL') || die('API Installation wizard die');
 
 header('Content-type: application/json');
-
-$leftsql = $ransql = 0;
-$files = APILists::getFileListAsArray(__DIR__ . DIRECTORY_SEPARATOR . 'sql');
-foreach($files as $key => $file)
-    if (substr($file, strlen($file)-3,3) != 'sql' && substr($file, strlen($file)-3,3) != 'ran')
-        unset($files[$key]);
-    elseif (substr($file, strlen($file)-3,3) == 'sql')
-        $leftsql++;
-    elseif (substr($file, strlen($file)-3,3) == 'ran')
-    {
-        unset($files[$key]);
-        $ransql++;
-    }
-        
-sort($files, SORT_DESC);
-if (count($files) == 0)
-    echo json_encode(array('dbreport' => file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . 'dbreport.html'), 'buttons' => '<button class="btn btn-lg btn-success" type="button" accesskey="n" onclick="location.href=\'' . API_URL . '/install/page_siteinit.php\'"> Continue  <span class="fa fa-caret-right"></span></button>', 'leftsql' => $leftsql, 'totalsql' => $leftsql+$ransql, 'endmsg' => 'All SQL Executed - Too proceed with installation <a href="'.API_URL . '/install/page_siteinit.php"> Click to Continue! </a>', 'refreshurl' => API_URL . '/install/page_siteinit.php', 'titlemsg' => ''));
+file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'tmp.txt', print_r($_REQUEST, true));
+if (is_file(__DIR__ . DIRECTORY_SEPARATOR . 'assets' .  DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . $_REQUEST['folder'] . DIRECTORY_SEPARATOR . $_REQUEST['typal']))
+    $article = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'assets' .  DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . $_REQUEST['folder'] . DIRECTORY_SEPARATOR . $_REQUEST['typal']);
 else 
-{
-    rename(__DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . $files[0], __DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . $files[0] . '.ran');
-    $dbm = new Db_manager();
-    $result  = $dbm->queryFromFile(__DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . $files[0] . '.ran');
-    $html = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . 'dbreport.html');
-    $html .= "<ul class=\"prestige\" style=\"list-style-bullet: none; float: left; width: 32%; padding: 4px; margin: 3px; font-size: 0.78764em;\"><il><h3 style=\"font-size: 1.44812em;\">".$files[0] . "</h3></li>" . $dbm->report() . "</ul>\n";
-    file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . 'dbreport.html', $html);
-    echo json_encode(array('dbreport' => $html, 'buttons' => '&nbsp;', 'leftsql' => $leftsql, 'totalsql' => $leftsql+$ransql, 'endmsg' => 'Still: ' . number_format((100-($ransql-1/($leftsql+$ransql))/100), 2) . '% too process!', 'refreshurl' => '', 'titlemsg' => "$leftsql / " . $leftsql + $ransql . ' ~ ' . $files[0]));
-}
+    die(json_encode(array('article' => "<font style='color:rgb(250,10,10);'>Error File not found:</font> /install" . DIRECTORY_SEPARATOR . 'assets' .  DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . $_REQUEST['folder'] . DIRECTORY_SEPARATOR . $_REQUEST['typal'])));
+$article = str_replace('%dbuser', API_DB_USER, $article);
+$article = str_replace('%dbhost', API_DB_HOST, $article);
+$article = str_replace('%dbpassword', API_DB_PASS, $article);
+$article = str_replace('%dbname', API_DB_NAME, $article);
+$article = str_replace('%tablemailusers', '`' . $GLOBALS['APIDB']->prefix('mail_users') . '`', $article);
+$article = str_replace('%tablemailvirtual', '`' . $GLOBALS['APIDB']->prefix('mail_virtual') . '`', $article);
+$article = str_replace('%tablepaneldomains', '`' . $GLOBALS['APIDB']->prefix('domains') . '`', $article);
+$article = str_replace('%apidomain', parse_url(API_URL, PHP_URL_HOST), $article);
+$article = str_replace('%licenseemail', API_LICENSE_EMAIL, $article);
+
+
+echo json_encode(array('article' => $article));

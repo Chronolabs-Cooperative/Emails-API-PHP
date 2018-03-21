@@ -41,5 +41,5 @@ defined('API_ROOT_PATH') || exit('Restricted access');
 /**
  *  Define API version
  */
-define('API_VERSION', 'WhoIS REST Services API 2.2.14');
-define('API_TYPE', 'whois-api');
+define('API_VERSION', 'Email/Aliases Account Propogation REST Services API 1.1.11');
+define('API_TYPE', 'emails-api');
