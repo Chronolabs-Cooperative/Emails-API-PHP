@@ -1,6 +1,6 @@
 <?php
 /**
- * Email Account Propogation REST Services API
+ * WhoIS REST Services API
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -12,10 +12,10 @@
  * @copyright       Chronolabs Cooperative http://syd.au.snails.email
  * @license         ACADEMIC APL 2 (https://sourceforge.net/u/chronolabscoop/wiki/Academic%20Public%20License%2C%20version%202.0/)
  * @license         GNU GPL 3 (http://www.gnu.org/licenses/gpl.html)
- * @package         emails-api
- * @since           1.1.11
+ * @package         whois-api
+ * @since           2.2.13
  * @author          Dr. Simon Antony Roberts <simon@snails.email>
- * @version         1.1.11
+ * @version         2.2.14
  * @description		A REST API for the creation and management of emails/forwarders and domain name parks for email
  * @link            http://internetfounder.wordpress.com
  * @link            https://github.com/Chronolabs-Cooperative/Emails-API-PHP
@@ -25,12 +25,11 @@
  * 
  */
 
-defined('API_ROOT_PATH') || exit('Restricted access');
 
-return $config = array(
-    // Click to open an image in a new window in full size using CaricaFoto
-    'clickable' => 0,
-    // Resize the image down to max_width set below
-    'resize'    => 1,
-    // Maximum width of an image displayed on page, otherwise it will be resized
-    'max_width' => 300);
+
+// APIs URLS
+define('API_STRATA_API_URL', '');
+define('API_WHOIS_API_URL', '');
+
+// Master Peering Hostname
+define('API_MASTERHOST_API_URL', '');

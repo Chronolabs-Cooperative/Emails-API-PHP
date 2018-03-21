@@ -1,6 +1,6 @@
 <?php
 /**
- * WhoIS REST Services API
+ * Email Account Propogation REST Services API
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -12,13 +12,13 @@
  * @copyright       Chronolabs Cooperative http://syd.au.snails.email
  * @license         ACADEMIC APL 2 (https://sourceforge.net/u/chronolabscoop/wiki/Academic%20Public%20License%2C%20version%202.0/)
  * @license         GNU GPL 3 (http://www.gnu.org/licenses/gpl.html)
- * @package         whois-api
- * @since           2.2.13
+ * @package         emails-api
+ * @since           1.1.11
  * @author          Dr. Simon Antony Roberts <simon@snails.email>
- * @version         2.2.14
- * @description		A REST API Interface which retrieves IPv4, IPv6, TLD, gLTD Whois Data
+ * @version         1.1.11
+ * @description		A REST API for the creation and management of emails/forwarders and domain name parks for email
  * @link            http://internetfounder.wordpress.com
- * @link            https://github.com/Chronolabs-Cooperative/WhoIS-API-PHP
+ * @link            https://github.com/Chronolabs-Cooperative/Emails-API-PHP
  * @link            https://sourceforge.net/p/chronolabs-cooperative
  * @link            https://facebook.com/ChronolabsCoop
  * @link            https://twitter.com/ChronolabsCoop
@@ -59,6 +59,8 @@ define('CONFIGURATION_CHECK', 'Configuration check');
 define('CONFIGURATION_CHECK_TITLE', 'Checking your server configuration');
 define('PATHS_SETTINGS', 'Paths settings');
 define('PATHS_SETTINGS_TITLE', 'Paths settings');
+define('PATHS_EXTRA', 'Extra settings + URLs');
+define('PATHS_EXTRA_TITLE', 'Extra settings + URLs');
 define('DATABASE_CONNECTION', 'Database connection');
 define('DATABASE_CONNECTION_TITLE', 'Database connection');
 define('DATABASE_CONFIG', 'Database configuration');
@@ -84,6 +86,13 @@ define('API_TMP_PATH_LABEL', 'API tmp files directory');
 define('API_TMP_PATH_HELP', 'Physical path to the API tmp files (writable) directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
 define('API_URL_LABEL', 'Website location (URL)'); // L56
 define('API_URL_HELP', 'Main URL that will be used to access your API installation'); // L58
+define('API_STRATA_LABEL', 'Internet Domain+Fallout REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Strata-API-PHP" target="_blank">github.com...</a>)');
+define('API_STRATA_HELP', 'Physical URL to the REST API as installed from github.com');
+define('API_WHOIS_LABEL', 'IP+Domain Whois REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Emails-API-PHP" target="_blank">github.com...</a>)');
+define('API_WHOIS_HELP', 'Physical URL to the REST API as installed from github.com');
+define('API_MASTERHOST_LABEL', 'The URL to the physical master peering hostname and URL basenamed');
+define('API_MASTERHOST_HELP', 'Physical URL to this REST API as installed from github.com as the master peering hostname + URL path');
+
 define('LEGEND_CONNECTION', 'Server connection');
 define('LEGEND_DATABASE', 'Database'); // L51
 define('DB_HOST_LABEL', 'Server hostname');    // L27

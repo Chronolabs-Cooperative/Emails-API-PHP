@@ -25,59 +25,66 @@
  * 
  */
 
-
 require_once './include/common.inc.php';
 defined('API_INSTALL') || die('API Installation wizard die');
 
+$wizard->loadLangFile('extras');
+
 include_once './include/functions.php';
-include_once '../class/apilists.php';
 
 $pageHasForm = true;
 $pageHasHelp = true;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && @$_GET['var'] && @$_GET['action'] === 'checkfile') {
+    $file                   = $_GET['var'];
+    echo genPathCheckHtml($file, is_file($file));
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $enabled = array();
+    foreach($wizard->configs['api_url'] as $setting => $values)
+    {
+        $_SESSION['constants']['api_url'][$setting] = $_POST[$setting];
+    }
     $wizard->redirectToPage('+1');
     return 302;
 }
 ob_start();
 ?>
+    <script type="text/javascript">
+        function removeTrailing(id, val) {
+            if (val[val.length - 1] == '/') {
+                val = val.substr(0, val.length - 1);
+                $(id).value = val;
+            }
+
+            return val;
+        }
+
+        function existingFile(key, val) {
+            val = removeTrailing(key, val);
+            $.get( "<?php echo $_SERVER['PHP_SELF']; ?>", { action: "checkfile", var: key, path: val } )
+                .done(function( tmp ) {
+                    $("#" + key + 'fileimg').html(tmp);
+                });
+            $("#" + key + 'perms').style.display = 'none';
+        }
+    </script>
     <div class="panel panel-info">
-        <div class="panel-heading"><?php echo API_CONFIG_SMTP; ?></div>
+        <div class="panel-heading"><?php echo API_EXTRAS; ?></div>
         <div class="panel-body">
         <div class="form-group">
-    	    <label for="platform"><?php echo API_PLATFORM_LABEL; ?></label>
-            <div class="xoform-help alert alert-info"><?php echo API_PLATFORM_HELP; ?></div>
-            <select type="text" class="form-control" name="platform" id="platform" />
-            	<option value="" id="emptyselect" class="emptyselect">(select server's operating system)</option>
-            <?php foreach(APILists::getDirListAsArray(__DIR__ . '/assets/configs') as $folder) { 
-                echo '                  <option value="'.$folder.'">' . $folder . '</option>\n';
-            }?>
-            </select>
-        </div>
-        <div class="form-group">
-            <div id="article" class="article">&nbsp;</div>
+            <?php 
+            foreach($wizard->configs['api_url'] as $setting => $default)
+            {?>
+            <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_LABEL"); ?></label>
+                <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>
+                <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+            <?php }
+            ?>
        </div>
    </div>
-   <script>
-    $(document).ready(function(){ 
-        $(function() {
-            $( "#platform" ).change(function(  event  ) {
-            	$( "option.emptyselect" ).replaceWith( "<!-- <option value=\"\" id=\"emptyselect\" class=\"emptyselect\">(select server's operating system)</option> -->" );
-            	var folder = $( "#platform" ).val();
-                $.ajax({
-                    type:'POST',
-                    url:'<?php echo API_URL; ?>/install/json.getconfig.php?folder='+folder+"&typal=smtp.html",
-                    success:function(data){
-                        $("#article").html(data.article);
-                    }
-                });
-            });
-        });
-    });
-    </script>
+
 <?php
 $content = ob_get_contents();
 ob_end_clean();

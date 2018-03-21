@@ -1,6 +1,6 @@
 <?php
 /**
- * Email Account Propogation REST Services API
+ * WhoIS REST Services API
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -12,10 +12,10 @@
  * @copyright       Chronolabs Cooperative http://syd.au.snails.email
  * @license         ACADEMIC APL 2 (https://sourceforge.net/u/chronolabscoop/wiki/Academic%20Public%20License%2C%20version%202.0/)
  * @license         GNU GPL 3 (http://www.gnu.org/licenses/gpl.html)
- * @package         emails-api
- * @since           1.1.11
+ * @package         whois-api
+ * @since           2.2.13
  * @author          Dr. Simon Antony Roberts <simon@snails.email>
- * @version         1.1.11
+ * @version         2.2.14
  * @description		A REST API for the creation and management of emails/forwarders and domain name parks for email
  * @link            http://internetfounder.wordpress.com
  * @link            https://github.com/Chronolabs-Cooperative/Emails-API-PHP
@@ -32,14 +32,14 @@ if (!defined('API_MAINFILE_INCLUDED')) {
     // API Physical Paths
 
     // Physical path to the API documents (served) directory WITHOUT trailing slash
-    define('API_ROOT_PATH', '');
+    define('API_ROOT_PATH', '/home/mynamesnot/eclipse-workspace/emails.localhost');
 
     // For forward compatibility
     // Physical path to the API library directory WITHOUT trailing slash
-    define('API_PATH', '');
+    define('API_PATH', '/home/mynamesnot/eclipse-workspace/emails.localhost/data');
     
     // Physical path to the API datafiles (writable) directory WITHOUT trailing slash
-    define('API_VAR_PATH', '');
+    define('API_VAR_PATH', '/tmp');
     
     // Alias of API_PATH, for compatibility, temporary solution
     define('API_TRUST_PATH', API_PATH);
@@ -53,13 +53,13 @@ if (!defined('API_MAINFILE_INCLUDED')) {
 
     // API Virtual Path (URL)
     // Virtual path to your main API directory WITHOUT trailing slash
-    // Example: define("API_URL", "http://url_to_API_directory");
-    define('API_URL', 'http://');
+    // Example: define('API_URL', 'http://emails.localhost');
+    define('API_URL', 'http://emails.localhost');
 
     // API Cookie Domain to specify when creating cookies. May be blank (i.e. for IP address host),
     // full host from API_URL (i.e. www.example.com) or just the registered domain (i.e. example.com)
     // to share cookies across multiple subdomains (i.e. www.example.com and blog.example.com)
-    define('API_COOKIE_DOMAIN', '');
+    define('API_COOKIE_DOMAIN', 'emails.localhost');
 
     // Shall be handled later, don't forget!
     define('API_CHECK_PATH', 0);
