@@ -71,6 +71,8 @@ $error = false;
 
 $hashedAdminPass = password_hash($adminpass, PASSWORD_DEFAULT);
 
-$content .= $licenseReport;
+
+$content .= $licenseReport . make_data($dbm, $vars, 'english', array());;
+
 
 include './include/install_tpl.php';

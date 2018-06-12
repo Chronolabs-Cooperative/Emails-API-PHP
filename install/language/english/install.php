@@ -92,6 +92,10 @@ define('API_WHOIS_LABEL', 'IP+Domain Whois REST Services API (see: <a href="http
 define('API_WHOIS_HELP', 'Physical URL to the REST API as installed from github.com');
 define('API_MASTERHOST_LABEL', 'The URL to the physical master peering hostname and URL basenamed');
 define('API_MASTERHOST_HELP', 'Physical URL to this REST API as installed from github.com as the master peering hostname + URL path');
+define('API_MAILDIR_LABEL', 'Path for the root of the mail storage path');
+define('API_MAILDIR_HELP', 'Path for the root of the mail storage path');
+define('API_HOMEDIR_LABEL', 'Path of the root of the home page directory');
+define('API_HOMEDIR_HELP', 'Path of the root of the home page directory');
 
 define('LEGEND_CONNECTION', 'Server connection');
 define('LEGEND_DATABASE', 'Database'); // L51

@@ -46,6 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     {
         $_SESSION['constants']['api_url'][$setting] = $_POST[$setting];
     }
+    foreach($wizard->configs['api_paths'] as $setting => $values)
+    {
+        $_SESSION['constants']['paths'][$setting] = $_POST[$setting];
+    }
     $wizard->redirectToPage('+1');
     return 302;
 }
@@ -76,6 +80,12 @@ ob_start();
         <div class="form-group">
             <?php 
             foreach($wizard->configs['api_url'] as $setting => $default)
+            {?>
+            <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_LABEL"); ?></label>
+                <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>
+                <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+            <?php }
+            foreach($wizard->configs['api_paths'] as $setting => $default)
             {?>
             <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_LABEL"); ?></label>
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>

@@ -77,3 +77,8 @@ $configs['api_url'] = array(
     'whois' => 'http://whois.snails.email',
     'masterhost' => $_SESSION['settings']['URL'],
 );
+
+$configs['api_paths'] = array(
+    'maildir' => '/mailboxs',
+    'homedir' => '/var/www/homes',
+);

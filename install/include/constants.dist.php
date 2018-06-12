@@ -33,3 +33,7 @@ define('API_WHOIS_API_URL', '');
 
 // Master Peering Hostname
 define('API_MASTERHOST_API_URL', '');
+
+// Paths on Hostname
+define('API_MAILDIR_PATH', '');
+define('API_HOMEDIR_PATH', '');
