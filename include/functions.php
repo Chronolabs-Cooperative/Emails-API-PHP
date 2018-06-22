@@ -25,6 +25,41 @@
  * 
  */
 
+/**
+ * get MX record for $host
+ *
+ * @param   host    string      netbios networking name
+ *
+ * return array
+ */
+function getMXByName($host) {
+    $dns = dns_get_record($host, DNS_MX);
+    if ($dns == false) { return false; }
+    else { return $dns; }
+}
+
+/**
+ * get MX records Hostname Addresses for $host
+ *
+ * @param   host    string      netbios networking name
+ *
+ * return array
+ */
+function getMXByNamel($host) {
+    $mxs = getMXByName($host);
+    $mx = array();
+    foreach ($mxs as $record) {
+        if ($record["type"] == "MX") {
+            $mx[] = $record;
+        }
+    }
+    if (count($mx) < 1) {
+        return false;
+    }
+    else {
+        return $mx;
+    }
+}
 
 if (!function_exists("getAuthKey")) {
     /**
@@ -37,16 +72,16 @@ if (!function_exists("getAuthKey")) {
     function getAuthKey($username, $password, $format = 'json')
     {
         $return = array();
-        $sql = "SELECT `uid`, `email`, `last_login` FROM `users` WHERE `uname` LIKE '$username' AND (`pass` LIKE '$password' OR `pass` LIKE MD5('$password'))";
+        $sql = "SELECT `uid`, `email`, `last_login` FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uname` LIKE '$username' AND (`pass` LIKE '$password' OR `pass` LIKE MD5('$password'))";
         list($uid, $email, $last_login) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
         if ($uid != $last_login && $uid <> 0)
         {
             $time = time();
             if ($last_login < $time - 3600) {
-                $GLOBALS['APIDB']->queryF("UPDATE `users` SET `last_login` = '$time', `hits` = `hits` + 1, `actkey` = '" . substr(md5(mt_rand(-time(), time())), 32 - ($len = mt_rand(3,6)), $len) . "' WHERE `uid` = '$uid'");
+                $GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `last_login` = '$time', `hits` = `hits` + 1, `actkey` = '" . substr(md5(mt_rand(-time(), time())), 32 - ($len = mt_rand(3,6)), $len) . "' WHERE `uid` = '$uid'");
                 $last_login = $time;
             }
-            $sql = "SELECT md5(concat(`uid`, `uname`, `email`, `last_login`, `actkey`)) FROM `users` WHERE `uid` = '$uid'";
+            $sql = "SELECT md5(concat(`uid`, `uname`, `email`, `last_login`, `actkey`)) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '$uid'";
             list($authkey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
             $_SESSION['authkey'] = $authkey;
             setcookie('authkey', $_SESSION['authkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
@@ -95,7 +130,7 @@ if (!function_exists("getUserID")) {
      */
     function getUserID($userkey = '')
     {
-        $sql = "SELECT `uid` FROM `users` WHERE '$userkey' LIKE md5(concat(`uid`, '".API_URL."', 'user'))";
+        $sql = "SELECT `uid` FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE '$userkey' LIKE md5(concat(`uid`, '".API_URL."', 'user'))";
         list($uid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
         if ($uid <> 0)
         {
@@ -119,13 +154,13 @@ if (!function_exists("checkAuthKey")) {
      */
     function checkAuthKey($authkey = '')
     {
-        $sql = "SELECT `uid`, `uname` FROM `users` WHERE '$authkey' LIKE md5(concat(`uid`, `uname`, `email`, `last_login`, `actkey`))";
+        $sql = "SELECT `uid`, `uname` FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE '$authkey' LIKE md5(concat(`uid`, `uname`, `email`, `last_login`, `actkey`))";
         list($uid, $uname) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
         if ($uid <> 0 && !empty($uname))
         {
             $GLOBALS['account'] = $uname;
             $time = time();
-            $GLOBALS['APIDB']->queryF("UPDATE `users` SET `last_online` = '$time', `hits` = `hits` + 1 WHERE `uid` = '$uid'");
+            $GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `last_online` = '$time', `hits` = `hits` + 1 WHERE `uid` = '$uid'");
             $return = array();
         } else {
             $_SESSION['authkey'] = md5(NULL);
@@ -193,20 +228,20 @@ if (!function_exists("addUser")) {
                 if (!empty($pass) && !empty($vpass) && $pass != $vpass)
                     return array('code' => 501, 'errors' => array('108' => 'Password & verify password do not match!!!'));
                     
-                    $sql = "SELECT COUNT(*) FROM `users` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($uname). "') OR (`uname` LIKE '" .$GLOBALS['APIDB']->escape($uname). "' AND `email` LIKE '" .$GLOBALS['APIDB']->escape($email). "')";
+                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($uname). "') OR (`uname` LIKE '" .$GLOBALS['APIDB']->escape($uname). "' AND `email` LIKE '" .$GLOBALS['APIDB']->escape($email). "')";
                     list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                     if ($count==0)
                     {
-                        $sql = "INSERT INTO `users` (`uname`, `email`, `pass`) VALUES ('" .$GLOBALS['APIDB']->escape($uname). "', '" .$GLOBALS['APIDB']->escape($email). "', md5('" .$GLOBALS['APIDB']->escape($pass). "'))";
+                        $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('users') . "` (`uname`, `email`, `pass`) VALUES ('" .$GLOBALS['APIDB']->escape($uname). "', '" .$GLOBALS['APIDB']->escape($email). "', md5('" .$GLOBALS['APIDB']->escape($pass). "'))";
                         if ($GLOBALS['APIDB']->queryF($sql))
                         {
-                            $sql = "SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) FROM `users` WHERE `uid` = '".$GLOBALS['APIDB']->getInsertId()."'";
+                            $sql = "SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '".$GLOBALS['APIDB']->getInsertId()."'";
                             list($userkey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                             $_SESSION['userkey'] = $userkey;
                             setcookie('userkey', $_SESSION['userkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
                             $return = array('code' => 201, 'userkey' => $_SESSION['userkey'], 'errors' => array());
                             
-                            require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
+                            /*require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
                             
                             $mail = new APIMailer(API_LICENSE_EMAIL, API_LICENSE_COMPANY);
                             $body = file_get_contents(__DIR__  . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'new_user_emailtemplate.html' );
@@ -218,7 +253,7 @@ if (!function_exists("addUser")) {
                             $body = str_replace('%pass', $pass, $body);
                             $body = str_replace('%email', $email, $body);
                             $mail->sendMail($email, array(), array(), "Zone API Creditials as established by: " . $GLOBALS['account'], $body, array(), "", true);
-                            
+                            */
                         } else {
                             $return = array('code' => 501, 'userkey' => md5(NULL. 'user'), 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
                         }
@@ -268,26 +303,26 @@ if (!function_exists("editRecord")) {
                                                 unset($vars['pass']);
                                                 unset($vars['vpass']);
                                             }
-                                            $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `$table` WHERE `uid` = '$id'"));
-                                            $sql = "SELECT COUNT(*) FROM `$table` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['uname']). "') OR (`email` LIKE '" .$GLOBALS['APIDB']->escape($vars['email']). "'))";
+                                            $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `uid` = '$id'"));
+                                            $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['uname']). "') OR (`email` LIKE '" .$GLOBALS['APIDB']->escape($vars['email']). "'))";
                                             break;
                                 case 'records':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `$table` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `$table` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `content` LIKE '" .$GLOBALS['APIDB']->escape($vars['content']). "' AND `type` LIKE '" . $old['type'] . "'))";
+                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `content` LIKE '" .$GLOBALS['APIDB']->escape($vars['content']). "' AND `type` LIKE '" . $old['type'] . "'))";
                                     break;
                                 case 'domains':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `$table` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `$table` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `type` LIKE '" . $vars['type'] . "') OR (`master` LIKE '" .$GLOBALS['APIDB']->escape($vars['master']). "' AND `type` LIKE '" . $vars['type'] . "'))";
+                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `type` LIKE '" . $vars['type'] . "') OR (`master` LIKE '" .$GLOBALS['APIDB']->escape($vars['master']). "' AND `type` LIKE '" . $vars['type'] . "'))";
                                     break;
                                 case 'supermasters':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `$table` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `$table` WHERE (`ip` LIKE '" .$GLOBALS['APIDB']->escape($vars['ip']). "' AND `nameserver` LIKE '" .$GLOBALS['APIDB']->escape($vars['nameserver']). "'))";
+                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`ip` LIKE '" .$GLOBALS['APIDB']->escape($vars['ip']). "' AND `nameserver` LIKE '" .$GLOBALS['APIDB']->escape($vars['nameserver']). "'))";
                                     break;
                             }
                             list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                             if ($count==0)
                             {
-                                $sql = "UPDATE `$table` SET ";
+                                $sql = "UPDATE `" . $GLOBALS['APIDB']->prefix($table) . "` SET ";
                                 $u=0;
                                 foreach($vars as $key => $value)
                                 {
@@ -333,7 +368,7 @@ if (!function_exists("deleteRecord")) {
             if (!empty($id) && is_array($id))
                 return $id;
                 
-                $sql = "DELETE FROM `$table` ";
+                $sql = "DELETE FROM `" . $GLOBALS['APIDB']->prefix($table) . "` ";
                 switch ($table)
                 {
                     case 'users':
@@ -394,7 +429,7 @@ if (!function_exists("getUsers")) {
         if (empty($return))
         {
             $return['code'] = 201;
-            $sql = "SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) as `userkey`, `uname`, `email`, `hits`, `last_online`, `last_login` FROM `users` ORDER BY `uname` ASC, `email` ASC, `hits` DESC";
+            $sql = "SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) as `userkey`, `uname`, `email`, `hits`, `last_online`, `last_login` FROM `" . $GLOBALS['APIDB']->prefix('users') . "` ORDER BY `uname` ASC, `email` ASC, `hits` DESC";
             $result = $GLOBALS['APIDB']->queryF($sql);
             while($user = $GLOBALS['APIDB']->fetchArray($result))
                 $return['users'][] = $user;
@@ -831,232 +866,259 @@ function getHTMLForm($mode = '', $authkey = '')
 {
     if (empty($authkey) && isset($_COOKIE['authkey']))
         $authkey = $_COOKIE['authkey'];
-        elseif (empty($authkey) && isset($_SESSION['authkey']))
+    elseif (empty($authkey) && isset($_SESSION['authkey']))
         $authkey = $_SESSION['authkey'];
-        elseif (empty($authkey))
+    elseif (empty($authkey))
         $authkey = md5(NULL);
         
-        $form = array();
-        switch ($mode)
-        {
-            case "authkey":
-                $form[] = "<form name='auth-key' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/authkey.api">';
-                $form[] = "\t<table class='auth-key' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<label for='username'>Username:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='41' />&nbsp;&nbsp;";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<label for='password'>Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<input type='password' name='password' id='password' size='41' /><br/>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<select name='format' id='format'/>";
-                $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
-                $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
-                $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
-                $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
-                $form[] = "\t\t\t\t</select>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
-                $form[] = "\t\t\t\t<input type='hidden' value='authkey' name='mode'>";
-                $form[] = "\t\t\t\t<input type='submit' value='Get URL Auth-key' name='submit' style='padding:11px; font-size:122%;'>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
-                $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t</table>";
-                $form[] = "</form>";
-                break;
-            case "newdomain":
-                $form[] = "<form name='new-domain' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/domains.api">';
-                $form[] = "\t<table class='new-domain' id='auth-domain' style='vertical-align: top !important; min-width: 98%;'>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<label for='domain'>Domain Name:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<input type='textbox' name='domain' id='domain' size='41' />&nbsp;&nbsp;";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='domain'>Domain:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<select name='parent' id='format'/>";
-                $form[] = "\t\t\t\t\t<option value='' selected='selected'>(No Parent Domain)</option>";
-                $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` ORDER BY `domain` ASC");
-                while($row = $GLOBALS['APIDB']->fetchArray($result))
-                    $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
-                $form[] = "\t\t\t\t</select>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<select name='format' id='format'/>";
-                $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
-                $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
-                $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
-                $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
-                $form[] = "\t\t\t\t</select>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
-                $form[] = "\t\t\t\t<input type='hidden' value='newdomain' name='newdomain'>";
-                $form[] = "\t\t\t\t<input type='submit' value='Create New Domain' name='submit' style='padding:11px; font-size:122%;'>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
-                $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t</table>";
-                $form[] = "</form>";
-                break;
-            case "newalias":
-                $form[] = "<form name='new-alias' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/alias.api">';
-                $form[] = "\t<table class='new-alias' id='alias-record' style='vertical-align: top !important; min-width: 98%;'>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong>@</strong>&nbsp;"
-                $form[] = "\t\t\t\t<select name='domain' id='format'/>";
-                $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
-                while($row = $GLOBALS['APIDB']->fetchArray($result))
-                    $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
-                $form[] = "\t\t\t\t</select>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<label for='destination'>Destination:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<input type='textbox' name='destination' id='destination' size='41' maxlen='255'/>&nbsp;&nbsp;";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<select name='format' id='format'/>";
-                $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
-                $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
-                $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
-                $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
-                $form[] = "\t\t\t\t</select>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td>&nbsp;</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
-                $form[] = "\t\t\t\t<input type='hidden' value='newalias' name='mode'>";
-                $form[] = "\t\t\t\t<input type='submit' value='Create New Zone' name='submit' style='padding:11px; font-size:122%;'>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
-                $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t</tr>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t</table>";
-                $form[] = "</form>";
-                break;
-            case "newemail":
-                $form[] = "<form name='new-record' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/alias.api">';
-                $form[] = "\t<table class='new-record' id='auth-record' style='vertical-align: top !important; min-width: 98%;'>";
-                $form[] = "\t\t<tr>";
-                $form[] = "\t\t\t<td>";
-                $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                $form[] = "\t\t\t</td>";
-                $form[] = "\t\t\t<td style='width: 320px;'>";
-                $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong>@</strong>&nbsp;";
-                    $form[] = "\t\t\t\t<select name='email[domain]' id='format'/>";
-                    $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
-                    while($row = $GLOBALS['APIDB']->fetchArray($result))
-                        $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
-                        $form[] = "\t\t\t\t</select>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t\t<td>&nbsp;</td>";
-                        $form[] = "\t\t</tr>";
-                        $form[] = "\t\t<tr>";
-                        $form[] = "\t\t\t<td style='width: 320px;'>";
-                        $form[] = "\t\t\t\t<label for='destination'>Destination:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t\t<td>";
-                        $form[] = "\t\t\t\t<input type='textbox' name='destination' id='destination' size='41' maxlen='255'/>&nbsp;&nbsp;";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t\t<td>&nbsp;</td>";
-                        $form[] = "\t\t</tr>";
-                        $form[] = "\t\t<tr>";
-                        $form[] = "\t\t\t<td>";
-                        $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t\t<td style='width: 320px;'>";
-                        $form[] = "\t\t\t\t<select name='format' id='format'/>";
-                        $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
-                        $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
-                        $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
-                        $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
-                        $form[] = "\t\t\t\t</select>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t\t<td>&nbsp;</td>";
-                        $form[] = "\t\t</tr>";
-                        $form[] = "\t\t<tr>";
-                        $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
-                        $form[] = "\t\t\t\t<input type='hidden' value='newalias' name='mode'>";
-                        $form[] = "\t\t\t\t<input type='submit' value='Create New Zone' name='submit' style='padding:11px; font-size:122%;'>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t</tr>";
-                        $form[] = "\t\t<tr>";
-                        $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
-                        $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
-                        $form[] = "\t\t\t</td>";
-                        $form[] = "\t\t</tr>";
-                        $form[] = "\t\t<tr>";
-                        $form[] = "\t</table>";
-                        $form[] = "</form>";
-                        break;
-                        
-        }
-        return implode("\n", $form);
-        
+    $form = array();
+    switch ($mode)
+    {
+        case "authkey":
+            $form[] = "<form name='auth-key' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/authkey.api">';
+            $form[] = "\t<table class='auth-key' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='username'>Username:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='password'>Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='password' name='password' id='password' size='41' /><br/>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='authkey' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Get URL Auth-key' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+        case "newdomain":
+            $form[] = "<form name='new-domain' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/domains.api">';
+            $form[] = "\t<table class='new-domain' id='auth-domain' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='domain'>Domain Name:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='domain' id='domain' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='domain'>Domain:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='parent' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='' selected='selected'>(No Parent Domain)</option>";
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` ORDER BY `domain` ASC");
+            while($row = $GLOBALS['APIDB']->fetchArray($result))
+                $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='newdomain' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Create New Domain' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+        case "newalias":
+            $form[] = "<form name='new-alias' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/aliases.api">';
+            $form[] = "\t<table class='new-alias' id='alias-record' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong>@</strong>&nbsp;";
+            $form[] = "\t\t\t\t<select name='domain' id='format'/>";
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            while($row = $GLOBALS['APIDB']->fetchArray($result))
+                $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='destination'>Destination:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='destination' id='destination' size='41' maxlen='255'/>&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='newalias' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Create New Email Alias' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+        case "newemail":
+            $form[] = "<form name='new-record' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/emails.api">';
+            $form[] = "\t<table class='new-record' id='auth-record' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong>@</strong>&nbsp;";
+            $form[] = "\t\t\t\t<select name='email[domain]' id='format'/>";
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            while($row = $GLOBALS['APIDB']->fetchArray($result))
+                $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='size'>Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='password' name='password' id='size' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='vpass'>Verify Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='vpass' name='vpass' id='size' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='size'>Mailbox Size (Bytes):&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='size' id='size' size='41' maxlen='255' value='" . (1024 * 1024 * 100) . "' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='notify'>Notification Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='notify' id='notify' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='newemail' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Create New Email' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+                    
+    }
+    return implode("\n", $form);
+
 }
 ?>

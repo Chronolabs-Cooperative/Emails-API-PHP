@@ -31,19 +31,19 @@ elseif (isset($_SESSION['authkey']))
     $authkey = $_SESSION['authkey'];
 else
     $authkey = md5(NULL);
-    
+    /*
 $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key` FROM `domains` ORDER BY RAND() LIMIT 1");
 if ($row = $GLOBALS['APIDB']->fetchArray($result))
     $domainkey = $row['key'];
-else 
+else */
     $domainkey = md5(NULL.'domain');
-
+/*
     
 $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) as `key` FROM `users` ORDER BY RAND() LIMIT 1");
 if ($row = $GLOBALS['APIDB']->fetchArray($result))
     $userkey = $row['key'];
-else
-    $userkey = md5(NULL.'domain');
+else*/
+    $userkey = md5(NULL.'user');
             
             
     ?>
@@ -124,7 +124,7 @@ else
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('authkey')); ?>
     </pre>
-    <h2>DOMAIN Document Output</h2>
+    <h2>DOMAINS Document Output</h2>
     <p>This is done with the <em>domain.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
     <blockquote>
         <?php echo getHTMLForm('newdomain', $authkey); ?>
@@ -133,7 +133,7 @@ else
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('newdomain', $authkey)); ?>
     </pre>
-    <h2>EMAIL Document Output</h2>
+    <h2>EMAILS Document Output</h2>
     <p>This is done with the <em>email.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
     <blockquote>
         <?php echo getHTMLForm('newemail', $authkey); ?>
@@ -142,7 +142,7 @@ else
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('newemail', $authkey)); ?>
     </pre>
-    <h2>ALIAS Document Output</h2>
+    <h2>ALIASES Document Output</h2>
     <p>This is done with the <em>alias.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
     <blockquote>
         <?php echo getHTMLForm('newalias', $authkey); ?>

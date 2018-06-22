@@ -12,6 +12,6 @@ CREATE TABLE `mxs` (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   KEY `domain` (`domainid`),
-  KEY `domain` (`mx`)
+  KEY `mxdomain` (`mx`,`domainid`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
