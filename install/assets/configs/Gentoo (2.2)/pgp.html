@@ -1,0 +1,15 @@
+<article>
+<section>
+<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>emerge gnupg
+emerge rng-tools</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>sed -i -e 's|#HRNGDEVICE=/dev/hwrng|HRNGDEVICE=/dev/urandom|' /etc/default/rng-tools</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>rc-update add rng-tools default
+/etc/init.d/rng-tools start</textarea>
+</div>
+		</section>
+</article>

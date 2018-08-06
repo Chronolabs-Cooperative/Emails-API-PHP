@@ -91,6 +91,11 @@ $pages = array(
         'title' => PATHS_SMTP_TITLE,
         'icon'  => 'fa fa-fw fa-folder-open'
     ),
+    'configpgp'    => array(
+        'name'  => PATHS_OPENPGP,
+        'title' => PATHS_OPENPGP_TITLE,
+        'icon'  => 'fa fa-fw fa-folder-open'
+    ),
     'end'             => array(
         'name'  => WELCOME,
         'title' => WELCOME_TITLE,

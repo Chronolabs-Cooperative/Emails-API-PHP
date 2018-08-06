@@ -1,0 +1,13 @@
+<article>
+<section>
+<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>yum install gnupg rng-tools -y</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>sed -i -e 's|#HRNGDEVICE=/dev/hwrng|HRNGDEVICE=/dev/urandom|' /etc/default/rng-tools</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>systemctl start rng-tools</textarea>
+</div>
+		</section>
+</article>

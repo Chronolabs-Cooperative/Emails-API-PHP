@@ -75,10 +75,38 @@ $configs['tmpPath'] = array(
 $configs['api_url'] = array(
     'strata' => 'http://strata.snails.email',
     'whois' => 'http://whois.snails.email',
+    'zones' => 'http://zones.snails.email',
     'masterhost' => $_SESSION['settings']['URL'],
+);
+
+$configs['api_user'] = array(
+    'zones' => '',
+);
+
+$configs['api_pass'] = array(
+    'zones' => '',
 );
 
 $configs['api_paths'] = array(
     'maildir' => '/mailboxs',
     'homedir' => '/var/www/homes',
+);
+
+
+$configs['pgp_keys'] = array(
+    'email' => 'pgpkeys@'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+    'imap' => 'imap.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+    'port' => '143',
+    'user' => '',
+    'pass' => '',
+    'maxbits' => '4096',
+    'minbits' => '1024',
+);
+
+$configs['inbox_sizes'] = array(
+    'maximum' => 1024,
+    'minimum' => 20,
+    'intialise' => 20,
+    'offline' => 5,
+    'depreciated' => 0,
 );

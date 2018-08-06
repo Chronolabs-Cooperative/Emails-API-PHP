@@ -28,8 +28,13 @@
 
 
 // APIs URLS
-define('API_STRATA_API_URL','http://strata.localhost');
-define('API_WHOIS_API_URL','http://whois.localhost');
+define('API_STRATA_API_URL','http://strata.snails.email');
+define('API_WHOIS_API_URL','http://whois.snails.email');
+
+// DNS Zoning REST API
+define('API_ZONES_API_URL','n0bux5tttt');
+define('API_ZONES_API_USER','n0bux5tttt');
+define('API_ZONES_API_PASS','n0bux5tttt');
 
 // Master Peering Hostname
 define('API_MASTERHOST_API_URL','http://emails.localhost');
@@ -37,3 +42,23 @@ define('API_MASTERHOST_API_URL','http://emails.localhost');
 // Paths on Hostname
 define('API_MAILDIR_PATH', '');
 define('API_HOMEDIR_PATH', '');
+
+// Size Limitations of mailboxes quota
+define('API_MAXIMUM_INBOX_SIZES','1024');
+define('API_MINIMUM_INBOX_SIZES','20');
+define('API_INTIALISE_INBOX_SIZES','20');
+define('API_OFFLINE_INBOX_SIZES','5');
+define('API_DEPRECIATED_INBOX_SIZES','0');
+
+// Email Address to recieve PGP Keys to mount
+define('API_HEADER_PGP_KEYS', '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+define('API_FOOTER_PGP_KEYS', '-----END PGP PUBLIC KEY BLOCK-----');
+define('API_EMAIL_PGP_KEYS','openpgp.keys@gmail.com');
+define('API_IMAP_PGP_KEYS','imap.gmail.com');
+define('API_PORT_PGP_KEYS','143');
+define('API_USER_PGP_KEYS','openpgp.keys@gmail.com');
+define('API_PASS_PGP_KEYS','n0bux5tttt');
+
+// Size Limitations of mailboxes quota
+define('API_MAXBITS_PGP_KEYS','4096');
+define('API_MINBITS_PGP_KEYS','1024');

@@ -1,0 +1,16 @@
+<article>
+<section>
+<div class="pushbot">
+	<textarea class="shell" rows="1" readonly>apt-get install gnupg rng-tools -y
+</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>
+sed -i -e 's|#HRNGDEVICE=/dev/hwrng|HRNGDEVICE=/dev/urandom|' /etc/default/rng-tools</textarea>
+</div>
+<div class="pushbot">
+	<textarea class="shell" rows="2" readonly>
+service rng-tools start</textarea>
+</div>
+		</section>
+</article>

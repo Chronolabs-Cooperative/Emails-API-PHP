@@ -31,9 +31,34 @@
 define('API_STRATA_API_URL', '');
 define('API_WHOIS_API_URL', '');
 
+// DNS Zoning REST API
+define('API_ZONES_API_URL', '');
+define('API_ZONES_API_USER', '');
+define('API_ZONES_API_PASS', '');
+
 // Master Peering Hostname
 define('API_MASTERHOST_API_URL', '');
 
 // Paths on Hostname
 define('API_MAILDIR_PATH', '');
 define('API_HOMEDIR_PATH', '');
+
+// Size Limitations of mailboxes quota
+define('API_MAXIMUM_INBOX_SIZES', '');
+define('API_MINIMUM_INBOX_SIZES', '');
+define('API_INTIALISE_INBOX_SIZES', '');
+define('API_OFFLINE_INBOX_SIZES', '');
+define('API_DEPRECIATED_INBOX_SIZES', '');
+
+// Email Address to recieve PGP Keys to mount
+define('API_HEADER_PGP_KEYS', '-----BEGIN PGP PUBLIC KEY BLOCK-----');
+define('API_FOOTER_PGP_KEYS', '-----END PGP PUBLIC KEY BLOCK-----');
+define('API_EMAIL_PGP_KEYS', '');
+define('API_IMAP_PGP_KEYS', '');
+define('API_PORT_PGP_KEYS', '');
+define('API_USER_PGP_KEYS', '');
+define('API_PASS_PGP_KEYS', '');
+
+// Size Limitations of mailboxes quota
+define('API_MAXBITS_PGP_KEYS', '');
+define('API_MINBITS_PGP_KEYS', '');
