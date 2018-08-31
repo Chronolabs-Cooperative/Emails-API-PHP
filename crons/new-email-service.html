@@ -1,0 +1,21 @@
+<center>
+	<img src="%apiurl/assets/images/logo_350x350.png" />
+</center>
+<p style="margin-top: 9px; font-weight: bold; font-size: 456%; text-align: center;">New Email Address for you by %company</p>
+<p style="margin-top: 26px; font-weight: 500; font-size: 210%;">You are being contacted as the notification address for the email '%email' and you're the contact for it:~</p>
+<h1>Email Address Details</h1>
+<pre style="margin-top: 13px; margin-left: 25px; font-weight: 300; font-size: 269%;">
+Address:   	%email
+Password:   %password
+IMAP:   	%imapservice
+POP3:   	%pop3service
+SMTP:   	%smtpservice
+Webmail:   	%webservice
+</pre>
+<h2>PGP Key (Attached Also)</h2>
+<p style="margin-top: 18px; font-size: 277%; font-weight: 600;">PGP Key For: &quot;%name&quot; &lt;%email&gt;</p>
+<pre style="margin-top: 13px; margin-left: 25px; font-weight: 300; font-size: 169%;">
+%pgpkey
+</pre>
+<p style="margin-top: 18px; font-size: 333%;">You have too activate the address and move it from new to online for the full size of the mailbox, <strong>to activate this address</strong> click on <em>the following link:</em>&nbsp;<a target="_blank" href="%apiurl/v2/%emailkey/$actkey/activation.api">%apiurl/v2/%emailkey/$actkey/activation.html</a>!!!</p>
+<p style="margin-top: 18px; font-size: 210%;"><em>Please activate <strong>%email</strong> inbox as soon as possible</em> thanks<br /><br /><strong>%fromname</strong><br /><em>%fromemail</em><br />%company</p>

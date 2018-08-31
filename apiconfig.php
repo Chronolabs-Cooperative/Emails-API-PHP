@@ -34,8 +34,6 @@ if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'mainfile.php') || !is_file(__DIR__
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'mainfile.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'functions.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apiserver.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'whois.php';
 
 /**
  * Opens Access Origin Via networking Route NPN
@@ -54,5 +52,12 @@ ini_set("zlib.output_compression_level", -1);
  * @var constants
  */
 define('API_CACHE_SECONDS', 93);
+
+// Seeds the random
+mt_srand(mt_rand(time(), microtime(true) * time() * time()));
+mt_srand(mt_rand(time(), microtime(true) * time() * time()));
+mt_srand(mt_rand(time(), microtime(true) * time() * time()));
+mt_srand(mt_rand(time(), microtime(true) * time() * time()));
+srand(mt_rand(time(), microtime(true) * time() * time()));
 
 ?>

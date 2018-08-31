@@ -66,6 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     {
         $_SESSION['constants']['inbox_sizes'][$setting] = $_POST[$setting];
     }
+    foreach($wizard->configs['service_hostname'] as $setting => $values)
+    {
+        $_SESSION['constants']['service_hostname'][$setting] = $_POST[$setting];
+    }
     $wizard->redirectToPage('+1');
     return 302;
 }
@@ -129,6 +133,12 @@ ob_start();
             {?>
             <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_INBOXMBS_LABEL"); ?></label>
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_INBOXMBS_HELP"); ?></div>
+                <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+            <?php }
+            foreach($wizard->configs['service_hostname'] as $setting => $default)
+            {?>
+            <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_HOSTNAME_LABEL"); ?></label>
+                <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HOSTNAME_HELP"); ?></div>
                 <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
             <?php }
             ?>

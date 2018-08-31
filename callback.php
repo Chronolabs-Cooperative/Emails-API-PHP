@@ -79,32 +79,26 @@
 	    case 'authkey':
 	        $data = getAuthKey($inner['username'], $inner['password'], $inner['format']);
 	        break;
-	    case 'pgpkey':
-	        if (!empty($inner['pgpkey']))
-	            $data = addPGPKey($inner['pgpkey'], $inner['format']);
-	        elseif (!empty($inner['authkey']) && !empty($inner['key']))
-	            $data = getPGPKeys($inner['authkey'], $inner['key']);
+	    case 'newsupermaster':
+	    case 'supermaster':
+	        $data = addSupermaster($inner['authkey'], $inner['ip'], $inner['nameserver'], $inner['format']);
 	        break;
 	    case 'domains':
-	        if (!empty($inner['domain']))
-	            $data = addDomains($inner['authkey'], $inner['domain'], $inner['parent'], $inner['format']);
+	        if (!empty($inner['name']) || !empty($inner['master']) &&  !empty($inner['type']))
+	           $data = addDomains($inner['authkey'], $inner['name'], $inner['master'], $inner['type'], $inner['format']);
 	        else 
 	            $data = getDomains($inner['authkey'], $inner['format']);
 	        break;
-	    case 'newemail':
-	    case 'emails':
-	        if (!empty($inner['email']['username']) && !empty($inner['email']['domainkey']) && !empty($inner['name']) && !empty($inner['password']) && !empty($inner['vpass']) && !empty($inner['size']) && !empty($inner['notify']))
-	            $data = addEmail($inner['authkey'], $inner['name'], $inner['email']['username'], $inner['email']['domainkey'], $inner['password'], $inner['vpass'], $inner['size'], $inner['notify'], $inner['callback'], $inner['format']);
-	        elseif (!empty($inner['authkey']) && !empty($inner['key']))
-	            $data = getEmails($inner['authkey'], $inner['key']);
+	    case 'masters':
+	        $data = getSupermasters($inner['authkey'], $inner['format']);
 	        break;
-	    case 'newalias':
-	    case 'aliases':
-	        if (!empty($inner['domain']) && !empty($inner['username']) && !empty($inner['domain']) && !empty($inner['destination']))
-	            $data = addAlias($inner['authkey'], $inner['username'], $inner['domain'], $inner['destination'], $inner['format']);
-	            elseif (!empty($inner['authkey']) && !empty($inner['key']))
-	            $data = getAliases($inner['authkey'], $inner['key']);
-	            break;
+	    case 'newzone':
+	    case 'zones':
+	        if (!empty($inner['domain']) && !empty($inner['type']) && !empty($inner['name']))
+	           $data = addZones($inner['authkey'], $inner['domain'], $inner['type'], $inner['name'], $inner['content'], $inner['ttl'], $inner['prio'], $inner['format']);
+	        elseif (!empty($inner['authkey']) && !empty($inner['key']))
+	            $data = getZones($inner['authkey'], $inner['key']);
+	        break;
 	    case 'users':
 	        if (!empty($inner['uname']) && !empty($inner['email']) && !empty($inner['pass']) && !empty($inner['vpass']))
 	            $data = addUser($inner['authkey'], $inner['uname'], $inner['email'], $inner['pass'], $inner['vpass'], $inner['format']);
@@ -114,14 +108,14 @@
 	    case 'edit':
 	        switch ($inner['type'])
 	        {
-	            case 'email':
-	                $data = editRecord('mail_users', $inner['authkey'], getEmailID($inner['key']), $inner, array('mode', 'name', 'email', 'notify', 'username', 'password', 'postfix', 'quota', 'quotafied', 'quotashot', 'quotatrim', 'pop3', 'imap', 'mboxsize', 'mboxonline', 'mboxoffline'), $inner['format']);
+	            case 'zone':
+	                $data = editRecord('records', $inner['authkey'], getRecordID($inner['key']), $inner, array('name', 'content', 'ttl', 'prio'), $inner['format']);
 	                break;
 	            case 'domain':
-	                $data = editRecord('domains', $inner['authkey'], getDomainID($inner['key']), $inner, array('domain'), $inner['format']);
+	                $data = editRecord('domains', $inner['authkey'], getDomainID($inner['key']), $inner, array('name', 'master', 'type'), $inner['format']);
                     break;
-	            case 'alias':
-	                $data = editRecord('mail_virtual', $inner['authkey'], getAliasID($inner['key']), $inner, array('email', 'email_full', 'destination'), $inner['format']);
+	            case 'master':
+	                $data = editRecord('supermasters', $inner['authkey'], getSupermasterID($inner['key']), $inner, array('ip', 'nameserver'), $inner['format']);
 	                break;
 	            case 'user':
 	                $data = editRecord('users', $inner['authkey'], getUserID($inner['key']), $inner, array('uname', 'email', 'pass', 'vpass'), $inner['format']);
@@ -132,14 +126,14 @@
 	    case 'delete':
 	        switch ($inner['type'])
 	        {
-	            case 'email':
-	                $data = deleteRecord('mail_users', $inner['authkey'], getEmailID($inner['key']), $inner['format']);
+	            case 'zone':
+	                $data = deleteRecord('records', $inner['authkey'], getRecordID($inner['key']), $inner['format']);
 	                break;
 	            case 'domain':
 	                $data = deleteRecord('domains', $inner['authkey'], getDomainID($inner['key']), $inner['format']);
 	                break;
-	            case 'alias':
-	                $data = deleteRecord('mail_virtual', $inner['authkey'], getAliasID($inner['key']), $inner['format']);
+	            case 'master':
+	                $data = deleteRecord('supermasters', $inner['authkey'], getSupermasterID($inner['key']), $inner['format']);
 	                break;
 	            case 'user':
 	                $data = deleteRecord('users', $inner['authkey'], getUserID($inner['key']), $inner['format']);

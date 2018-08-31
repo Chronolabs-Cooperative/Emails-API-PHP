@@ -104,8 +104,8 @@ else
 <div class="main">
 	<img style="float: right; margin: 11px; width: auto; height: auto; clear: none;" src="<?php echo API_URL; ?>/assets/images/logo_350x350.png" />
     <h1><?php echo API_VERSION; ?> -- <?php echo API_LICENSE_COMPANY; ?></h1>
-    <p>This API uses PowerDNS to propogate the basis of email delegation for the domains installed, you have to generate an authkey for them to fire which is currently <strong><?php echo $authkey; ?></strong>.</p>
-    <p>You can propogate DNS and email delegation with this api and call and respond and generate email on the fly.</p>
+    <p>This API uses DotCove + PostFix to propogate the basis of email delegation for the domains installed, you have to generate an authkey for them to fire which is currently <strong><?php echo $authkey; ?></strong>.</p>
+    <p>You can propogate email addresses as well as email alias, there will also be a PGP Key generated for each one and email delegation with this api and call and respond and generate email on the fly.</p>
 	<h2>Code API Documentation</h2>
     <p>You can find the phpDocumentor code API documentation at the following path :: <a href="<?php echo API_URL . '/'; ?>docs/" target="_blank"><?php echo API_URL . '/'; ?>docs/</a>. These should outline the source code core functions and classes for the API to function!</p>
     <h2>AUTHKEY Document Output</h2>
@@ -143,6 +143,15 @@ else
     <h3>This the HTML Code surrounding the api call</h3>
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('newalias', $authkey)); ?>
+    </pre>
+    <h2>PGPKEY Document Output</h2>
+    <p>This is done with the <em>pgpkey.api</em> extension at the end of the url, you replace the example address with either a domain! You can also include PGP Keys with emailing the key in the body or as an attachment to: <strong><em><?php echo API_EMAIL_PGP_KEYS; ?></em></strong></p>
+    <blockquote>
+        <?php echo getHTMLForm('newpgpkey', $authkey); ?>
+    </blockquote>
+    <h3>This the HTML Code surrounding the api call</h3>
+    <pre style="max-height: 300px; overflow: scroll;">
+    <?php echo htmlspecialchars(getHTMLForm('newpgpkey', $authkey)); ?>
     </pre>
     <h2>RAW Document Output</h2>
     <p>This is done with the <em>raw.api</em> extension at the end of the url, you replace the example address with either a domain, an IPv4 or IPv6 address the following example is of calls to the api</p>

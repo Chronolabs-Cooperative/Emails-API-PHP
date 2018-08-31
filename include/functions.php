@@ -33,7 +33,7 @@
  * return array
  */
 function getMXByName($host) {
-    $dns = dns_get_record($host, DNS_MX);
+    $dns = dns_get_record($host);
     if ($dns == false) { return false; }
     else { return $dns; }
 }
@@ -58,6 +58,22 @@ function getMXByNamel($host) {
     }
     else {
         return $mx;
+    }
+}
+
+if (!function_exists("getNumerical")) {
+    /**
+     * getNumerical()
+     *
+     * @param string $alpha
+     * @return string
+     */
+    function getNumerical($alpha) {
+        $parts = explode("", $alpha);
+        foreach($parts as $key => $value)
+            if (!is_numeric($value))
+                unset($parts[$key]);
+        return implode("", $parts);
     }
 }
 
@@ -106,7 +122,7 @@ if (!function_exists("getDomainID")) {
      */
     function getDomainID($domainkey = '')
     {
-        $sql = "SELECT `id` FROM `domains` WHERE '$domainkey' LIKE md5(concat(`id`, '".API_URL."', 'domain'))";
+        $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE '$domainkey' LIKE md5(concat(`id`, '".API_URL."', 'domain'))";
         list($id) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
         if ($id <> 0)
         {
@@ -115,6 +131,56 @@ if (!function_exists("getDomainID")) {
             $_SESSION['domainkey'] = md5(NULL.'domain');
             setcookie('domainkey', $_SESSION['domainkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
             $return = array('code' => 501, 'errors' => array('102' => 'Domain Key is not valid!'));
+        }
+        return $return;
+    }
+}
+
+
+if (!function_exists("getEmailID")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function getEmailID($emailkey = '')
+    {
+        $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE '$emailkey' LIKE md5(concat(`id`, '".API_URL."', 'email'))";
+        list($id) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+        if ($id <> 0)
+        {
+            return $id;
+        } else {
+            $_SESSION['emailkey'] = md5(NULL.'email');
+            setcookie('emailkey', $_SESSION['emailkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
+            $return = array('code' => 501, 'errors' => array('102' => 'Email Key is not valid!'));
+        }
+        return $return;
+    }
+}
+
+
+if (!function_exists("getAliasID")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function getAliasID($aliaskey = '')
+    {
+        $sql = "SELECT `id` FROM `mail_virtual` WHERE '$aliaskey' LIKE md5(concat(`id`, '".API_URL."', 'alias'))";
+        list($id) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+        if ($id <> 0)
+        {
+            return $id;
+        } else {
+            $_SESSION['aliaskey'] = md5(NULL.'alias');
+            setcookie('aliaskey', $_SESSION['aliaskey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
+            $return = array('code' => 501, 'errors' => array('102' => 'Alias Key is not valid!'));
         }
         return $return;
     }
@@ -159,11 +225,13 @@ if (!function_exists("checkAuthKey")) {
         if ($uid <> 0 && !empty($uname))
         {
             $GLOBALS['account'] = $uname;
+            $GLOBALS['uid'] = $uid;
             $time = time();
             $GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `last_online` = '$time', `hits` = `hits` + 1 WHERE `uid` = '$uid'");
             $return = array();
         } else {
             $_SESSION['authkey'] = md5(NULL);
+            $GLOBALS['uid'] = 0;
             setcookie('authkey', $_SESSION['authkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
             $return = array('code' => 501, 'errors' => array('102' => 'AuthKey is not valid!'));
         }
@@ -171,6 +239,70 @@ if (!function_exists("checkAuthKey")) {
     }
 }
 
+
+if (!function_exists("addCallback")) {
+    /**
+     * addEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function addCallback($uri, $posts = array())
+    {
+        $sql = "INSERT INTO `callbacks` (`uri`, `post`, `created`) VALUES('" . $GLOBALS['APIDB']->escape($uri) . "', '" . $GLOBALS['APIDB']->escape(json_encode($posts)) . "', UNIX_TIMESTAMP())";
+        return $GLOBALS['APIDB']->queryF($sql);
+    }
+}
+
+
+if (!function_exists("getBaseDomain")) {
+    /**
+     * Gets the base domain of a tld with subdomains, that is the root domain header for the network rout
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    function getBaseDomain($uri = '')
+    {
+        
+        static $fallout, $stratauris, $classes;
+        
+        if (empty($classes))
+        {
+            
+            $attempts = 0;
+            $attempts++;
+            $classes = array_keys(json_decode(getURIData(API_STRATA_API_URL ."/v1/strata/json.api", 15, 10), true));
+            
+        }
+        if (empty($fallout))
+        {
+            $fallout = array_keys(json_decode(getURIData(API_STRATA_API_URL ."/v1/fallout/json.api", 15, 10), true));
+        }
+        
+        // Get Full Hostname
+        $uri = strtolower($uri);
+        $hostname = parse_url($uri, PHP_URL_HOST);
+        if (!filter_var($hostname, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 || FILTER_FLAG_IPV4) === false)
+            return $hostname;
+        
+        // break up domain, reverse
+        $elements = explode('.', $hostname);
+        $elements = array_reverse($elements);
+        
+        // Returns Base Domain
+        if (in_array($elements[0], $classes))
+            return $elements[1] . '.' . $elements[0];
+        elseif (in_array($elements[0], $fallout) && in_array($elements[1], $classes))
+            return $elements[2] . '.' . $elements[1] . '.' . $elements[0];
+        elseif (in_array($elements[0], $fallout))
+            return  $elements[1] . '.' . $elements[0];
+        else
+            return  $elements[1] . '.' . $elements[0];
+    }
+}
 
 if (!function_exists("addDomains")) {
     /**
@@ -180,19 +312,43 @@ if (!function_exists("addDomains")) {
      * @param mixed $antispam
      * @return bool|mixed
      */
-    function addDomains($authkey, $name = '', $master = '', $type = '', $format = 'json')
+    function addDomains($authkey, $domain = '', $parentdomainkey = '', $format = 'json')
     {
         $return = checkAuthKey($authkey);
         if (empty($return))
         {
-            $sql = "SELECT COUNT(*) FROM `domains` WHERE (`name` LIKE '$name' AND `master` LIKE '$master' AND `type` LIKE '$type')";
+            if (strlen($parentdomainkey)==32) {
+                $parentdomainid = getDomainID($parentdomainkey);
+                $sql = "SELECT `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '$parentdomainid'";
+                list($dname) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                if (strlen($domain) < strlen($dname) || substr($domain, strlen($domain) - strlen($dname), strlen($dname)) != $dname)
+                    $domain = $domain . "." . $dname; 
+            } else 
+                $parentdomainid = 0;
+            
+            $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE (`domain` LIKE '$domain' AND `parentdomainid` = '$parentdomainid')";
             list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
             if ($count==0)
             {
-                $sql = "INSERT INTO `domains` (`name`, `master`, `type`, `account`) VALUES ('$name', '$master', '$type', '" . $GLOBALS['account'] . "')";
+                $zonekey = '';
+                $authkey = json_decode(getURIData($uri = API_ZONES_API_URL . "/v1/authkey.api", 45, 45, array('username' => API_ZONES_API_USER, 'password' => API_ZONES_API_PASS, 'format' => 'json')), true);
+                if ($GLOBALS['php-curl'][md5($uri)]['http']['code'] == 201 || $GLOBALS['php-curl'][md5($uri)]['http']['code'] == 200 && isset($authkey['authkey']) && !empty($authkey['authkey'])) {
+                    $domains = json_decode(getURIData($uri = API_ZONES_API_URL . "/v1/" . $authkey['authkey'] . "/domains/json.api", 45, 45, array()), true);
+                    if ($GLOBALS['php-curl'][md5($uri)]['http']['code'] == 201 || $GLOBALS['php-curl'][md5($uri)]['http']['code'] == 200 ) {
+                        $basedomain = getBaseDomain("http://$domain");
+                        $zonekey = '';
+                        foreach($domains as $zonedomain) {
+                            if (empty($zonekey) && $basedomain == $zonedomain['name']) {
+                                $zonekey = $zonedomain['domainkey'];
+                                continue;
+                            }
+                        }
+                    }
+                }
+                $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`domain`, `zonekey`, `uid`, `ispeer`, `isemaildomain`, `parentdomainid`) VALUES ('$domain', '$zonekey', '" . $GLOBALS['uid'] . "', '0', '1', '$parentdomainid')";
                 if ($GLOBALS['APIDB']->queryF($sql))
                 {
-                    $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) FROM `domains` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
+                    $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
                     list($domainkey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                     $_SESSION['domainkey'] = $domainkey;
                     setcookie('domainkey', $_SESSION['masterkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
@@ -202,6 +358,94 @@ if (!function_exists("addDomains")) {
                 }
             } else {
                 $return = array('code' => 501, 'domainkey' => md5(NULL. 'domainkey'), 'errors' => array('103' => 'Record Already Exists!!!'));
+            }
+        }
+        return $return;
+    }
+}
+
+
+if (!function_exists("addEmail")) {
+    /**
+     * addEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function addEmail($authkey, $name = '', $username = '', $domainkey = '', $password = '', $verify = '', $bytessize = '', $notify = '', $callback = '', $format = 'json')
+    {
+        $return = checkAuthKey($authkey);
+        if (empty($return))
+        {
+            if (strlen($domainkey)==32) {
+                $domainid = getDomainID($domainkey);
+                $sql = "SELECT `domain`, `pid`, `zonekey` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '$domainid'";
+                list($domain, $pid, $zonekey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                $domainpath = implode(DS, array_reverse(explode('.', $domain)));
+            } else
+                $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('123' => 'Domain Key not Found!!!'));
+                
+            if (empty($return) && $password != $verify)
+                $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('121' => 'Password does not match verified password field!!!'));
+            
+            if (empty($return) && $bytessize < (API_MINIMUM_INBOX_SIZES * 1024 * 1024 * 1024))
+                $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('124' => 'Size of the mailbox is too small, it is smaller than the minimal size of: ' . API_MINIMUM_INBOX_SIZES . 'Mb\'s!!!'));
+            
+            if (empty($return) && $bytessize > (API_MAXIMUM_INBOX_SIZES * 1024 * 1024 * 1024))
+                $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('125' => 'Size of the mailbox is too large, it is greater than the maximum size of: ' . API_MAXIMUM_INBOX_SIZES . 'Mb\'s!!!'));
+
+            if (empty($return) && !checkEmail($notify))
+                $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('126' => 'Notification Email Address is not an addressed formating correctly!!!'));
+            
+            if (empty($return))
+            {
+                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE (`email` LIKE '$username@$domain' AND `username` = '$username@$domain' AND `domainid` = '$domainid')";
+                list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                if ($count==0)
+                {
+                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_users') . "` (`mode`, `name`, `email`, `notify`, `actkey`, `password`, `password_enc`, `uid`, `pid`, `homedir`, `maildir`, `postfix`, `domainid`, `pop3`, `imap`, `mboxsize`, `mboxonline`, `mboxoffline`, `created`, `callback`) VALUES ('new', '" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$notify', '" . substr(sha1(microtime(true)), mt_rand(0, 34), mt_rand(4,6)) . "', AES_ENCRYPT('$password', '$username@$domain'), CRYPT('$password'), '" . $GLOBALS['uid'] . "', '$pid', '" . ($homedir = API_HOMEDIR_PATH . DS . $domainpath . DS . $username) . "', '" . ($maildir = API_MAILDIR_PATH . DS . $domainpath . DS . $username) . "', 'Y', '$domainid', 1, 1, '" . (API_INTIALISE_INBOX_SIZES * 1024 * 1024 * 1024) . "', '$bytessize', '" . (API_OFFLINE_INBOX_SIZES * 1024 * 1024 * 1024) . "', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')"; 
+                    if ($GLOBALS['APIDB']->queryF($sql))
+                    {
+                        $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'email')) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
+                        list($emailkey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                        $_SESSION['emailkey'] = $emailkey;
+                        setcookie('emailkey', $_SESSION['emailkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
+                        
+                        if (!is_dir($homedir))
+                            mkdir($homedir, 0777, true);
+                        
+                        if (!is_dir($maildir))
+                            mkdir($maildir, 0777, true);
+                        
+                        if (!is_dir(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys'))
+                            mkdir(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys', 0777, true);
+                            
+                        if (file_exists($script = dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh'))
+                            $sh = file($script);
+                        else {
+                            $sh = array();
+                            $sh[] = "unlink \"" . dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh' . "\"\n";
+                        }
+                        
+                        file_put_contents($diz = API_MAILDIR_PATH . DS . "$username@$domain.diz", str_replace('%name', $name, str_replace('%email', "$username@$domain", str_replace('%subbits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), str_replace('%bits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), file_get_contents(__DIR__ . DS . 'data' . DS . 'gen-key-script.diz'))))));
+                        $sh[] = "gpg --batch --gen-key \"$diz\"\n";
+                        $sh[] = "unlink \"$diz\"\n";
+                        $sh[] = "gpg --armor --export \"$username@$domain\" > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc\"\n";
+                        foreach(file(__DIR__ . DS . 'data' . DS . 'keyservers-hostnames.diz') as $keyserver)
+                            $sh[] = "gpg --keyserver \"" . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . "\" --send-key \"$username@$domain\"\n"; 
+                        file_put_contents($script, implode("", $sh));
+                        
+                        if (strlen($callback) > 0)
+                            addCallback($callback, array('op' => 'created-email', 'emailkey' => $emailkey, 'email' => '$username@$domain', 'username' => $username, 'domain' => $domain, 'domainkey' => $domainkey));
+                        
+                        $return = array('code' => 201, 'emailkey' => $_SESSION['emailkey'], 'errors' => array());
+                    } else {
+                        $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+                    }
+                } else {
+                    $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('103' => 'Record Already Exists!!!'));
+                }
             }
         }
         return $return;
@@ -283,70 +527,71 @@ if (!function_exists("editRecord")) {
             if (!empty($id) && is_array($id))
                 return $id;
                 
-                foreach($vars as $key => $value)
-                    if (!in_array($key, $fields))
-                        unset($vars[$key]);
-                        
-                        if (count($vars) == 0)
-                            return array('code' => 501, 'errors' => array('110' => 'No records fields specified for edit this supports: '.implode(', ', $fields).'!!!'));
-                            switch ($table)
-                            {
-                                case 'users':
-                                    if (isset($vars['email']) && !empty($vars['email']) && !checkEmail($vars['email']))
-                                        return array('code' => 501, 'errors' => array('109' => 'e-Mail format isn\'t valid!!!'));
-                                        if (!empty($vars['pass']) && !empty($vars['vpass']) && $vars['pass'] != $vars['vpass'])
-                                            return array('code' => 501, 'errors' => array('108' => 'Password & verify password do not match!!!'));
-                                            elseif (!empty($vars['pass']) && !empty($vars['vpass']) && $vars['pass'] == $vars['vpass']) {
-                                                $vars['pass'] = md5($vars['pass']);
-                                                unset($vars['vpass']);
-                                            } else {
-                                                unset($vars['pass']);
-                                                unset($vars['vpass']);
-                                            }
-                                            $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `uid` = '$id'"));
-                                            $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['uname']). "') OR (`email` LIKE '" .$GLOBALS['APIDB']->escape($vars['email']). "'))";
-                                            break;
-                                case 'records':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `content` LIKE '" .$GLOBALS['APIDB']->escape($vars['content']). "' AND `type` LIKE '" . $old['type'] . "'))";
-                                    break;
-                                case 'domains':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `type` LIKE '" . $vars['type'] . "') OR (`master` LIKE '" .$GLOBALS['APIDB']->escape($vars['master']). "' AND `type` LIKE '" . $vars['type'] . "'))";
-                                    break;
-                                case 'supermasters':
-                                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
-                                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`ip` LIKE '" .$GLOBALS['APIDB']->escape($vars['ip']). "' AND `nameserver` LIKE '" .$GLOBALS['APIDB']->escape($vars['nameserver']). "'))";
-                                    break;
-                            }
-                            list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
-                            if ($count==0)
-                            {
-                                $sql = "UPDATE `" . $GLOBALS['APIDB']->prefix($table) . "` SET ";
-                                $u=0;
-                                foreach($vars as $key => $value)
-                                {
-                                    $u++;
-                                    $sql .= "`$key` = '" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars)?"', ":"' ");
-                                }
-                                switch ($table)
-                                {
-                                    case 'users':
-                                        $sql .= "WHERE `uid` = '$id'";
-                                        break;
-                                    default:
-                                        $sql .= "WHERE `id` = '$id'";
-                                        break;
-                                }
-                                if ($GLOBALS['APIDB']->queryF($sql))
-                                {
-                                    $return = array('code' => 201, 'affected' =>$GLOBALS['APIDB']->getAffectedRows(), 'errors' => array());
-                                } else {
-                                    $return = array('code' => 501, 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
-                                }
+            foreach($vars as $key => $value)
+                if (!in_array($key, $fields))
+                    unset($vars[$key]);
+                    
+            if (count($vars) == 0)
+                return array('code' => 501, 'errors' => array('110' => 'No records fields specified for edit this supports: '.implode(', ', $fields).'!!!'));
+
+            switch ($table)
+            {
+                case 'users':
+                    if (isset($vars['email']) && !empty($vars['email']) && !checkEmail($vars['email']))
+                        return array('code' => 501, 'errors' => array('109' => 'e-Mail format isn\'t valid!!!'));
+                        if (!empty($vars['pass']) && !empty($vars['vpass']) && $vars['pass'] != $vars['vpass'])
+                            return array('code' => 501, 'errors' => array('108' => 'Password & verify password do not match!!!'));
+                            elseif (!empty($vars['pass']) && !empty($vars['vpass']) && $vars['pass'] == $vars['vpass']) {
+                                $vars['pass'] = md5($vars['pass']);
+                                unset($vars['vpass']);
                             } else {
-                                $return = array('code' => 501, 'errors' => array('107' => 'User Record Already Exists!!!'));
+                                unset($vars['pass']);
+                                unset($vars['vpass']);
                             }
+                            $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `uid` = '$id'"));
+                            $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['uname']). "') OR (`email` LIKE '" .$GLOBALS['APIDB']->escape($vars['email']). "'))";
+                            break;
+                case 'records':
+                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `content` LIKE '" .$GLOBALS['APIDB']->escape($vars['content']). "' AND `type` LIKE '" . $old['type'] . "'))";
+                    break;
+                case 'domains':
+                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `type` LIKE '" . $vars['type'] . "') OR (`master` LIKE '" .$GLOBALS['APIDB']->escape($vars['master']). "' AND `type` LIKE '" . $vars['type'] . "'))";
+                    break;
+                case 'supermasters':
+                    $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
+                    $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`ip` LIKE '" .$GLOBALS['APIDB']->escape($vars['ip']). "' AND `nameserver` LIKE '" .$GLOBALS['APIDB']->escape($vars['nameserver']). "'))";
+                    break;
+            }
+            list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+            if ($count==0)
+            {
+                $sql = "UPDATE `" . $GLOBALS['APIDB']->prefix($table) . "` SET ";
+                $u=0;
+                foreach($vars as $key => $value)
+                {
+                    $u++;
+                    $sql .= "`$key` = '" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars)?"', ":"' ");
+                }
+                switch ($table)
+                {
+                    case 'users':
+                        $sql .= "WHERE `uid` = '$id'";
+                        break;
+                    default:
+                        $sql .= "WHERE `id` = '$id'";
+                        break;
+                }
+                if ($GLOBALS['APIDB']->queryF($sql))
+                {
+                    $return = array('code' => 201, 'affected' =>$GLOBALS['APIDB']->getAffectedRows(), 'errors' => array());
+                } else {
+                    $return = array('code' => 501, 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+                }
+            } else {
+                $return = array('code' => 501, 'errors' => array('107' => 'User Record Already Exists!!!'));
+            }
         }
         return $return;
     }
@@ -368,22 +613,22 @@ if (!function_exists("deleteRecord")) {
             if (!empty($id) && is_array($id))
                 return $id;
                 
-                $sql = "DELETE FROM `" . $GLOBALS['APIDB']->prefix($table) . "` ";
-                switch ($table)
-                {
-                    case 'users':
-                        $sql .= "WHERE `uid` = '$id'";
-                        break;
-                    default:
-                        $sql .= "WHERE `id` = '$id'";
-                        break;
-                }
-                if ($GLOBALS['APIDB']->queryF($sql))
-                {
-                    $return = array('code' => 201, 'affected' =>$GLOBALS['APIDB']->getAffectedRows(), 'errors' => array());
-                } else {
-                    $return = array('code' => 501, 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
-                }
+            $sql = "DELETE FROM `" . $GLOBALS['APIDB']->prefix($table) . "` ";
+            switch ($table)
+            {
+                case 'users':
+                    $sql .= "WHERE `uid` = '$id'";
+                    break;
+                default:
+                    $sql .= "WHERE `id` = '$id'";
+                    break;
+            }
+            if ($GLOBALS['APIDB']->queryF($sql))
+            {
+                $return = array('code' => 201, 'affected' =>$GLOBALS['APIDB']->getAffectedRows(), 'errors' => array());
+            } else {
+                $return = array('code' => 501, 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+            }
         } else {
             $return = array('code' => 501, 'errors' => array('107' => 'User Record Already Exists!!!'));
         }
@@ -405,7 +650,7 @@ if (!function_exists("getDomains")) {
         if (empty($return))
         {
             $return['code'] = 201;
-            $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `domainkey`, `name`, `master`, `type` FROM `domains` ORDER BY `name` ASC, `master` ASC, `type` DESC";
+            $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `domainkey`, `name`, `zonekey`, md5(concat(`parentdomainid`, '" . API_URL . "', 'domain')) as `parentdomainkey` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` ORDER BY `name` ASC, `master` ASC, `type` DESC";
             $result = $GLOBALS['APIDB']->queryF($sql);
             while($domain = $GLOBALS['APIDB']->fetchArray($result))
                 $return['domains'][] = $domain;
@@ -924,6 +1169,43 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t</table>";
             $form[] = "</form>";
             break;
+        case "addpgpkey":
+            $form[] = "<form name='add-pgp-key' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/pgpkey.api">';
+            $form[] = "\t<table class='add-pgp-key' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='pgpkey'>PGP Key:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<textarea name='pgpkey' id='pgpkey' col='41' row='11'></textarea>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='pgpkey' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Add pgp key' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
         case "newdomain":
             $form[] = "<form name='new-domain' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/domains.api">';
             $form[] = "\t<table class='new-domain' id='auth-domain' style='vertical-align: top !important; min-width: 98%;'>";
@@ -987,7 +1269,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td style='width: 320px;'>";
-            $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong>@</strong>&nbsp;";
+            $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='domain' id='format'/>";
             $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
@@ -1038,12 +1320,21 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "<form name='new-record' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/emails.api">';
             $form[] = "\t<table class='new-record' id='auth-record' style='vertical-align: top !important; min-width: 98%;'>";
             $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='notify'>Email Address Name:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='name' id='name' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
             $form[] = "\t\t\t<td>";
             $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td style='width: 320px;'>";
-            $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong>@</strong>&nbsp;";
-            $form[] = "\t\t\t\t<select name='email[domain]' id='format'/>";
+            $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
+            $form[] = "\t\t\t\t<select name='email[domainkey]' id='format'/>";
             $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";

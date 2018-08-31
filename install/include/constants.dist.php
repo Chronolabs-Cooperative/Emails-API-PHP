@@ -38,6 +38,13 @@ define('API_ZONES_API_PASS', '');
 
 // Master Peering Hostname
 define('API_MASTERHOST_API_URL', '');
+define('API_PRIMARY_SYSOP_UID', 1);
+
+// Mail Services Hostnames
+define('API_IMAP_SERVICE_HOSTNAME', '');
+define('API_POP3_SERVICE_HOSTNAME', '');
+define('API_SMTP_SERVICE_HOSTNAME', '');
+define('API_WEB_SERVICE_HOSTNAME', '');
 
 // Paths on Hostname
 define('API_MAILDIR_PATH', '');

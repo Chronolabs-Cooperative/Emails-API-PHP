@@ -79,6 +79,14 @@ $configs['api_url'] = array(
     'masterhost' => $_SESSION['settings']['URL'],
 );
 
+// GeoIP Resource data files default paths
+$configs['service_hostname'] = array(
+    'imap' => 'imap.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+    'pop3' => 'pop3.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+    'smtp' => 'smtp.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+    'web' => 'webmail.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
+);
+
 $configs['api_user'] = array(
     'zones' => '',
 );
