@@ -46,11 +46,11 @@ define('API_POP3_SERVICE_HOSTNAME', '');
 define('API_SMTP_SERVICE_HOSTNAME', '');
 define('API_WEB_SERVICE_HOSTNAME', '');
 
-// Paths on Hostname
+// Paths on System
 define('API_MAILDIR_PATH', '');
 define('API_HOMEDIR_PATH', '');
 
-// Size Limitations of mailboxes quota
+// Size Limitations of mailboxes quota megabytes
 define('API_MAXIMUM_INBOX_SIZES', '');
 define('API_MINIMUM_INBOX_SIZES', '');
 define('API_INTIALISE_INBOX_SIZES', '');
@@ -65,7 +65,8 @@ define('API_IMAP_PGP_KEYS', '');
 define('API_PORT_PGP_KEYS', '');
 define('API_USER_PGP_KEYS', '');
 define('API_PASS_PGP_KEYS', '');
+define('API_SSL_PGP_KEYS', true);
 
-// Size Limitations of mailboxes quota
+// Size in bits of mailboxes pgp key to randomly select between
 define('API_MAXBITS_PGP_KEYS', '');
 define('API_MINBITS_PGP_KEYS', '');

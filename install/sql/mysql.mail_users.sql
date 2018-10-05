@@ -6,6 +6,7 @@ CREATE TABLE `mail_users` (
   `id` mediumint(32) unsigned NOT NULL AUTO_INCREMENT,
   `mode` enum('new','online','offline','depreciated') NOT NULL DEFAULT 'new',
   `name` varchar(255) NOT NULL DEFAULT '',
+  `callback` varchar(255) NOT NULL DEFAULT '',
   `email` varchar(255) NOT NULL DEFAULT '',
   `notify` varchar(255) NOT NULL DEFAULT '',
   `notified` int(11) unsigned NOT NULL DEFAULT '0',
@@ -36,5 +37,5 @@ CREATE TABLE `mail_users` (
   PRIMARY KEY (`id`),
   KEY `email` (`email`),
   KEY `emailusername` (`email`,`username`),
-  KEY `usernamepassword` (`actkey`,`username`,`password`,`password_enc`),
+  KEY `usernamepassword` (`actkey`,`username`,`password`,`password_enc`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;

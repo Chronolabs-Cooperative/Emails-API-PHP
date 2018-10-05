@@ -596,6 +596,27 @@ if (!function_exists("editRecord")) {
         return $return;
     }
 }
+if (!function_exists("extractPGPKeys")) {
+    
+    function extractPGPKeys($data) 
+    {
+        $data = NULL.$data;
+        $certs = array();
+        $fpos = 0;
+        if (strpos($data, API_HEADER_PGP_KEYS))
+        {
+            while($ipos = strpos($data, API_HEADER_PGP_KEYS, $fpos))
+            {
+                $fpos = strpos($data, API_FOOTER_PGP_KEYS, $ipos);
+                if ($fpos != 0 && $ipos != 0)
+                    $certs[] = substr($data, $ipos, $fpos - $ipos + strlen(API_FOOTER_PGP_KEYS));
+            }
+        }
+        if (count($certs))
+            return $certs;
+        return false;
+    }
+}
 
 if (!function_exists("deleteRecord")) {
     /**
@@ -1158,6 +1179,69 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
             $form[] = "\t\t\t\t<input type='hidden' value='authkey' name='mode'>";
             $form[] = "\t\t\t\t<input type='submit' value='Get URL Auth-key' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+        case "changepass":
+            $form[] = "<form name='change-pass' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . $_SERVER["REQUEST_URI"] . '">';
+            $form[] = "\t<table class='change-pass' id='change-pass' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='pgpkey'>New Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='password' name='pass' id='pass' size='32' />";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='vpass'>Verify Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='password' name='vpass' id='vpass' size='32' />";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='changepass' name='op'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Change Password' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
+        case "changenotify":
+            $form[] = "<form name='change-notify' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . $_SERVER["REQUEST_URI"] . '">';
+            $form[] = "\t<table class='change-notify' id='change-notify' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='pgpkey'>New Notify Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='text' name='notify' id='notify' size='41' />";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='changenotify' name='op'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Change Notify Email' name='submit' style='padding:11px; font-size:122%;'>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t</tr>";
             $form[] = "\t\t<tr>";

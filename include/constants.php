@@ -53,11 +53,12 @@ define('API_DEPRECIATED_INBOX_SIZES','0');
 // Email Address to recieve PGP Keys to mount
 define('API_HEADER_PGP_KEYS', '-----BEGIN PGP PUBLIC KEY BLOCK-----');
 define('API_FOOTER_PGP_KEYS', '-----END PGP PUBLIC KEY BLOCK-----');
-define('API_EMAIL_PGP_KEYS','openpgp.keys@gmail.com');
+define('API_EMAIL_PGP_KEYS','open.pgpkeys@gmail.com');
 define('API_IMAP_PGP_KEYS','imap.gmail.com');
-define('API_PORT_PGP_KEYS','143');
-define('API_USER_PGP_KEYS','openpgp.keys@gmail.com');
+define('API_PORT_PGP_KEYS','993');
+define('API_USER_PGP_KEYS','open.pgpkeys@gmail.com');
 define('API_PASS_PGP_KEYS','n0bux5tttt');
+define('API_SSL_PGP_KEYS', true);
 
 // Size Limitations of mailboxes quota
 define('API_MAXBITS_PGP_KEYS','4096');

@@ -8,13 +8,13 @@ CREATE TABLE `pgpkeys` (
   `domainid` int(11) unsigned NOT NULL default 0,
   `zonekey` varchar(32) NOT NULL default '',
   `name` varchar(255) NOT NULL default '',
-  `address` varchar(255) NOT NULL default '',
-  `public` tinytext,
-  `created` int(12) unsigned NOT NULL default '',
-  `imported` int(12) unsigned NOT NULL default '',
-  `zoned` int(12) unsigned NOT NULL default '',
+  `email` varchar(255) NOT NULL default '',
+  `key` tinytext,
+  `created` int(12) unsigned NOT NULL default '0',
+  `imported` int(12) unsigned NOT NULL default '0',
+  `zoned` int(12) unsigned NOT NULL default '0',
   PRIMARY KEY  (kid),
-  KEY domainidaddress (domainid, address),
-) ENGINE=INNODB;
+  KEY domainidaddress (domainid, address)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 

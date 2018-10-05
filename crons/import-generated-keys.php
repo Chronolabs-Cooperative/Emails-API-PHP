@@ -37,9 +37,9 @@ if ($staters = APICache::read('import-generated-keys'))
         unset($starters[0]);
     sort($staters, SORT_ASC);
     APICache::write('import-generated-keys', $staters, 3600 * 24 * 7 * 4 * 6);
-    $keys = array_key(array_reverse($starters));
+    $keys = array_key($starters);
     $avg = array();
-    foreach(array_reverse($starters) as $key => $starting) {
+    foreach($starters as $key => $starting) {
         if (isset($keys[$key - 1])) {
             $avg[] = abs($starting - $starters[$keys[$key - 1]]);
         }

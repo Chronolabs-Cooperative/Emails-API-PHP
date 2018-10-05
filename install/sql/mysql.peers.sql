@@ -14,12 +14,12 @@ CREATE TABLE `peers` (
   `path` varchar(100) NOT NULL default '',
   `version` varchar(60) NOT NULL default '',
   `type` varchar(20) NOT NULL default '',
-  `domains` mediumtext,
-  PRIMARY KEY  (pid),
-  KEY company (company),
-  KEY license (license),
-  KEY protocolhostpathversion (protocol,host,path,version),
+  `domains` blob,
+  PRIMARY KEY  (`pid`),
+  KEY companyserial (`company`,`serial`),
+  KEY emailserialhostversiontype (`email`,`serial`,`host`,`version`,`type`),
+  KEY protocolhostpathversion (`protocol`,`host`,`path`,`version`),
   KEY type (type)
-) ENGINE=INNODB;
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 

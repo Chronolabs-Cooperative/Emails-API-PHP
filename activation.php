@@ -25,15 +25,8 @@
  * 
  */
 
+    global $email, $inner;
 
-	$parts = explode(".", microtime(true));
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	$salter = ((float)(mt_rand(0,1)==1?'':'-').$parts[1].'.'.$parts[0]) / sqrt((float)$parts[1].'.'.intval(cosh($parts[0])))*tanh($parts[1]) * mt_rand(1, intval($parts[0] / $parts[1]));
-	header('Blowfish-salt: '. $salter);
-	
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'apiconfig.php';
 	
 	$odds = $inner = array();
@@ -71,29 +64,8 @@
 	    }
 	}
 	$help = false;
-	
-	if (!isset($inner['user']['uname']) && empty($inner['user']['uname']) || 
-	    !isset($inner['user']['email']) && empty($inner['user']['email']) ||
-	    !isset($inner['user']['pass']) && empty($inner['user']['pass']))
-	        $help = true;
-	
-    if (!isset($inner['callback']) && empty($inner['callback']))
-        $help = true;
-    if (!isset($inner['company']) && empty($inner['company']))
-        $help = true;
-    if (!isset($inner['serial']) && empty($inner['serial']) && !is_numeric($inner['serial']))
-        $help = true;
-    if (!isset($inner['email']) && empty($inner['email']) && !checkEmail($inner['email']))
-        $help = true;
-    if (!isset($inner['protocol']) && empty($inner['protocol']))
-        $help = true;
-    if (!isset($inner['host']) && empty($inner['host']))
-        $help = true;
-    if (!isset($inner['path']) && empty($inner['path']))
-        $help = true;
-    if (!isset($inner['version']) && empty($inner['version']))
-        $help = true;
-    if (!isset($inner['type']) && empty($inner['type']))
+		
+    if (!isset($inner['emailkey']) && empty($inner['emailkey']))
         $help = true;
 	
 	/**
@@ -106,50 +78,55 @@
 		exit;
 	}
 	
-	$data = array();
+	if (isset($inner['op']) && !empty($inner['op'])) {
+	    $id = getEmailID($inner['emailkey']);
+	    if ($id <> 0) {
+	        if ($email = $GLOBALS["APIDB"]->fetchRow($GLOBALS["APIDB"]->queryF("SELECT * FROM `" . $GLOBALS["APIDB"]->prefix("mail_users") . "` WHERE `id` = $id"))) {
+	       
+        	    switch ($inner['op'])
+        	    {
+        	        case "changepass":
+        	            if ($inner['pass'] == $inner['vpass']) {
+        	                if (!$GLOBALS['APIDB']->query($sql = "UPDATE `" . $GLOBALS["APIDB"]->prefix("mail_users") . "` SET `password` = AES_CRYPT('" . $GLOBALS['APIDB']->escape($inner['pass']) . "', `email`), `password_enc` = CRYPT('" . $GLOBALS['APIDB']->escape($inner['pass']) . "') WHERE `id` = " . $emailid))
+        	                    die("FAILED SQL: $sql;");
+        	            }
+        	            break;
+        	        case "changenotify":
+        	            if (checkEmail($inner['notify'])) {
+        	                if (!$GLOBALS['APIDB']->query($sql = "UPDATE `" . $GLOBALS["APIDB"]->prefix("mail_users") . "` SET `notify` = '" . $GLOBALS['APIDB']->escape($inner['notify']) . "' WHERE `id` = " . $emailid))
+        	                    die("FAILED SQL: $sql;");
+        	            }
+        	            break;
+        	    }
+        	    
+        	    include dirname(__FILE__).'/activation.html.php';
+        	    exit;
+        	    
+	        }
+	    }
+	}
+
+	$id = getEmailID($inner['emailkey']);
+	if ($id <> 0) {
+	    if ($email = $GLOBALS["APIDB"]->fetchRow($GLOBALS["APIDB"]->queryF("SELECT * FROM `" . $GLOBALS["APIDB"]->prefix("mail_users") . "` WHERE `id` = $id"))) {
+	        if ($email['actkey'] == $inner['actkey']) {
+	            if (!$GLOBALS['APIDB']->query($sql = "UPDATE `" . $GLOBALS["APIDB"]->prefix("mail_users") . "` SET `mboxsize` = `mboxonline`, `activate` = UNIX_TIMESTAMP(), `mode` = 'online', `actkey` = '" . substr(sha1(microtime(true)), mt_rand(0,30), mt_rand(4, 10)) . "' WHERE `id` = " . $emailid))
+	               die("FAILED SQL: $sql;");
+	        }
+	        include dirname(__FILE__).'/activation.html.php';
+	        exit;
+	    }
+	}
 	
-	list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql = "SELECT count(*) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `typal` = 'peer-admin' AND (`uname` LIKE '" . $inner['user']['uname'] . "' AND `email` LIKE '" . $inner['user']['email'] . "') OR (`uname` LIKE '" . $inner['user']['uname'] . "' AND `pass` LIKE '" . $inner['user']['pass'] . "')"));
-	if ($count==0) {
-	    if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('users') . "` (`typal`, `uname`, `name`, `pass`, `email`, `url`, `api_regdate`, `actkey`) VALUES('peer-admin', '" . $inner['user']['uname'] . "', '" . $inner['user']['name'] . "', '" . $inner['user']['pass'] . "', '" . $inner['user']['email'] . "', '" . $inner['user']['url'] . "', UNIX_TIMESTAMP(), '" . substr(md5(microtime()), mt_rand(0,26), mt_rand(4,6)) . "')"))
-	        die("SQL Failed: $sql;");
-	}
-	$user = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `typal` = 'peer-admin' AND (`uname` LIKE '" . $inner['user']['uname'] . "' AND `email` LIKE '" . $inner['user']['email'] . "') OR (`uname` LIKE '" . $inner['user']['uname'] . "' AND `pass` LIKE '" . $inner['user']['pass'] . "')"));
-	foreach($inner['user'] as $field => $value)
-	    if ($user[$field]!=$value)
-	        if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `field` = '$value' WHERE `uid` = '" . $user['uid']))
-	            die("SQL Failed: $sql;");
-	            
+	
 	/**
-	 * Commences Execution of API Functions
+	 * Buffers Help
 	 */
-	if (function_exists("http_response_code"))
-	    http_response_code((isset($data['code'])?$data['code']:200));
-    if (isset($data['code']))
-        unset($data['code']);
-    
-	switch ($inner['format']) {
-		default:
-			echo '<pre style="font-family: \'Courier New\', Courier, Terminal; font-size: 0.77em;">';
-			echo var_dump($data, true);
-			echo '</pre>';
-			break;
-		case 'raw':
-			echo "<?php\n\n return " . var_export($data, true) . ";\n\n?>";
-			break;
-		case 'json':
-			header('Content-type: application/json');
-			echo json_encode($data);
-			break;
-		case 'serial':
-			header('Content-type: text/html');
-			echo serialize($data);
-			break;
-		case 'xml':
-			header('Content-type: application/xml');
-			$dom = new XmlDomConstruct('1.0', 'utf-8');
-			$dom->fromMixed(array('root'=>$data));
- 			echo $dom->saveXML();
-			break;
+	if ($help==true) {
+	    if (function_exists("http_response_code"))
+	        http_response_code(400);
+	        include dirname(__FILE__).'/help.php';
+	        exit;
 	}
-	exit(0);
+	
 ?>
