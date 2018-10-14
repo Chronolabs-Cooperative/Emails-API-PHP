@@ -1496,4 +1496,53 @@ function getHTMLForm($mode = '', $authkey = '')
     return implode("\n", $form);
 
 }
+
+
+if (!function_exists("getBaseDomain")) {
+    /**
+     * Gets the base domain of a tld with subdomains, that is the root domain header for the network rout
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    function getBaseDomain($uri = '')
+    {
+        
+        static $fallout, $strata, $classes;
+
+        if (empty($classes))
+        {
+            
+            $attempts = 0;
+            $attempts++;
+            $classes = array_keys(json_decode(getURIData(API_STRATA_API_URL ."/v1/strata/json.api", 150, 100), true));
+            
+        }
+        if (empty($fallout))
+        {
+            $fallout = array_keys(json_decode(getURIData(API_STRATA_API_URL ."/v1/fallout/json.api", 150, 100), true));
+        }
+        
+        // Get Full Hostname
+        $uri = strtolower($uri);
+        $hostname = parse_url($uri, PHP_URL_HOST);
+        if (!filter_var($hostname, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 || FILTER_FLAG_IPV4) === false)
+            return $hostname;
+        
+        // break up domain, reverse
+        $elements = explode('.', $hostname);
+        $elements = array_reverse($elements);
+        
+        // Returns Base Domain
+        if (in_array($elements[0], $classes))
+            return $elements[1] . '.' . $elements[0];
+        elseif (in_array($elements[0], $fallout) && in_array($elements[1], $classes))
+            return $elements[2] . '.' . $elements[1] . '.' . $elements[0];
+        elseif (in_array($elements[0], $fallout))
+            return  $elements[1] . '.' . $elements[0];
+        else
+            return  $elements[1] . '.' . $elements[0];
+    }
+}
 ?>

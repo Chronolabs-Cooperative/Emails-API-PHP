@@ -25,7 +25,7 @@
  * 
  */
 
-global $email, $inner;
+    global $email, $inner;
             
             
     ?>
@@ -68,11 +68,29 @@ global $email, $inner;
     <p>Your email address of <strong><?php echo $email['email']; ?></strong>; is now active and online, below you can change the notification email as well as password for it now if you wish, you will only be able to do this now and not return too this page.</p>
     <h2>Change your password</h2>
     <p>From here you change your password for the email address of: <?php echo $email['email']; ?></p>
+    <?php if (!empty($inner['pass']) && !empty($inner['vpass']) && $inner['pass'] != $inner['vpass']) { ?>
+    <p style="padding: 9px; border: 3px; border-color: rgb(255, 0, 0); background-color: rgb(200, 0, 0); font-weight: bold; font-size: 1.32em; color: rgb(90, 0, 0); margin: 25px; text-align: center;">
+    	The Two Passwords you have Entered; both the Password and the Verification of the Same Password don't match!
+   	</p>
+   	<?php } elseif (!empty($inner['pass']) && empty($inner['vpass'])) { ?>
+    <p style="padding: 9px; border: 3px; border-color: rgb(255, 0, 0); background-color: rgb(200, 0, 0); font-weight: bold; font-size: 1.32em; color: rgb(90, 0, 0); margin: 25px; text-align: center;">
+    	You have not put in a verification of the same password you want to set this too!
+   	</p>
+   	<?php } elseif (empty($inner['pass']) && !empty($inner['vpass'])) { ?>
+    <p style="padding: 9px; border: 3px; border-color: rgb(255, 0, 0); background-color: rgb(200, 0, 0); font-weight: bold; font-size: 1.32em; color: rgb(90, 0, 0); margin: 25px; text-align: center;">
+    	You have not put in a password change of the same password you want to set this too!
+   	</p>
+   	<?php }?>
     <blockquote>
         <?php echo getHTMLForm('changepass'); ?>
     </blockquote>
     <h2>Change your notifications email</h2>
     <p>From here you change your notification/recovery for the email address it is currently set to: <?php echo $email['notify']; ?>!</p>
+    <?php if (!empty($inner['notify']) && !checkEmail($inner['notify'])) { ?>
+    <p style="padding: 9px; border: 3px; border-color: rgb(255, 0, 0); background-color: rgb(200, 0, 0); font-weight: bold; font-size: 1.32em; color: rgb(90, 0, 0); margin: 25px; text-align: center;">
+    	You have not entered an email address as:&nbsp;<em><?php echo $inner['notify']; ?></em>
+   	</p>
+   	<?php } ?>
     <blockquote>
         <?php echo getHTMLForm('changenotify'); ?>
     </blockquote>

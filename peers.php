@@ -72,9 +72,10 @@
 	}
 	$help = false;
 	
-	if (!isset($inner['user']['uname']) && empty($inner['user']['uname']) || 
-	    !isset($inner['user']['email']) && empty($inner['user']['email']) ||
-	    !isset($inner['user']['pass']) && empty($inner['user']['pass']))
+	if ((!isset($inner['user']['uname']) && empty($inner['user']['uname'])) || 
+	    (!isset($inner['user']['email']) && empty($inner['user']['email']) && !checkEmail($inner['user']['email'])) ||
+	    (!isset($inner['user']['name']) && empty($inner['user']['name'])) ||
+	    (!isset($inner['user']['pass']) && empty($inner['user']['pass'])))
 	        $help = true;
 	
     if (!isset($inner['callback']) && empty($inner['callback']))
@@ -113,12 +114,41 @@
 	    if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('users') . "` (`typal`, `uname`, `name`, `pass`, `email`, `url`, `api_regdate`, `actkey`) VALUES('peer-admin', '" . $inner['user']['uname'] . "', '" . $inner['user']['name'] . "', '" . $inner['user']['pass'] . "', '" . $inner['user']['email'] . "', '" . $inner['user']['url'] . "', UNIX_TIMESTAMP(), '" . substr(md5(microtime()), mt_rand(0,26), mt_rand(4,6)) . "')"))
 	        die("SQL Failed: $sql;");
 	}
-	$user = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `typal` = 'peer-admin' AND (`uname` LIKE '" . $inner['user']['uname'] . "' AND `email` LIKE '" . $inner['user']['email'] . "') OR (`uname` LIKE '" . $inner['user']['uname'] . "' AND `pass` LIKE '" . $inner['user']['pass'] . "')"));
+	$user = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `typal` = 'peer-admin' AND (`uname` LIKE '" . $inner['user']['uname'] . "' AND `email` LIKE '" . $inner['user']['email'] . "') OR (`uname` LIKE '" . $inner['user']['uname'] . "' AND `pass` LIKE '" . $inner['user']['pass'] . "')"));
 	foreach($inner['user'] as $field => $value)
-	    if ($user[$field]!=$value)
-	        if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `field` = '$value' WHERE `uid` = '" . $user['uid']))
+	    if (isset($user[$field]) && $user[$field] != $value)
+	        if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('users') . "` SET `$field` = '$value' WHERE `uid` = '" . $user['uid']))
 	            die("SQL Failed: $sql;");
-	            
+	        
+    list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql = "SELECT count(*) FROM `" . $GLOBALS['APIDB']->prefix('peers') . "` WHERE (`host` LIKE '" . $inner['host'] . "' AND `serial` LIKE '" . $inner['serial'] . "') OR (`host` LIKE '" . $inner['host'] . "' AND `email` LIKE '" . $inner['email'] . "')"));
+    if ($count==0) {
+        if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('peers') . "` (`uid`, `callback`, `company`, `serial`, `email`, `protocol`, `host`, `port`, `path`, `version`, `type`, `type-version`) VALUES('" . $user['uid'] . "', '" . $inner['callback'] . "', '" . $inner['company'] . "', '" . $inner['serial'] . "', '" . $inner['email'] . "', '" . $inner['protocol'] . "', '" . $inner['host'] . "', '" . $inner['port'] . "', '" . $inner['path'] . "', '" . $inner['version'] . "', '" . $inner['type'] . "', '" . $inner['type-version'] . "')"))
+            die("SQL Failed: $sql;");
+    }
+    $peer = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('peers') . "` WHERE (`host` LIKE '" . $inner['host'] . "' AND `serial` LIKE '" . $inner['serial'] . "') OR (`host` LIKE '" . $inner['host'] . "' AND `email` LIKE '" . $inner['email'] . "')"));
+    foreach($inner as $field => $value)
+        if ($field != 'user' && isset($peer[$field]))
+            if ($peer[$field] != $value)
+                if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('peers') . "` SET `$field` = '$value' WHERE `pid` = '" . $peer['pid']))
+                    die("SQL Failed: $sql;");
+                
+    $peers = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('peers') . "` WHERE NOT `pid` = '" . $peer['pid'] . "')"));
+    $data = array();
+    while($ppeer = $GLOBALS['APIDB']->fetchArray($peers)) {
+        $user = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF($sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `typal` = 'peer-admin' AND (`uid` = '" . $ppeer['uid'] . "')"));
+        unset($ppeer['pid']);
+        unset($ppeer['uid']);
+        unset($user['typal']);
+        unset($user['uid']);
+        $data['peers'][$ppeer['serial']] = array_merge($ppeer, array('user' => $user));
+        $data['urls'][$ppeer['serial']] = $ppeer['protocol'] . $ppeer['host'] . ":" . $ppeer['port'] . (empty($ppeer['path']) ? "/" : (substr($ppeer['path'], strlen($ppeer['path']) - 1, 1) != '/' ? $ppeer['path'] . '/' : $ppeer['path'])) . $ppeer['version'];
+    }
+	
+    if (count($data['urls']) > 0)
+        $data['code'] = 201;
+    else 
+        $data['code'] = 501;
+    
 	/**
 	 * Commences Execution of API Functions
 	 */
@@ -128,7 +158,7 @@
         unset($data['code']);
     
 	switch ($inner['format']) {
-		default:
+	    case 'html':
 			echo '<pre style="font-family: \'Courier New\', Courier, Terminal; font-size: 0.77em;">';
 			echo var_dump($data, true);
 			echo '</pre>';
@@ -136,6 +166,7 @@
 		case 'raw':
 			echo "<?php\n\n return " . var_export($data, true) . ";\n\n?>";
 			break;
+		default:
 		case 'json':
 			header('Content-type: application/json');
 			echo json_encode($data);
