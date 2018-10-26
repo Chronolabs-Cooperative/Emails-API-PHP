@@ -70,7 +70,7 @@ while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     if ($found == false) {
         list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF("SELECT count(*) FROM `" . $GLOBALS['APIDB']->prefix('mxs') . "` WHERE `mx` LIKE 'mx.".$domain['domain']."' AND `target` LIKE '".parse_url(API_URL, PHP_URL_HOST)."'"));
         if ($count == 0) {
-            if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mxs') . "` (`domainid`, `uid`, `pid`, `mx`, `target`, `piroirity`, `mxcheck`) VALUES('".$domain['id']."', '".$domain['uid']."','".$domain['pid']."','mx.".$domain['domain']."','".parse_url(API_URL, PHP_URL_HOST)."','".($pirority+10)."', UNIX_TIMESTAMP() + $seconds)"))
+            if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mxs') . "` (`domainid`, `uid`, `pid`, `mx`, `target`, `pirority`, `mxcheck`) VALUES('".$domain['id']."', '".$domain['uid']."','".$domain['pid']."','mx.".$domain['domain']."','".parse_url(API_URL, PHP_URL_HOST)."','".($pirority+10)."', UNIX_TIMESTAMP() + $seconds)"))
                 die("SQL Failed: $sql;");
             else 
                 echo("\nSQL Success: $sql;");

@@ -1332,7 +1332,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t</tr>";
             $form[] = "\t\t<tr>";
             $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
-            $form[] = "\t\t\t\t<input type='hidden' value='newdomain' name='mode'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='domains' name='mode'>";
             $form[] = "\t\t\t\t<input type='submit' value='Create New Domain' name='submit' style='padding:11px; font-size:122%;'>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t</tr>";
@@ -1355,7 +1355,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='domain' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
@@ -1419,7 +1419,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='email[domainkey]' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
