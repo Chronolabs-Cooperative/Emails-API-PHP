@@ -75,7 +75,6 @@ $configs['tmpPath'] = array(
 $configs['api_url'] = array(
     'strata' => 'http://strata.snails.email',
     'whois' => 'http://whois.snails.email',
-    'zones' => 'http://zones.snails.email',
     'masterhost' => $_SESSION['settings']['URL'],
 );
 
@@ -95,7 +94,11 @@ $configs['api_pass'] = array(
     'zones' => '',
 );
 
-$configs['api_paths'] = array(
+$configs['api_urls'] = array(
+    'zones' => 'http://zones.snails.email',
+);
+
+$configs['path'] = array(
     'maildir' => '/mailboxs',
     'homedir' => '/var/www/homes',
 );

@@ -88,7 +88,7 @@ while($pgpkey = $GLOBALS['APIDB']->fetchArray($result)) {
             }
         }
     }
-    $authkey = json_decode(getURIData(API_ZONES_API_URL . "/v1/authkey.api", 200, 200, array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS)), true);
+    $authkey = json_decode(getURIData(API_ZONES_API_URL . "/v1/authkey.api?" . http_build_query(array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS, 'format' => 'json')), 200, 200, array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS, 'format' => 'json')), true);
 }
 
 ?>

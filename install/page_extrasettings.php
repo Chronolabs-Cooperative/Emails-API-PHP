@@ -46,17 +46,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     {
         $_SESSION['constants']['api_url'][$setting] = $_POST[$setting];
     }
-    foreach($wizard->configs['api_paths'] as $setting => $values)
+    foreach($wizard->configs['path'] as $setting => $values)
     {
-        $_SESSION['constants']['paths'][$setting] = $_POST[$setting];
+        $_SESSION['constants']['path'][$setting] = $_POST[$setting];
     }
     foreach($wizard->configs['api_user'] as $setting => $values)
     {
-        $_SESSION['constants']['api_user'][$setting] = $_POST[$setting];
+        $_SESSION['constants']['api_user'][$setting] = $_POST['api_user_' . $setting];
     }
     foreach($wizard->configs['api_pass'] as $setting => $values)
     {
-        $_SESSION['constants']['api_pass'][$setting] = $_POST[$setting];
+        $_SESSION['constants']['api_pass'][$setting] = $_POST['api_pass_' . $setting];
+    }
+    foreach($wizard->configs['api_urls'] as $setting => $values)
+    {
+        $_SESSION['constants']['api_url'][$setting] = $_POST['api_url_' . $setting];
     }
     foreach($wizard->configs['pgp_keys'] as $setting => $values)
     {
@@ -105,19 +109,25 @@ ob_start();
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>
                 <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
             <?php }
+            foreach($wizard->configs['api_urls'] as $setting => $default)
+            {?>
+            <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_LABEL"); ?></label>
+                <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>
+                <input type="text" class="form-control" name="<?php echo 'api_url_' . $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+            <?php }
             foreach($wizard->configs['api_user'] as $setting => $default)
             {?>
             <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_USER_LABEL"); ?></label>
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_USER_HELP"); ?></div>
-                <input type="text" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+                <input type="text" class="form-control" name="<?php echo 'api_user_' . $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
             <?php }
             foreach($wizard->configs['api_pass'] as $setting => $default)
             {?>
             <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_PASS_LABEL"); ?></label>
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_PASS_HELP"); ?></div>
-                <input type="password" class="form-control" name="<?php echo $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
+                <input type="password" class="form-control" name="<?php echo 'api_pass_' . $setting; ?>" id="<?php echo $setting; ?>" value="<?php echo $default; ?>"/>
             <?php }
-            foreach($wizard->configs['api_paths'] as $setting => $default)
+            foreach($wizard->configs['path'] as $setting => $default)
             {?>
             <label for="<?php echo $setting; ?>"><?php echo constant("API_".strtoupper($setting) . "_LABEL"); ?></label>
                 <div class="xoform-help alert alert-info"><?php echo constant("API_".strtoupper($setting) . "_HELP"); ?></div>
