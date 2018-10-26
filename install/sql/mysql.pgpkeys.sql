@@ -9,12 +9,12 @@ CREATE TABLE `pgpkeys` (
   `zonekey` varchar(32) NOT NULL default '',
   `name` varchar(255) NOT NULL default '',
   `email` varchar(255) NOT NULL default '',
-  `key` tinytext,
+  `key` mediumblob,
   `created` int(12) unsigned NOT NULL default '0',
   `imported` int(12) unsigned NOT NULL default '0',
   `zoned` int(12) unsigned NOT NULL default '0',
   PRIMARY KEY  (kid),
-  KEY domainidaddress (domainid, address)
+  KEY typaldomainidemail (typal, domainid, email)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 

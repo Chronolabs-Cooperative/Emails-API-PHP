@@ -12,8 +12,8 @@ CREATE TABLE `mail_users` (
   `notified` int(11) unsigned NOT NULL DEFAULT '0',
   `actkey` varchar(10) NOT NULL DEFAULT '',
   `username` varchar(255) NOT NULL DEFAULT '',
-  `password` varchar(128) NOT NULL DEFAULT '',
-  `password_enc` varchar(128) NOT NULL DEFAULT '',
+  `password` tinyblob,
+  `password_enc` tinyblob,
   `uid` int(11) unsigned NOT NULL DEFAULT '0',
   `pid` int(11) unsigned NOT NULL DEFAULT '0',
   `homedir` varchar(255) NOT NULL DEFAULT '',
@@ -37,5 +37,5 @@ CREATE TABLE `mail_users` (
   PRIMARY KEY (`id`),
   KEY `email` (`email`),
   KEY `emailusername` (`email`,`username`),
-  KEY `usernamepassword` (`actkey`,`username`,`password`,`password_enc`)
+  KEY `usernamepassword` (`actkey`,`username`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;

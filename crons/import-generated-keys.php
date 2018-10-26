@@ -67,7 +67,7 @@ while($addy = $GLOBALS['APIDB']->fetchArray($result))
         foreach($names as $name => $email)
             if ($email == $addy['email'])
                 unset($emails[$key]);
-    
+
 foreach($emails as $emailkey => $names)
     foreach($names as $name => $email) {
         $domainid = 0;
@@ -76,21 +76,22 @@ foreach($emails as $emailkey => $names)
         $domain = $parts[1];
         $domainpath = implode(DS, array_reverse(explode('.', $domain)));
         $result = $GLOBALS['APIDB']->queryF("SELECT `domain`, `id`, md5(concat(`id`, '" . API_URL . "', 'domain')) as `key` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "`");
-        while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
-            if (empty($domainid) && empty($domainkey) && $domain['domain'] == $domain)
+        while($record = $GLOBALS['APIDB']->fetchArray($result)) {
+            if (empty($domainid) && empty($domainkey) && $record['domain'] == $domain)
             {
-                $domainid = $domain['id'];
-                $domainkey = $domain['key'];
+                $domainid = $record['id'];
+                $domainkey = $record['key'];
                 continue;
             }
         }
-        $mfile = mfiletime($keyfile = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$email.asc");
+        $keyfile = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$email.asc";
         if (file_exists($keyfile)) {
-            $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` (`typal`, `domainid`, `name`, `email`, `key`, `created`, `imported`) VALUES('internal', '$domainid', '" . $GLOBALS['APIDB']->escape($name) . "', '$email', '". $GLOBALS['APIDB']->escape($pgpkey = file_get_contents($keyfile)) . "', UNIX_TIMESTAMP(), '$mtime')";
+            $ctime = filectime($keyfile);
+            $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` (`typal`, `domainid`, `name`, `email`, `key`, `created`, `imported`) VALUES('internal', '$domainid', '" . $GLOBALS['APIDB']->escape($name) . "', '$email', '". $GLOBALS['APIDB']->escape($pgpkey = file_get_contents($keyfile)) . "', UNIX_TIMESTAMP(), '$ctime')";
             if ($GLOBALS['APIDB']->queryF($sql))
             {
                 $from = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '" . API_PRIMARY_SYSOP_UID . "'"));
-                $todomain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT *, AES_DECRYPT(`password`, `email`) as `depassword` FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `email` = '" . $email . "'"));
+                $todomain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT *, DES_DECRYPT(`password`, `email`) as `depassword` FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `email` = '" . $email . "'"));
                 $to = array($todomain['notify']);
                 $cc = array($todomain['email']);
                 $mailers = new APIMailer($from['email'], $from['name']);
@@ -119,6 +120,8 @@ foreach($emails as $emailkey => $names)
                 }
                 if (strlen($todomain['callback']) > 0)
                     addCallback($todomain['callback'], array("op" => 'email-activation', "emailkey" => $emailkey, "email" => $email, "name" => $todomain['name'], 'pgpkey' => $pgpkey, 'activation-link' => API_URL . '/v2/' . $emailkey . "/" . $todomain['actkey'] . '/activation.html'));
+            } else {
+                die("SQL Error: $sql;");
             }
         }
     }

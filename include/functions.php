@@ -400,11 +400,11 @@ if (!function_exists("addEmail")) {
             
             if (empty($return))
             {
-                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE (`email` LIKE '$username@$domain' AND `username` = '$username@$domain' AND `domainid` = '$domainid')";
+                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE ((`email` LIKE '$username@$domain' OR `username` = '$username@$domain') AND `domainid` = '$domainid')";
                 list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                 if ($count==0)
                 {
-                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_users') . "` (`mode`, `name`, `email`, `notify`, `actkey`, `password`, `password_enc`, `uid`, `pid`, `homedir`, `maildir`, `postfix`, `domainid`, `pop3`, `imap`, `mboxsize`, `mboxonline`, `mboxoffline`, `created`, `callback`) VALUES ('new', '" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$notify', '" . substr(sha1(microtime(true)), mt_rand(0, 34), mt_rand(4,6)) . "', AES_ENCRYPT('$password', '$username@$domain'), CRYPT('$password'), '" . $GLOBALS['uid'] . "', '$pid', '" . ($homedir = API_HOMEDIR_PATH . DS . $domainpath . DS . $username) . "', '" . ($maildir = API_MAILDIR_PATH . DS . $domainpath . DS . $username) . "', 'Y', '$domainid', 1, 1, '" . (API_INTIALISE_INBOX_SIZES * 1024 * 1024 * 1024) . "', '$bytessize', '" . (API_OFFLINE_INBOX_SIZES * 1024 * 1024 * 1024) . "', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')"; 
+                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_users') . "` (`mode`, `name`, `email`, `username`, `notify`, `actkey`, `password`, `password_enc`, `uid`, `pid`, `homedir`, `maildir`, `postfix`, `domainid`, `pop3`, `imap`, `mboxsize`, `mboxonline`, `mboxoffline`, `created`, `callback`) VALUES ('new', '" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$username@$domain', '$notify', '" . substr(sha1(microtime(true)), mt_rand(0, 34), mt_rand(4,6)) . "', DES_ENCRYPT('$password', '$username@$domain'), ENCRYPT('$password'), '" . $GLOBALS['uid'] . "', '$pid', '" . ($homedir = API_HOMEDIR_PATH . DS . $domainpath . DS . $username) . "', '" . ($maildir = API_MAILDIR_PATH . DS . $domainpath . DS . $username) . "', 'Y', '$domainid', 1, 1, '" . (API_INTIALISE_INBOX_SIZES * 1024 * 1024 * 1024) . "', '$bytessize', '" . (API_OFFLINE_INBOX_SIZES * 1024 * 1024 * 1024) . "', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')"; 
                     if ($GLOBALS['APIDB']->queryF($sql))
                     {
                         $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'email')) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
@@ -428,20 +428,20 @@ if (!function_exists("addEmail")) {
                             $sh[] = "unlink \"" . dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh' . "\"\n";
                         }
                         
-                        file_put_contents($diz = API_MAILDIR_PATH . DS . "$username@$domain.diz", str_replace('%name', $name, str_replace('%email', "$username@$domain", str_replace('%subbits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), str_replace('%bits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), file_get_contents(__DIR__ . DS . 'data' . DS . 'gen-key-script.diz'))))));
+                        writeRawFile($diz = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$username@$domain.diz", str_replace('%name', $name, str_replace('%email', "$username@$domain", str_replace('%subbits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), str_replace('%bits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), file_get_contents(__DIR__ . DS . 'data' . DS . 'gen-key-script.diz'))))));
                         $sh[] = "gpg --batch --gen-key \"$diz\"\n";
                         $sh[] = "unlink \"$diz\"\n";
-                        $sh[] = "gpg --armor --export \"$username@$domain\" > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc\"\n";
+                        $sh[] = "gpg --armor --export $username@$domain > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc\"\n";
                         foreach(file(__DIR__ . DS . 'data' . DS . 'keyservers-hostnames.diz') as $keyserver)
-                            $sh[] = "gpg --keyserver \"" . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . "\" --send-key \"$username@$domain\"\n"; 
-                        file_put_contents($script, implode("", $sh));
+                            $sh[] = "gpg --keyserver " . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . " --send-key $username@$domain\n"; 
+                        writeRawFile($script, implode("", $sh));
                         
                         if (strlen($callback) > 0)
                             addCallback($callback, array('op' => 'created-email', 'emailkey' => $emailkey, 'email' => '$username@$domain', 'username' => $username, 'domain' => $domain, 'domainkey' => $domainkey));
                         
                         $return = array('code' => 201, 'emailkey' => $_SESSION['emailkey'], 'errors' => array());
                     } else {
-                        $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array($GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+                        $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('sql' => $sql, $GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
                     }
                 } else {
                     $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('103' => 'Record Already Exists!!!'));
@@ -530,7 +530,11 @@ if (!function_exists("editRecord")) {
             foreach($vars as $key => $value)
                 if (!in_array($key, $fields))
                     unset($vars[$key]);
-                    
+            
+            foreach($fields as $key => $value)
+                if (!in_array($key, $vars))
+                    unset($fields[$key]);
+                
             if (count($vars) == 0)
                 return array('code' => 501, 'errors' => array('110' => 'No records fields specified for edit this supports: '.implode(', ', $fields).'!!!'));
 
@@ -551,15 +555,15 @@ if (!function_exists("editRecord")) {
                             $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `uid` = '$id'"));
                             $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['uname']). "') OR (`email` LIKE '" .$GLOBALS['APIDB']->escape($vars['email']). "'))";
                             break;
-                case 'records':
+                case 'email':
                     $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
                     $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `content` LIKE '" .$GLOBALS['APIDB']->escape($vars['content']). "' AND `type` LIKE '" . $old['type'] . "'))";
                     break;
-                case 'domains':
+                case 'domain':
                     $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
                     $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`name` LIKE '" .$GLOBALS['APIDB']->escape($vars['name']). "' AND `type` LIKE '" . $vars['type'] . "') OR (`master` LIKE '" .$GLOBALS['APIDB']->escape($vars['master']). "' AND `type` LIKE '" . $vars['type'] . "'))";
                     break;
-                case 'supermasters':
+                case 'alias':
                     $old = $GLOBALS["APIDB"]->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE `id` = '$id'"));
                     $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix($table) . "` WHERE (`ip` LIKE '" .$GLOBALS['APIDB']->escape($vars['ip']). "' AND `nameserver` LIKE '" .$GLOBALS['APIDB']->escape($vars['nameserver']). "'))";
                     break;
@@ -572,7 +576,12 @@ if (!function_exists("editRecord")) {
                 foreach($vars as $key => $value)
                 {
                     $u++;
-                    $sql .= "`$key` = '" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars)?"', ":"' ");
+                    
+                    if ($key = 'password') {
+                        $sql .= "`$key` = DES_ENCRYPT('" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars) + 1?"', `email`), ":"', `email`) ");
+                        $sql .= "`$key_enc` = ENCRYPT('" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars)?"'), ":"') ");
+                    } else 
+                        $sql .= "`$key` = '" . $GLOBALS['APIDB']->escape($value) . ($u < count($vars)?"', ":"' ");
                 }
                 switch ($table)
                 {
@@ -998,48 +1007,50 @@ if (!function_exists("getURIData")) {
         }
         if (count($post)==0 || empty($post))
             curl_setopt($btt, CURLOPT_POST, false);
-            else {
-                $uploadfile = false;
-                foreach($post as $field => $value)
-                    if (substr($value , 0, 1) == '@' && !file_exists(substr($value , 1, strlen($value) - 1)))
-                        unset($post[$field]);
-                    else
-                        $uploadfile = true;
-                curl_setopt($btt, CURLOPT_POST, true);
-                curl_setopt($btt, CURLOPT_POSTFIELDS, http_build_query($post));
-                
-                if (!empty($headers))
-                    foreach($headers as $key => $value)
-                        if ($uploadfile==true && substr($value, 0, strlen('Content-Type:')) == 'Content-Type:')
-                            unset($headers[$key]);
-                if ($uploadfile==true)
-                    $headers[]  = 'Content-Type: multipart/form-data';
-            }
-            if (count($headers)==0 || empty($headers))
-                curl_setopt($btt, CURLOPT_HEADER, false);
-                else {
-                    curl_setopt($btt, CURLOPT_HEADER, true);
-                    curl_setopt($btt, CURLOPT_HTTPHEADER, $headers);
-                }
-                curl_setopt($btt, CURLOPT_CONNECTTIMEOUT, $connectout);
-                curl_setopt($btt, CURLOPT_TIMEOUT, $timeout);
-                curl_setopt($btt, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($btt, CURLOPT_VERBOSE, false);
-                curl_setopt($btt, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($btt, CURLOPT_SSL_VERIFYPEER, false);
-                $data = curl_exec($btt);
-                $GLOBALS['php-curl'][md5($uri)]['http']['posts'] = $post;
-                $GLOBALS['php-curl'][md5($uri)]['http']['headers'] = $headers;
-                $GLOBALS['php-curl'][md5($uri)]['http']['code'] = curl_getinfo($btt, CURLINFO_HTTP_CODE);
-                $GLOBALS['php-curl'][md5($uri)]['header']['size'] = curl_getinfo($btt, CURLINFO_HEADER_SIZE);
-                $GLOBALS['php-curl'][md5($uri)]['header']['value'] = curl_getinfo($btt, CURLINFO_HEADER_OUT);
-                $GLOBALS['php-curl'][md5($uri)]['size']['download'] = curl_getinfo($btt, CURLINFO_SIZE_DOWNLOAD);
-                $GLOBALS['php-curl'][md5($uri)]['size']['upload'] = curl_getinfo($btt, CURLINFO_SIZE_UPLOAD);
-                $GLOBALS['php-curl'][md5($uri)]['content']['length']['download'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-                $GLOBALS['php-curl'][md5($uri)]['content']['length']['upload'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_UPLOAD);
-                $GLOBALS['php-curl'][md5($uri)]['content']['type'] = curl_getinfo($btt, CURLINFO_CONTENT_TYPE);
-                curl_close($btt);
-                return $data;
+        else {
+            $uploadfile = false;
+            foreach($post as $field => $value)
+                if (substr($value , 0, 1) == '@' && !file_exists(substr($value , 1, strlen($value) - 1)))
+                    unset($post[$field]);
+                else
+                    $uploadfile = true;
+            curl_setopt($btt, CURLOPT_POST, true);
+            curl_setopt($btt, CURLOPT_POSTFIELDS, http_build_query($post));
+            
+            if (!empty($headers))
+                foreach($headers as $key => $value)
+                    if ($uploadfile==true && substr($value, 0, strlen('Content-Type:')) == 'Content-Type:')
+                        unset($headers[$key]);
+            if ($uploadfile==true)
+                $headers[]  = 'Content-Type: multipart/form-data';
+        }
+        if (count($headers)==0 || empty($headers)) {
+            curl_setopt($btt, CURLOPT_HEADER, false);
+            curl_setopt($btt, CURLOPT_HTTPHEADER, array());
+        } else {
+            curl_setopt($btt, CURLOPT_HEADER, false);
+            curl_setopt($btt, CURLOPT_HTTPHEADER, $headers);
+        }
+        curl_setopt($btt, CURLOPT_CONNECTTIMEOUT, $connectout);
+        curl_setopt($btt, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($btt, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($btt, CURLOPT_VERBOSE, false);
+        curl_setopt($btt, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($btt, CURLOPT_SSL_VERIFYPEER, false);
+        $data = curl_exec($btt);
+        $GLOBALS['php-curl'][md5($uri)]['http']['uri'] = $uri;
+        $GLOBALS['php-curl'][md5($uri)]['http']['posts'] = $post;
+        $GLOBALS['php-curl'][md5($uri)]['http']['headers'] = $headers;
+        $GLOBALS['php-curl'][md5($uri)]['http']['code'] = curl_getinfo($btt, CURLINFO_HTTP_CODE);
+        $GLOBALS['php-curl'][md5($uri)]['header']['size'] = curl_getinfo($btt, CURLINFO_HEADER_SIZE);
+        $GLOBALS['php-curl'][md5($uri)]['header']['value'] = curl_getinfo($btt, CURLINFO_HEADER_OUT);
+        $GLOBALS['php-curl'][md5($uri)]['size']['download'] = curl_getinfo($btt, CURLINFO_SIZE_DOWNLOAD);
+        $GLOBALS['php-curl'][md5($uri)]['size']['upload'] = curl_getinfo($btt, CURLINFO_SIZE_UPLOAD);
+        $GLOBALS['php-curl'][md5($uri)]['content']['length']['download'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+        $GLOBALS['php-curl'][md5($uri)]['content']['length']['upload'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_UPLOAD);
+        $GLOBALS['php-curl'][md5($uri)]['content']['type'] = curl_getinfo($btt, CURLINFO_CONTENT_TYPE);
+        curl_close($btt);
+        return $data;
     }
 }
 
@@ -1355,7 +1366,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='domain' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
@@ -1419,7 +1430,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='email[domainkey]' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
@@ -1440,7 +1451,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t\t<label for='vpass'>Verify Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>";
-            $form[] = "\t\t\t\t<input type='vpass' name='vpass' id='size' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t\t<input type='password' name='vpass' id='size' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>&nbsp;</td>";
             $form[] = "\t\t</tr>";

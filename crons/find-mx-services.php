@@ -55,22 +55,25 @@ if ($staters = APICache::read('find-mx-services'))
     $seconds = 1800;
 }
 
-$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcheck` < UNIX_TIMESTAMP()";
+$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcheck` > UNIX_TIMESTAMP()";
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     $found = false;
     $priority = 10;
     foreach(getMXByNamel($domain['domain']) as $key => $mxrecord) {
         if ($found == false)
-            if ($priority < $mxrecord['pri'])
+            if ($priority > $mxrecord['pri'])
                 $priority = $mxrecord['pri'];
         if ($mxrecord['target'] == parse_url(API_URL, PHP_URL_HOST))
-            $found = true;
+            if ($found == false)
+                if ($mxhost = $mxrecord['host'])
+                    if ($found = true)
+                        continue;
     }
     if ($found == false) {
-        list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF("SELECT count(*) FROM `" . $GLOBALS['APIDB']->prefix('mxs') . "` WHERE `mx` LIKE 'mx.".$domain['domain']."' AND `target` LIKE '".parse_url(API_URL, PHP_URL_HOST)."'"));
+        list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF("SELECT count(*) FROM `" . $GLOBALS['APIDB']->prefix('mxs') . "` WHERE `mx` LIKE '".$domain['domain']."' AND `target` LIKE '".parse_url(API_URL, PHP_URL_HOST)."'"));
         if ($count == 0) {
-            if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mxs') . "` (`domainid`, `uid`, `pid`, `mx`, `target`, `pirority`, `mxcheck`) VALUES('".$domain['id']."', '".$domain['uid']."','".$domain['pid']."','mx.".$domain['domain']."','".parse_url(API_URL, PHP_URL_HOST)."','".($pirority+10)."', UNIX_TIMESTAMP() + $seconds)"))
+            if (!$GLOBALS['APIDB']->queryF($sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mxs') . "` (`domainid`, `uid`, `pid`, `mx`, `target`, `pirority`, `mxcheck`) VALUES('".$domain['id']."', '".$domain['uid']."','".$domain['pid']."','".domain['domain']."','".parse_url(API_URL, PHP_URL_HOST)."','".($pirority+10)."', UNIX_TIMESTAMP() + $seconds)"))
                 die("SQL Failed: $sql;");
             else 
                 echo("\nSQL Success: $sql;");
@@ -96,10 +99,13 @@ while($mx = $GLOBALS['APIDB']->fetchArray($result)) {
     $priority = 10;
     foreach(getMXByNamel($domain['domain']) as $key => $mxrecord) {
         if ($found == false)
-            if ($priority < $mxrecord['pri'])
+            if ($priority > $mxrecord['pri'])
                 $priority = $mxrecord['pri'];
         if ($mxrecord['target'] == $mx['target'] && $mxrecord['host'] == $mx['mx'] )
-            $found = true;
+            if ($found == false)
+                if ($mxhost = $mxrecord['host'])
+                    if ($found = true)
+                        continue;
     }
     if ($found == false) {
         if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('mxs') . "` SET `mxcheck` = UNIX_TIMESTAMP() + " . ($seconds * 2) . " WHERE `id` = " . $mx['id']))

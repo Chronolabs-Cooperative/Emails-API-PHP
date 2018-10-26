@@ -26,7 +26,7 @@
  */
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
+
 
 $start = time();
 if ($staters = APICache::read('port-encryption-keys'))
@@ -47,15 +47,15 @@ if ($staters = APICache::read('port-encryption-keys'))
     if (count($avg) > 0 ) {
         foreach($avg as $average)
             $seconds += $average;
-        $seconds = $seconds / count($avg);
-    } else 
+            $seconds = $seconds / count($avg);
+    } else
         $seconds = 1800;
 } else {
     APICache::write('port-encryption-keys', array(0=>$start), 3600 * 24 * 7 * 4 * 6);
     $seconds = 1800;
 }
 
-$authkey = json_decode(getURIData(API_ZONES_API_URL . "/v1/authkey.api", 200, 200, array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS)), true);
+$authkey = json_decode(getURIData(API_ZONES_API_URL . "/v1/authkey.api?" . http_build_query(array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS, 'format' => 'json')), 200, 200, array("username" => API_ZONES_API_USER, "password" => API_ZONES_API_PASS, 'format' => 'json')), true);
 if (count($authkey['errors']) == 0)
     $domains = json_decode(getURIData(API_ZONES_API_URL . "/v1/".$authkey['authkey']."/domains/json.api", 200, 200), true);
 else 
@@ -71,14 +71,20 @@ while($pgpkey = $GLOBALS['APIDB']->fetchArray($result)) {
                     $domain['zonekey'] = $zone['domainkey'];
                     if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `zonekey` = '" . $domain['zonekey'] . "' WHERE `id` = '" . $pgpkey['domainid'] . "'")) {
                         die("SQL Failed: $sql;");
+                    } else {
+                        echo ("SQL Success: $sql;");
                     }
                 }
             }
         }
         if (!empty($domain['zonekey'])) {
-            $record = json_decode(getURIData(API_ZONES_API_URL . "/v1/".$authkey['authkey']."/zones.api", 200, 200, array('domain' => $domain['zonekey'], 'type' => 'OPENPGPKEY', 'name' => $pgpkey['email'], 'content' => $pgpkey['key'], 'ttl' => 6000, 'prio' => 5)), true);
+            $record = json_decode(getURIData(API_ZONES_API_URL . "/v1/".$authkey['authkey']."/zones.api?" . http_build_query(array('domain' => $domain['zonekey'], 'type' => 'OPENPGPKEY', 'name' => $pgpkey['email'], 'content' => $pgpkey['key'], 'ttl' => 6000, 'prio' => 5, 'format' => 'json')), 200, 200, array('domain' => $domain['zonekey'], 'type' => 'OPENPGPKEY', 'name' => $pgpkey['email'], 'content' => $pgpkey['key'], 'ttl' => 6000, 'prio' => 5, 'format' => 'json')), true);
             if (count($record['errors']) == 0) {
-                $GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` SET `zonekey` = '" . $record['recordkey'] . "', `zoned` = UNIX_TIMESTAMP() WHERE `kid` = '" . $pgpkey['kid'] . "'");
+                if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` SET `zonekey` = '" . $record['recordkey'] . "', `zoned` = UNIX_TIMESTAMP() WHERE `kid` = '" . $pgpkey['kid'] . "'")) {
+                    die("SQL Failed: $sql;");
+                } else {
+                    echo ("SQL Success: $sql;");
+                }
             }
         }
     }
