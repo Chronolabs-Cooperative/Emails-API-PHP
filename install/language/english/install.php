@@ -61,6 +61,8 @@ define('PATHS_SETTINGS', 'Paths settings');
 define('PATHS_SETTINGS_TITLE', 'Paths settings');
 define('PATHS_EXTRA', 'Extra settings + URLs');
 define('PATHS_EXTRA_TITLE', 'Extra settings + URLs');
+define('PATHS_SPAMASSASSIN', 'Configure Spam-Assassin');
+define('PATHS_SPAMASSASSIN_TITLE', 'Configure Spam-Assassin');
 define('DATABASE_CONNECTION', 'Database connection');
 define('DATABASE_CONNECTION_TITLE', 'Database connection');
 define('DATABASE_CONFIG', 'Database configuration');

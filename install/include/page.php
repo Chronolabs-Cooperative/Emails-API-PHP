@@ -96,6 +96,12 @@ $pages = array(
         'title' => PATHS_OPENPGP_TITLE,
         'icon'  => 'fa fa-fw fa-folder-open'
     ),
+    
+    'configspamassassin'    => array(
+        'name'  => PATHS_SPAMASSASSIN,
+        'title' => PATHS_SPAMASSASSIN_TITLE,
+        'icon'  => 'fa fa-fw fa-folder-open'
+    ),
     'end'             => array(
         'name'  => WELCOME,
         'title' => WELCOME_TITLE,

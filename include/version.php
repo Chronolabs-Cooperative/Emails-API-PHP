@@ -41,5 +41,5 @@ defined('API_ROOT_PATH') || exit('Restricted access');
 /**
  *  Define API version
  */
-define('API_VERSION', 'Emails Propogation REST Services API 1.0.3');
+define('API_VERSION', 'Emails Propogation REST Services API 1.0.4');
 define('API_TYPE', 'emails-api');

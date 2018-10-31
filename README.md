@@ -2,7 +2,7 @@
 
 # Emails/Aliases Account's Propogation REST API Services
 
-## Version: 1.0.1 (stable)
+## Version: 1.0.4 (stable)
 
 ### Author: Dr. Simon Antony Roberts <simon@snails.email>
 
@@ -47,6 +47,9 @@ There is one or more cron jobs that is scheduled task that need to be added to y
     Execute:-
     $ sudo crontab -e
 
+
+### CronTab Entry:
+
 You have to add the following cronjobs to your cronjobs or on windows scheduled tasks!
 
     */41 */2 * * * /usr/bin/php /var/www/emails.snails.email/crons/find-mx-services.php
@@ -54,9 +57,8 @@ You have to add the following cronjobs to your cronjobs or on windows scheduled 
     */11 * * * * /usr/bin/php /var/www/emails.snails.email/crons/import-generated-keys.php
     */22 * * * * /usr/bin/php /var/www/emails.snails.email/crons/port-encryption-keys.php
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/peer-services.php
-    */5 * * * * sh /var/www/emails.snails.email/crons/*
-
-### CronTab Entry:
+    */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/get-spam-training.php
+    */5 * * * * sh /var/www/emails.snails.email/crons/*.sh
     
     
 ## Licensing
