@@ -8,7 +8,7 @@
 
 #### Demo: http://emails.snails.email
 
-[![Emails/Aliases Account's Propogation REST API Service](http://img.youtube.com/vi/MK4CwDk_bXE/0.jpg)](http://www.youtube.com/watch?v=MK4CwDk_bXE)
+[![Emails/Aliases Account's Propogation REST API Service](http://img.youtube.com/vi/qCABctfNaaA/0.jpg)](http://www.youtube.com/watch?v=qCABctfNaaA)
 
 This API allows for a REST API to generate email addresses with IMAP, POP, SMTP resolve as well as maintenance and a client directory for each domain which can be assigned. The installation include configuration of dovecove in a number of linux formats, but you will have to still configure manually your postfix smtp relay settings, these are not included in the instructions for installation.
 
