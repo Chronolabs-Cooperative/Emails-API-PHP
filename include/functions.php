@@ -1517,7 +1517,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='domain' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
@@ -1582,7 +1582,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='email[domainkey]' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` > UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
