@@ -2,11 +2,13 @@
 
 # Emails/Aliases Account's Propogation REST API Services
 
-## Version: 1.0.4 (stable)
+## Version: 1.0.7 (stable)
 
-### Author: Dr. Simon Antony Roberts <simon@snails.email>
+### Author: Dr. Simon Antony Roberts <simon@ordinance.space>
 
 #### Demo: http://emails.snails.email
+
+[![Emails/Aliases Account's Propogation REST API Service](http://img.youtube.com/vi/MK4CwDk_bXE/0.jpg)](http://www.youtube.com/watch?v=MK4CwDk_bXE)
 
 This API allows for a REST API to generate email addresses with IMAP, POP, SMTP resolve as well as maintenance and a client directory for each domain which can be assigned. The installation include configuration of dovecove in a number of linux formats, but you will have to still configure manually your postfix smtp relay settings, these are not included in the instructions for installation.
 
@@ -37,7 +39,7 @@ The follow lines go in your API_ROOT_PATH/.htaccess
     RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z])/activation.html ./activation.php?version=$1&mode=activation&emailkey=$2&actkey=$3 [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/(aliases|emails|domains).api ./index.php?version=$1&authkey=$2&mode=$3 [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/(aliases|domains|users)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&mode=$3&format=$4 [L,NC,QSA]
-    RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z]{32})/(emails|pgpkeys)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&key=$3&mode=$4&format=$5 [L,NC,QSA]
+    RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z]{32})/(emails|pgpkeys|aliases)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&key=$3&mode=$4&format=$5 [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z]{32})/(edit|delete)/(email|alias|domain|user)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&key=$3&mode=$4&type=$5&format=$6 [L,NC,QSA]
 
 ## Scheduled Cron Job Details.,

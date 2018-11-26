@@ -147,11 +147,11 @@ else
     <h2>PGPKEY Document Output</h2>
     <p>This is done with the <em>pgpkey.api</em> extension at the end of the url, you replace the example address with either a domain! You can also include PGP Keys with emailing the key in the body or as an attachment to: <strong><em><?php echo API_EMAIL_PGP_KEYS; ?></em></strong></p>
     <blockquote>
-        <?php echo getHTMLForm('newpgpkey', $authkey); ?>
+        <?php echo getHTMLForm('addpgpkey', $authkey); ?>
     </blockquote>
     <h3>This the HTML Code surrounding the api call</h3>
     <pre style="max-height: 300px; overflow: scroll;">
-    <?php echo htmlspecialchars(getHTMLForm('newpgpkey', $authkey)); ?>
+    <?php echo htmlspecialchars(getHTMLForm('addpgpkey', $authkey)); ?>
     </pre>
     <h2>RAW Document Output</h2>
     <p>This is done with the <em>raw.api</em> extension at the end of the url, you replace the example address with either a domain, an IPv4 or IPv6 address the following example is of calls to the api</p>

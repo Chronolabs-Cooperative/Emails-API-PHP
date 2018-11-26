@@ -96,14 +96,14 @@
 	        if (!empty($inner['email']['username']) && !empty($inner['email']['domainkey']) && !empty($inner['name']) && !empty($inner['password']) && !empty($inner['vpass']) && !empty($inner['size']) && !empty($inner['notify']))
 	            $data = addEmail($inner['authkey'], $inner['name'], $inner['email']['username'], $inner['email']['domainkey'], $inner['password'], $inner['vpass'], $inner['size'], $inner['notify'], $inner['callback'], $inner['format']);
 	        elseif (!empty($inner['authkey']) && !empty($inner['key']))
-	            $data = getEmails($inner['authkey'], $inner['key']);
+	            $data = getEmail($inner['authkey'], $inner['key']);
 	        break;
 	    case 'newalias':
 	    case 'aliases':
-	        if (!empty($inner['domain']) && !empty($inner['username']) && !empty($inner['domain']) && !empty($inner['destination']))
-	            $data = addAlias($inner['authkey'], $inner['username'], $inner['domain'], $inner['destination'], $inner['format']);
-	            elseif (!empty($inner['authkey']) && !empty($inner['key']))
-	            $data = getAliases($inner['authkey'], $inner['key']);
+	        if (!empty($inner['domain']) && !empty($inner['username']) && !empty($inner['destination']) && !empty($inner['name']))
+	            $data = addAlias($inner['authkey'], $inner['name'], $inner['username'], $inner['domain'], $inner['destination'], $inner['callback'], $inner['format']);
+            elseif (!empty($inner['authkey']) && !empty($inner['key']))
+	            $data = getAlias($inner['authkey'], $inner['key']);
 	            break;
 	    case 'users':
 	        if (!empty($inner['uname']) && !empty($inner['email']) && !empty($inner['pass']) && !empty($inner['vpass']))

@@ -107,11 +107,11 @@ $configs['path'] = array(
 $configs['pgp_keys'] = array(
     'email' => 'pgpkeys@'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
     'imap' => 'imap.'.parse_url($_SESSION['settings']['URL'], PHP_URL_HOST),
-    'port' => '143',
+    'port' => '993',
     'user' => '',
     'pass' => '',
-    'maxbits' => '4096',
-    'minbits' => '1024',
+    'maxbits' => mt_rand(2048, 4096),
+    'minbits' => mt_rand(1024, 2047),
 );
 
 $configs['inbox_sizes'] = array(

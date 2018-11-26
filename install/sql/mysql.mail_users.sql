@@ -16,6 +16,7 @@ CREATE TABLE `mail_users` (
   `password_enc` tinyblob,
   `uid` int(11) unsigned NOT NULL DEFAULT '0',
   `pid` int(11) unsigned NOT NULL DEFAULT '0',
+  `kid` mediumint(32) unsigned NOT NULL DEFAULT '0',
   `homedir` varchar(255) NOT NULL DEFAULT '',
   `maildir` varchar(255) NOT NULL DEFAULT '',
   `postfix` enum('Y','N') NOT NULL DEFAULT 'Y',

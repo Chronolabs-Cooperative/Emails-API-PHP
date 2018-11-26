@@ -453,6 +453,90 @@ if (!function_exists("addEmail")) {
 }
 
 
+if (!function_exists("addEmail")) {
+    /**
+     * addEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function addAlias($authkey, $name = '', $username = '', $domainkey = '', $destination = '', $callback = '', $format = 'json')
+    {
+        $return = checkAuthKey($authkey);
+        if (empty($return))
+        {
+            if (strlen($domainkey)==32) {
+                $domainid = getDomainID($domainkey);
+                $sql = "SELECT `domain`, `pid`, `zonekey` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '$domainid'";
+                list($domain, $pid, $zonekey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                $domainpath = implode(DS, array_reverse(explode('.', $domain)));
+            } else
+                $return = array('code' => 501, 'aliaskey' => md5(NULL. 'alias'), 'errors' => array('123' => 'Domain Key not Found!!!'));
+                
+            if (empty($return) && !checkEmail($destination))
+                $return = array('code' => 501, 'aliaskey' => md5(NULL. 'alias'), 'errors' => array('126' => 'Destination Email Address is not an addressed formating correctly!!!'));
+
+            if (empty($return))
+            {
+                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE ((`email` LIKE '$username@$domain' OR `email_full` = '$username@$domain') AND `destination` = '$destination')";
+                list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                if ($count==0)
+                {
+                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` (`name`, `email`, `email_full`, `destination`, `domainid`, `uid`, `pid`, `created`, `callback`) VALUES ('" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$username@$domain', '$destination', '$domainid', '" . $GLOBALS['uid'] . "', '$pid', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')";
+                    if ($GLOBALS['APIDB']->queryF($sql))
+                    {
+                        $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'alias')) FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
+                        list($aliaskey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                        $_SESSION['aliaskey'] = $aliaskey;
+                        setcookie('aliaskey', $_SESSION['aliaskey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
+                        
+                        if (!is_dir($maildir))
+                            mkdir($maildir, 0777, true);
+                                            
+                        if (!is_dir(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys'))
+                            mkdir(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys', 0777, true);
+                                            
+                        if (!file_exists(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc")) {
+                            if (file_exists($script = dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh'))
+                                $sh = file($script);
+                            else {
+                                $sh = array();
+                                $sh[] = "unlink \"" . dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh' . "\"\n";
+                            }
+                            
+                            writeRawFile($diz = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$username@$domain.diz", str_replace('%name', "$username@$domain", str_replace('%email', "$username@$domain", str_replace('%subbits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), str_replace('%bits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), file_get_contents(__DIR__ . DS . 'data' . DS . 'gen-key-script.diz'))))));
+                            $sh[] = "gpg --batch --gen-key \"$diz\"\n";
+                            $sh[] = "unlink \"$diz\"\n";
+                            $sh[] = "gpg --armor --export $username@$domain > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc\"\n";
+                            foreach(file(__DIR__ . DS . 'data' . DS . 'keyservers-hostnames.diz') as $keyserver)
+                                $sh[] = "gpg --keyserver " . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . " --send-key $username@$domain\n";
+                            writeRawFile($script, implode("", $sh));
+                                
+                            if (strlen($callback) > 0)
+                                addCallback($callback, array('op' => 'created-alias', 'aliaskey' => $aliaskey, 'alias' => '$username@$domain', 'username' => $username, 'domain' => $domain, 'domainkey' => $domainkey, 'destination' => $destination));
+                                                                
+                            $return = array('code' => 201, 'aliaskey' => $_SESSION['aliaskey'], 'errors' => array());
+                        } else {
+                            
+                            if (strlen($callback) > 0)
+                                addCallback($callback, array('op' => 'created-alias', 'aliaskey' => $aliaskey, 'alias' => '$username@$domain', 'username' => $username, 'domain' => $domain, 'domainkey' => $domainkey, 'destination' => $destination, 'pgpkey' => file_get_contents(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $username . '@' . $domain . ".asc")));
+                                
+                            $return = array('code' => 201, 'aliaskey' => $_SESSION['aliaskey'], 'errors' => array());
+                        }
+                    } else {
+                        $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('sql' => $sql, $GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+                    }
+                } else {
+                    $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('103' => 'Record Already Exists!!!'));
+                }
+            }
+        }
+        return $return;
+    }
+}
+
+
 if (!function_exists("addUser")) {
     /**
      * checkEmail()
@@ -712,6 +796,61 @@ if (!function_exists("getUsers")) {
         return $return;
     }
 }
+
+
+if (!function_exists("getEmail")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function getEmail($authkey, $emailkey = '', $format = 'json')
+    {
+        $return = checkAuthKey($authkey);
+        if (empty($return))
+        {
+            $return['code'] = 201;
+            $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `id` = " . getEmailID($emailkey);
+            $result = $GLOBALS['APIDB']->queryF($sql);
+            while($email = $GLOBALS['APIDB']->fetchArray($result)) {
+                unset($email['id']);
+                unset($email['password']);
+                unset($email['password_enc']);
+                $return[$emailkey][] = $email;
+            }
+        }
+        return $return;
+    }
+}
+
+
+
+if (!function_exists("getAlias")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function getAlias($authkey, $aliaskey = '', $format = 'json')  {
+        $return = checkAuthKey($authkey);
+        if (empty($return))
+        {
+            $return['code'] = 201;
+            $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE `id` = " . getAliasID($aliaskey);
+            $result = $GLOBALS['APIDB']->queryF($sql);
+            while($alias = $GLOBALS['APIDB']->fetchArray($result)) {
+                unset($alias['id']);
+                $return[$aliaskey][] = $alias;
+            }
+        }
+        return $return;
+    }
+}
+
 
 if (!function_exists("checkEmail")) {
     /**
@@ -1272,10 +1411,13 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t\t<label for='pgpkey'>PGP Key:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>";
-            $form[] = "\t\t\t\t<textarea name='pgpkey' id='pgpkey' col='41' row='11'></textarea>";
+            $form[] = "\t\t\t\t<textarea name='pgpkey' id='pgpkey' cols='42' rows='17'></textarea>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>&nbsp;</td>";
             $form[] = "\t\t</tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='pgpkey'>Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<select name='format' id='format'/>";
             $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
@@ -1360,6 +1502,15 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "<form name='new-alias' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/aliases.api">';
             $form[] = "\t<table class='new-alias' id='alias-record' style='vertical-align: top !important; min-width: 98%;'>";
             $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='notify'>Email Alias Name:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='name' id='name' size='41' maxlen='255' value='' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
             $form[] = "\t\t\t<td>";
             $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
@@ -1398,6 +1549,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t</tr>";
             $form[] = "\t\t<tr>";
             $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='' name='callback'> <!-- Callback URL for PGP Key etc -->";
             $form[] = "\t\t\t\t<input type='hidden' value='newalias' name='mode'>";
             $form[] = "\t\t\t\t<input type='submit' value='Create New Email Alias' name='submit' style='padding:11px; font-size:122%;'>";
             $form[] = "\t\t\t</td>";
@@ -1460,7 +1612,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t\t<label for='size'>Mailbox Size (Bytes):&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>";
-            $form[] = "\t\t\t\t<input type='textbox' name='size' id='size' size='41' maxlen='255' value='" . (1024 * 1024 * 100) . "' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t\t<input type='textbox' name='size' id='size' size='41' maxlen='255' value='" . mt_rand((API_MINIMUM_INBOX_SIZES * 1024 * 1024 * 1024), (API_MAXIMUM_INBOX_SIZES * 1024 * 1024 * 1024)) . "' />&nbsp;&nbsp;";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>&nbsp;</td>";
             $form[] = "\t\t</tr>";
