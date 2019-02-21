@@ -62,7 +62,7 @@ You have to add the following cronjobs to your cronjobs or on windows scheduled 
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/peer-services.php
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/get-spam-training.php
     */5 * * * * sh /var/www/emails.snails.email/crons/*.sh
-    */23 * * * * /usr/bin/php /var/www/emails.snails.email/crons/generate-alias-keys.php
+    */23 * * * * /usr/bin/php /var/www/emails.snails.email/crons/generate-aliases-keys.php
     
     
 ## Licensing
