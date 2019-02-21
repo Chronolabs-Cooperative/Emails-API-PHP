@@ -34,6 +34,7 @@ The follow lines go in your API_ROOT_PATH/.htaccess
     RewriteRule ^v([0-9]{1,2})/callback.api ./callback.php?version=$1&mode=callback [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-zA-Z])/callback.api ./callback.php?version=$1&mode=$2 [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-zA-Z])/([0-9a-z]{32})/callback.api ./callback.php?version=$1&mode=$2&key=$3 [L,NC,QSA]
+    RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/uploading.api ./uploading.php?version=$1&authkey=$2 [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/authkey.api ./index.php?version=$1&mode=authkey [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/pgpkey.api ./index.php?version=$1&mode=pgpkey [L,NC,QSA]
     RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z])/activation.html ./activation.php?version=$1&mode=activation&emailkey=$2&actkey=$3 [L,NC,QSA]
@@ -61,6 +62,7 @@ You have to add the following cronjobs to your cronjobs or on windows scheduled 
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/peer-services.php
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/get-spam-training.php
     */5 * * * * sh /var/www/emails.snails.email/crons/*.sh
+    */23 * * * * /usr/bin/php /var/www/emails.snails.email/crons/generate-alias-keys.php
     
     
 ## Licensing
