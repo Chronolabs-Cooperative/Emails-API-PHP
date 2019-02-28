@@ -2,7 +2,7 @@
 
 # Emails/Aliases Account's Propogation REST API Services
 
-## Version: 1.0.7 (stable)
+## Version: 1.0.8 (stable)
 
 ### Author: Dr. Simon Antony Roberts <simon@ordinance.space>
 
