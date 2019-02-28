@@ -61,14 +61,15 @@ $emails = $keyedemails = array();
 while($addy = $GLOBALS['APIDB']->fetchArray($result))
     $emails[$addy['email_full']] = $addy['email_full'];
 
-$result = $GLOBALS['APIDB']->queryF("SELECT `email`, `kid` as `key` FROM `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` WHERE `email` IN ('" . implode("', '", $emails) . "'");
+$result = $GLOBALS['APIDB']->queryF($sql = "SELECT `email`, `kid` as `key` FROM `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` WHERE `email` IN ('" . implode("', '", $emails) . "')");
 while($addy = $GLOBALS['APIDB']->fetchArray($result))
     foreach($emails as $key => $email)
         if ($email == $addy['email']) {
             $keyedemails[$key][$addy['key']] = $emails[$key];
             unset($emails[$key]);
         }
-        
+
+echo "PGP Key Unassigned Addresses: " . print_r($emails, true) . "\n\n";
 foreach($emails as $key => $email) {
     $domainid = 0;
     $domainkey = '';
@@ -88,35 +89,33 @@ foreach($emails as $key => $email) {
         mkdir(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys', 0777, true);
     
     if (!file_exists(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$email.diz") && !file_exists(API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $email . ".asc")) {
-        if (file_exists($script = dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh'))
-            $sh = file($script);
-        else {
-            $sh = array();
-            $sh[] = "unlink \"" . dirname(__DIR__) . DS . 'crons' . DS . 'generate-pgpkeys.sh' . "\"\n";
-        }
-            
         writeRawFile($diz = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . "$email.diz", str_replace('%name', $email, str_replace('%email', "$email", str_replace('%subbits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), str_replace('%bits', mt_rand(API_MINBITS_PGP_KEYS, API_MAXBITS_PGP_KEYS), file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'gen-key-script.diz'))))));
-        $sh[] = "gpg --batch --gen-key \"$diz\"\n";
-        $sh[] = "unlink \"$diz\"\n";
-        $sh[] = "gpg --armor --export $email > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $email . ".asc\"\n";
+        shell_exec($exe = "gpg --batch --gen-key \"$diz\"");
+        echo "Executed: $exe\n";
+        shell_exec($exe = "unlink \"$diz\"");
+        echo "Executed: $exe\n";
+        shell_exec($exe = "gpg --armor --export $email > \"" . API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $email . ".asc\"");
+        echo "Executed: $exe\n";
         foreach(file(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'keyservers-hostnames.diz') as $keyserver)
-            $sh[] = "gpg --keyserver " . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . " --send-key $email\n";
-        writeRawFile($script, implode("", $sh));
+            shell_exec($exe = "gpg --keyserver " . str_replace(array("\n", "\r", "\t"), "", trim($keyserver)) . " --send-key $email");
+        echo "Executed: $exe\n";
     } elseif (file_exists($keyfile = API_MAILDIR_PATH . DS . $domainpath . DS . '.pgp-keys' . DS . $email . ".asc")) {
         $ctime = filectime($keyfile);
         $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` (`typal`, `domainid`, `name`, `email`, `key`, `created`, `imported`) VALUES('internal', '$domainid', '" . $GLOBALS['APIDB']->escape($email) . "', '$email', '". $GLOBALS['APIDB']->escape($pgpkey = file_get_contents($keyfile)) . "', UNIX_TIMESTAMP(), '$ctime')";
-        @$GLOBALS['APIDB']->queryF($sql);
+        if ($GLOBALS['APIDB']->queryF($sql))
+            echo "PGP Key Insert: " . $email . "\n\n";
     }
 }
 
-$result = $GLOBALS['APIDB']->queryF("SELECT `email`, `kid` as `key` FROM `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` WHERE `email` IN ('" . implode("', '", $emails) . "'");
+$result = $GLOBALS['APIDB']->queryF("SELECT `email`, `kid` as `key` FROM `" . $GLOBALS['APIDB']->prefix('pgpkeys') . "` WHERE `email` IN ('" . implode("', '", $emails) . "')");
 while($addy = $GLOBALS['APIDB']->fetchArray($result))
     foreach($emails as $key => $email)
         if ($email == $addy['email']) {
             $keyedemails[$key][$addy['key']] = $emails[$key];
             unset($emails[$key]);
         }
-    
+
+echo "PGP Key Assigned Addresses: " . print_r($keyedemails) . "\n\n";
 foreach($keyedemails as $key => $kids)
     foreach($kids as $kid => $email)
     {
@@ -162,6 +161,8 @@ foreach($keyedemails as $key => $kids)
                         die("SQL Failed: $sql;");
                     else
                         echo("\nSQL Success: $sql;");
+                } else {
+                    echo "Failed to email: " . $alias['destination'] . " from " . $from['email'] . "\n";
                 }
                 if (strlen($alias['callback']) > 0)
                     addCallback($alias['callback'], array("op" => 'email-alias', "aliaskey" => $aliaskey, "email" => $email, "destination" => $alias['destination'], 'pgpkey' => $pgpkey));
