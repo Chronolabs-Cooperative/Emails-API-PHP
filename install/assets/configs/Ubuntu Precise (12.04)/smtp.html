@@ -1,4 +1,3 @@
-
 <article>
 <section>
 			<div class="pushbot">
@@ -86,8 +85,8 @@ virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual_mailbox_maps.cf
 virtual_mailbox_domains = mysql:/etc/postfix/mysql-virtual_mailbox_domains.cf
 virtual_alias_maps = mysql:/etc/postfix/mysql-virtual_alias_maps.cf
 smtpd_sender_login_maps = mysql:/etc/postfix/mysql-virtual_sender_permissions.cf
-virtual_uid_maps = static:2000
-virtual_gid_maps = static:2000
+virtual_uid_maps = mysql:/etc/postfix/mysql-virtual_uid_maps.cf
+virtual_gid_maps = mysql:/etc/postfix/mysql-virtual_gid_maps.cf
 
 # Local delivery settings
 local_transport = local
@@ -132,7 +131,7 @@ chown root:root "/etc/postfix/main.cf"</textarea>
 password = %dbpassword
 dbname = %dbname
 hosts = %dbhost
-query = SELECT destination FROM %tablemailvirtual WHERE email = '%s' AND trim(destination) &lt;&gt; ''</textarea>
+query = SELECT `destination` FROM `%tablemailvirtual` WHERE email = '%s';</textarea>
 </div>
 
 		<div class="pushbot">
@@ -152,7 +151,7 @@ chown root:postfix "/etc/postfix/mysql-virtual_alias_maps.cf"</textarea>
 password = %dbpassword
 dbname = %dbname
 hosts = %dbhost
-query = SELECT domain FROM %tablepaneldomains WHERE domain = '%s' AND isemaildomain = '1'</textarea>
+query = SELECT `domain` FROM `%tablepaneldomains` as `a` INNER JOIN `%tablemailusers` as `b` ON `a`.`id` = `b`.`domainid` WHERE `b`.`email` = '%s' AND `a`.`isemaildomain` = '1' AND `a`.`mxcheck` >= UNIX_TIMESTAMP();</textarea>
 </div>
 
 		<div class="pushbot">
@@ -173,7 +172,7 @@ password = %dbpassword
 dbname = %dbname
 expansion_limit = 1
 hosts = %dbhost
-query = SELECT CONCAT(homedir,maildir) FROM %tablemailusers WHERE email = '%s'</textarea>
+query = SELECT `maildir` FROM %tablemailusers WHERE email = '%s'</textarea>
 </div>
 
 		<div class="pushbot">
@@ -212,9 +211,15 @@ chown root:postfix "/etc/postfix/mysql-virtual_sender_permissions.cf"</textarea>
 	<textarea class="filecontent" rows="6" readonly>user = %dbuser
 password = %dbpassword
 dbname = %dbname
-expansion_limit = 1
 hosts = %dbhost
-query = SELECT uid FROM %tablemailusers WHERE email = '%s'</textarea>
+query = SELECT `a`.`homedir` as `home`, (`a`.`id`+9999) as `uid`, `gid`,
+  CONCAT('*:bytes=', (mboxsize - (mboxsize * (`quotashot` / 100)))) AS `quota_rule`,
+  "/" AS "namespace/default/separator"
+  FROM `%tableemailusers` as `a`
+  INNER JOIN `%tablepaneldomains` as `b`
+      ON `a`.`domainid` = `b`.`id`
+  WHERE `a`.`username` LIKE '%s'
+  AND `b`.`mxcheck` >= UNIX_TIMESTAMP();</textarea>
 </div>
 
 		<div class="pushbot">
@@ -235,7 +240,8 @@ password = %dbpassword
 dbname = %dbname
 expansion_limit = 1
 hosts = %dbhost
-query = SELECT gid FROM %tablemailusers WHERE email = '%s'</textarea>
+query = SELECT DISTINCT `a`.`id` as `gid` FROM `%tablegroups` as `a` INNER JOIN `%tablemailusers` as `b` ON `a`.`id` = `b`.`gid` WHERE `b`.`email` = '%s'
+</textarea>
 </div>
 
 		<div class="pushbot">
@@ -299,7 +305,7 @@ chown root:root "/etc/postfix/master.cf"</textarea>
 </div>
 <div class="pushbot">
 	<textarea class="shell" rows="2" readonly>newaliases
-/etc/init.d/postfix restart</textarea>
+service postfix restart</textarea>
 </div>
 
 		</section>

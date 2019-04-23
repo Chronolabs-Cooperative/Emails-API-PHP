@@ -45,6 +45,7 @@ $article = str_replace('%dbname', API_DB_NAME, $article);
 $article = str_replace('%tablemailusers', '`' . $GLOBALS['APIDB']->prefix('mail_users') . '`', $article);
 $article = str_replace('%tablemailvirtual', '`' . $GLOBALS['APIDB']->prefix('mail_virtual') . '`', $article);
 $article = str_replace('%tablepaneldomains', '`' . $GLOBALS['APIDB']->prefix('domains') . '`', $article);
+$article = str_replace('%tablegroups', '`' . $GLOBALS['APIDB']->prefix('groups') . '`', $article);
 $article = str_replace('%apidomain', parse_url(API_URL, PHP_URL_HOST), $article);
 $article = str_replace('%licenseemail', API_LICENSE_EMAIL, $article);
 

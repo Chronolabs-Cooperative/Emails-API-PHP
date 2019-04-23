@@ -14,6 +14,7 @@ CREATE TABLE `mail_users` (
   `username` varchar(255) NOT NULL DEFAULT '',
   `password` tinyblob,
   `password_enc` tinyblob,
+  `gid` int(8) unsigned NOT NULL DEFAULT '1000',
   `uid` int(11) unsigned NOT NULL DEFAULT '0',
   `pid` int(11) unsigned NOT NULL DEFAULT '0',
   `kid` mediumint(32) unsigned NOT NULL DEFAULT '0',
