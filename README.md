@@ -2,9 +2,9 @@
 
 # Emails/Aliases Account's Propogation REST API Services
 
-## Version: 1.0.9 (stable)
+## Version: 1.1.11 (stable)
 
-### Author: Dr. Simon Antony Roberts <simon@ordinance.space>
+### Author: Dr. Simon Antony Roberts <wishcraft@users.sourceforge.net>
 
 #### Demo: http://emails.snails.email
 
@@ -62,7 +62,7 @@ You have to add the following cronjobs to your cronjobs or on windows scheduled 
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/peer-services.php
     */11 */7 * * * /usr/bin/php /var/www/emails.snails.email/crons/get-spam-training.php
     */5 * * * * sh /var/www/emails.snails.email/crons/*.sh
-    */23 * * * * /usr/bin/php /var/www/emails.snails.email/crons/generate-aliases-keys.php
+    */23 * * * * /usr/bin/php /var/www/emails.snails.email/crons/generate-alias-keys.php
     
     
 ## Licensing

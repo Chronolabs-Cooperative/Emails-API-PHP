@@ -125,7 +125,7 @@
 		                                    $domainkeys[$alias['Domain']] = $key;
 		                            }
 		                            if (!empty($domainkeys[$alias['Domain']])) {
-    		                            $result = addAlias($inner['authkey'], $alias['name'], $alias['Alias'], $domainkeys[$alias['Domain']], $alias['Email'], $alias['Callback'], $inner['format']);
+    		                            $result = addAlias($inner['authkey'], $alias['Name'], $alias['Alias'], $domainkeys[$alias['Domain']], $alias['Email'], $alias['Callback'], $inner['format']);
     		                            $data['code'] = $result['code'];
     		                            unset($result['code']);
     		                            $data['passed'][$alias['Alias']."@".$alias['Domain']][$alias['Name']][$alias['Email']] = $result;

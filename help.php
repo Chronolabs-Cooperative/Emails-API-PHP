@@ -144,6 +144,15 @@ else
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('newalias', $authkey)); ?>
     </pre>
+    <h2>UPLOADING Document Output</h2>
+    <p>This is done with the <em>uploading.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
+    <blockquote>
+        <?php echo getHTMLForm('uploadalias', $authkey); ?>
+    </blockquote>
+    <h3>This the HTML Code surrounding the api call</h3>
+    <pre style="max-height: 300px; overflow: scroll;">
+    <?php echo htmlspecialchars(getHTMLForm('uploadalias', $authkey)); ?>
+    </pre>
     <h2>PGPKEY Document Output</h2>
     <p>This is done with the <em>pgpkey.api</em> extension at the end of the url, you replace the example address with either a domain! You can also include PGP Keys with emailing the key in the body or as an attachment to: <strong><em><?php echo API_EMAIL_PGP_KEYS; ?></em></strong></p>
     <blockquote>

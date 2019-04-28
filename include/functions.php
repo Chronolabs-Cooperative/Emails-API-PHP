@@ -404,7 +404,7 @@ if (!function_exists("addEmail")) {
                 list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                 if ($count==0)
                 {
-                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_users') . "` (`mode`, `name`, `email`, `username`, `notify`, `actkey`, `password`, `password_enc`, `uid`, `pid`, `homedir`, `maildir`, `postfix`, `domainid`, `pop3`, `imap`, `mboxsize`, `mboxonline`, `mboxoffline`, `created`, `callback`) VALUES ('new', '" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$username@$domain', '$notify', '" . substr(sha1(microtime(true)), mt_rand(0, 34), mt_rand(4,6)) . "', DES_ENCRYPT('$password', '$username@$domain'), ENCRYPT('$password'), '" . $GLOBALS['uid'] . "', '$pid', '" . ($homedir = API_HOMEDIR_PATH . DS . $domainpath . DS . $username) . "', '" . ($maildir = API_MAILDIR_PATH . DS . $domainpath . DS . $username) . "', 'Y', '$domainid', 1, 1, '" . (API_INTIALISE_INBOX_SIZES * 1024 * 1024 * 1024) . "', '$bytessize', '" . (API_OFFLINE_INBOX_SIZES * 1024 * 1024 * 1024) . "', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')"; 
+                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_users') . "` (`mode`, `name`, `email`, `username`, `notify`, `actkey`, `password`, `password_enc`, `uid`, `pid`, `homedir`, `maildir`, `postfix`, `domainid`, `pop3`, `imap`, `mboxsize`, `mboxonline`, `mboxoffline`, `created`, `callback`) VALUES ('new', '" . $GLOBALS['APIDB']->escape($name) . "', '" . $GLOBALS['APIDB']->escape("$username@$domain") ."', '" . $GLOBALS['APIDB']->escape("$username@$domain") ."', '" . $GLOBALS['APIDB']->escape($notify) . "', '" . substr(sha1(microtime(true)), mt_rand(0, 34), mt_rand(4,6)) . "', DES_ENCRYPT('$password', '" . $GLOBALS['APIDB']->escape("$username@$domain") . "'), ENCRYPT('$password'), '" . $GLOBALS['uid'] . "', '$pid', '" . ($homedir = API_HOMEDIR_PATH . DS . $domainpath . DS . $username) . "', '" . ($maildir = API_MAILDIR_PATH . DS . $domainpath . DS . $username) . "', 'Y', '$domainid', 1, 1, '" . (API_INTIALISE_INBOX_SIZES * 1024 * 1024 * 1024) . "', '$bytessize', '" . (API_OFFLINE_INBOX_SIZES * 1024 * 1024 * 1024) . "', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')"; 
                     if ($GLOBALS['APIDB']->queryF($sql))
                     {
                         $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'email')) FROM `" . $GLOBALS['APIDB']->prefix('mail_users') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
@@ -453,7 +453,7 @@ if (!function_exists("addEmail")) {
 }
 
 
-if (!function_exists("addEmail")) {
+if (!function_exists("addAlias")) {
     /**
      * addEmail()
      *
@@ -479,11 +479,11 @@ if (!function_exists("addEmail")) {
 
             if (empty($return))
             {
-                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE ((`email` LIKE '$username@$domain' OR `email_full` = '$username@$domain') AND `destination` = '$destination')";
+                $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE ((`email` LIKE '" . $GLOBALS['APIDB']->escape("$username@$domain") . "' OR `email_full` = '$username@$domain') AND `destination` = '" . $GLOBALS['APIDB']->escape($destination) . "')";
                 list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
                 if ($count==0)
                 {
-                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` (`name`, `email`, `email_full`, `destination`, `domainid`, `uid`, `pid`, `created`, `callback`) VALUES ('" . $GLOBALS['APIDB']->escape($name) . "', '$username@$domain', '$username@$domain', '$destination', '$domainid', '" . $GLOBALS['uid'] . "', '$pid', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')";
+                    $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` (`name`, `email`, `email_full`, `destination`, `domainid`, `uid`, `pid`, `created`, `callback`) VALUES ('" . $GLOBALS['APIDB']->escape($name) . "', '" . $GLOBALS['APIDB']->escape("$username@$domain") . "', '" . $GLOBALS['APIDB']->escape("$username@$domain") . "', '" . $GLOBALS['APIDB']->escape($destination) . "', '$domainid', '" . $GLOBALS['uid'] . "', '$pid', UNIX_TIMESTAMP(), '" . $GLOBALS['APIDB']->escape($callback) . "')";
                     if ($GLOBALS['APIDB']->queryF($sql))
                     {
                         $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'alias')) FROM `" . $GLOBALS['APIDB']->prefix('mail_virtual') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
@@ -525,10 +525,10 @@ if (!function_exists("addEmail")) {
                             $return = array('code' => 201, 'aliaskey' => $_SESSION['aliaskey'], 'errors' => array());
                         }
                     } else {
-                        $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('sql' => $sql, $GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
+                        $return = array('code' => 501, 'aliaskey' => md5(NULL. 'email'), 'errors' => array('sql' => $sql, $GLOBALS['APIDB']->errno() => $GLOBALS['APIDB']->error()));
                     }
                 } else {
-                    $return = array('code' => 501, 'emailkey' => md5(NULL. 'email'), 'errors' => array('103' => 'Record Already Exists!!!'));
+                    $return = array('code' => 501, 'aliaskey' => md5(NULL. 'email'), 'errors' => array('103' => 'Record Already Exists!!!'));
                 }
             }
         }
@@ -1517,7 +1517,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='domain' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` >= UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
@@ -1563,6 +1563,53 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t</table>";
             $form[] = "</form>";
             break;
+        case "uploadalias":
+            $form[] = "<form name='upload-aliases' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/'.$authkey.'/uploading.api">';
+            $form[] = "\t<table class='upload-aliases' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='filename'>CSV List of Aliases:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='file' name='filename' id='filename' size='21' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: auto; background-color: #feedcc; padding: 10px;' colspan='2'>";
+            $form[] = "\t\t\t\tThe CSV must be a standard excel or linux format and have the four captioned top row fields of: Name, Email, Alias, Domain!<br/><br/>There is two example spreedsheets with the titles in place you can populate you can download these from: <a href='" . API_URL . "/assets/docs/csv-prop-spreedsheet.xlsx' target='_blank'>csv-prop-spreedsheet.xlsx</a> or <a href='" . API_URL . "/assets/docs/csv-prop-spreedsheet.ods' target='_blank'>csv-prop-spreedsheet.ods</a>; thanks for using the example spreedsheets to generate the correct titled CSV in the right formating!";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='".$authkey."' name='authkey'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='alias' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Upload *.csv and propogate email aliases!' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
         case "newemail":
             $form[] = "<form name='new-record' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/' . $authkey . '/emails.api">';
             $form[] = "\t<table class='new-record' id='auth-record' style='vertical-align: top !important; min-width: 98%;'>";
@@ -1582,7 +1629,7 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t<td style='width: 320px;'>";
             $form[] = "\t\t\t\t<input type='textbox' name='email[username]' id='email' size='23' />&nbsp;<strong style='font-size: 247%'>@</strong>&nbsp;";
             $form[] = "\t\t\t\t<select name='email[domainkey]' id='format'/>";
-            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` < UNIX_TIMESTAMP() ORDER BY `domain` ASC");
+            $result = $GLOBALS['APIDB']->queryF("SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) as `key`, `domain` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `mxcover` >= UNIX_TIMESTAMP() ORDER BY `domain` ASC");
             while($row = $GLOBALS['APIDB']->fetchArray($result))
                 $form[] = "\t\t\t\t\t<option value='".$row['key']."'>".$row['domain']."</option>";
             $form[] = "\t\t\t\t</select>";
