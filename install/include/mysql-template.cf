@@ -1,0 +1,6 @@
+user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = %dbselect;
+update = %dbupdate;

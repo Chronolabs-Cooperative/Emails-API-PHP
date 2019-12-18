@@ -25,28 +25,36 @@
  * 
  */
 
-defined('API_ROOT_PATH') || exit('Restricted access');
+// Database
+// Choose the database to be used
+define('API_DB_TYPE', 'mysql');
 
-define('API_LICENSE_CODE', 'GPL');
-define('API_LICENSE_TEXT', 'GPL General Public License (GPL) (v. 2.0)');
-define('API_LICENSE_KEY', 'd6840c-b8130e-81ac22-81155c-bf4b42');
-define('API_LICENSE_COMPANY', 'iNikk Cove\'s + Cover\'s Email Corporation Limited');
-define('API_LICENSE_UNAME', 'mynamesnot');
-define('API_LICENSE_EMAIL', 'sparxing@outlook.com');
-define('API_LICENSE_PASSWORD', 'd41d8cd98f00b204e9800998ecf8427e');
-define('API_LICENSE_PROTOCOL', 'http');
-define('API_LICENSE_REALM', 'emails.localhost');
-define('API_LICENSE_PATH', '');
-define('API_LICENSE_TYPE', 'emails-api');
+// Set the database charset if applicable
+if (defined('API_DB_CHARSET')) {
+    die('Restricted Access');
+}
+define('API_DB_CHARSET', 'utf8');
 
+// Table Prefix
+// This prefix will be added to all new tables created to avoid name conflict in the database. If you are unsure, just use the default "api".
+define('API_DB_PREFIX', 'x062');
 
+// Database Hostname
+// Hostname of the database server. If you are unsure, "localhost" works in most cases.
+define('API_DB_HOST', 'localhost');
 
+// Database Username
+// Your database user account on the host
+define('API_DB_USER', 'root');
 
-/**
- * Peering Services notified over cURL on installations:~
- * 
- * 	Errored Announcing: http://peers.snails.email/v1/register/json.api
- * 
- * 	Errored Announcing: http://peers.xortify.com/v1/register/json.api
- * 
-*/
+// Database Password
+// Password for your database user account
+define('API_DB_PASS', 'PuppyD0ggy');
+
+// Database Name
+// The name of database on the host. The installer will attempt to create the database if not exist
+define('API_DB_NAME', 'emails-localhost-4');
+
+// Use persistent connection? (Yes=1 No=0)
+// Default is "Yes". Choose "Yes" if you are unsure.
+define('API_DB_PCONNECT', 0);

@@ -138,7 +138,7 @@ while($mx = $GLOBALS['APIDB']->fetchArray($result)) {
             $mailers = new APIMailer($from['email'], $from['name']);
             $body = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'email-mx-service.html');
             $mailers->multimailer->IsHTML(true);
-            if ($mailers->sendMail($to, $cc, array($from['email']), "MX DNS Record Required for: " . $domain['domain'], str_replace("%apiurl", API_URL, str_replace('%company', API_LICENSE_COMPANY, str_replace('%domain', $domain['domain'], str_replace('%mx', $mx['mx'], str_replace('%target', $mx['target'], str_replace('%pirority', $mx['pirority'], str_replace('%fromname', $from['name'], str_replace('%fromemail', $from['email'], $body))))))))), array(), "", true)
+            if ($mailers->sendMail($to, $cc, array($from['email']), "MX DNS Record Required for: " . $domain['domain'], str_replace("%apiurl", API_URL, str_replace('%company', API_LICENSE_COMPANY, str_replace('%domain', $domain['domain'], str_replace('%mx', $mx['mx'], str_replace('%target', $mx['target'], str_replace('%pirority', $mx['pirority'], str_replace('%fromname', $from['name'], str_replace('%fromemail', $from['email'], $body)))))))), array(), "", true))
             {
                 if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `mxemail` = UNIX_TIMESTAMP() + " . (3600 * 24 * mt_rand(2, 5)) . " WHERE `id` = " . $domain['id']))
                     die("SQL Failed: $sql;");

@@ -21,3 +21,4 @@ CREATE TABLE `domains` (
   KEY `domain` (`domain`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
+insert into (`domain`, `uid`, `pid`, `ispeer`, `isdirectory`, `isemaildomain`) VALUES('localhost', 1000, 1000, 0, 0, 1);

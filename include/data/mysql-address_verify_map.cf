@@ -1,0 +1,5 @@
+user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = SELECT `email` FROM `%dbprefixverify_address` WHERE email = '%s';

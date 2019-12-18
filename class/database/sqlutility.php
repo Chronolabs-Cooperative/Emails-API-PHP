@@ -161,7 +161,7 @@ class SqlUtility
      */
     public static function prefixQuery($query, $prefix)
     {
-        $pattern  = "/^(INSERT[\s]+INTO|CREATE[\s]+TABLE|ALTER[\s]+TABLE|UPDATE)(\s)+([`]?)([^`\s]+)\\3(\s)+/siU";
+        $pattern  = "/^(INSERT[\s]+INTO|CREATE[\s]+[(TABLE|PROCEEDURE)]|ALTER[\s]+TABLE|UPDATE|CALL)(\s)+([`]?)([^`\s]+)\\3(\s)+/siU";
         $pattern2 = "/^(DROP TABLE)(\s)+([`]?)([^`\s]+)\\3(\s)?$/siU";
         if (preg_match($pattern, $query, $matches) || preg_match($pattern2, $query, $matches)) {
             $replace    = "\\1 " . $prefix . "_\\4\\5";

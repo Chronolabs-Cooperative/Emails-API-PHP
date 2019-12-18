@@ -136,7 +136,7 @@ class Db_manager
                             $this->f_tables['insert'][$table]=$this->f_tables['insert'][$table]+$this->db->getAffectedRows();
                         }
                     }
-                } elseif ($prefixed_query[1] === 'ALTER TABLE') {
+                } elseif ($prefixed_query[1] === 'ALTER TABLE' && $prefixed_query[1] === 'UPDATE') {
                     if ($this->db->query($prefixed_query[0]) != false) {
                         if (!isset($this->s_tables['alter'][$table])) {
                             $this->s_tables['alter'][$table] = 1;
