@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/splitter.js"></script>
+<script type="text/javascript" src="/functions.js"></script>
+<style type="text/css">
+#addresslist { width: <chronomail:exp expression="!empty(cookie:addressviewsplitter) ? cookie:addressviewsplitter-5 : 245" />px; }
+#contacts-box { left: <chronomail:exp expression="!empty(cookie:addressviewsplitter) ? cookie:addressviewsplitter+5 : 255" />px; }
+#directorylistbox { width: <chronomail:exp expression="!empty(cookie:addressviewsplitterd) ? cookie:addressviewsplitterd-5 : 195" />px; }
+#addressscreen { left: <chronomail:exp expression="!empty(cookie:addressviewsplitterd) ? cookie:addressviewsplitterd+5 : 205" />px; }
+</style>
+
+</head>
+<body>
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+
+<div id="abooktoolbar">
+<chronomail:button command="add" type="link" class="buttonPas addcontact" classAct="button addcontact" classSel="button addcontactSel" title="newcontact" content=" " />
+<chronomail:button command="compose" type="link" class="buttonPas compose" classAct="button compose" classSel="button composeSel" title="composeto" content=" " />
+<chronomail:button command="print" type="link" class="buttonPas print" classAct="button print" classSel="button printSel" label="print" title="printcontact" content=" " />
+<chronomail:button command="delete" type="link" class="buttonPas delete" classAct="button delete" classSel="button deleteSel" title="deletecontact" content=" " />
+<span class="toolbarseparator">&nbsp;</span>
+<chronomail:button command="import" type="link" class="buttonPas import" classAct="button import" classSel="button importSel" title="importcontacts" content=" " />
+<span class="dropbutton">
+<chronomail:button command="export" type="link" class="buttonPas export" classAct="button export" classSel="button exportSel" title="exportvcards" content=" " />
+<span id="exportmenulink" onclick="chronomail_ui.show_popup('exportmenu');return false"></span>
+</span>
+<chronomail:button command="advanced-search" type="link" class="buttonPas search" classAct="button search" classSel="button searchSel" title="advsearch" content=" " />
+<chronomail:container name="toolbar" id="abooktoolbar" />
+<chronomail:button name="contactmenulink" id="contactmenulink" type="link" class="button contactmenu" title="moreactions" onclick="chronomail_ui.show_popup('contactmenu');return false" content=" " />
+</div>
+
+<div id="quicksearchbar">
+<chronomail:button name="searchmenulink" id="searchmenulink" image="/images/icons/glass_roll.png" onclick="chronomail_ui.show_popup('searchmenu');return false" title="searchmod" width="16" height="16" />
+<chronomail:object name="searchform" id="quicksearchbox" />
+<chronomail:button command="reset-search" id="searchreset" image="/images/icons/reset.gif" title="resetsearch" width="13" height="13" />
+</div>
+
+<div id="exportmenu" class="popupmenu">
+    <ul>
+        <li><chronomail:button command="export" type="link" label="exportall" prop="sub" classAct="exportalllink active" class="exportalllink" /></li>
+        <li><chronomail:button command="export-selected" type="link" label="exportsel" prop="sub" classAct="exportsellink active" class="exportsellink" /></li>
+    </ul>
+</div>
+
+<div id="searchmenu" class="popupmenu">
+  <ul class="toolbarmenu">
+    <li><label><input type="checkbox" name="s_mods[]" value="name" id="s_mod_name" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="name" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="firstname" id="s_mod_firstname" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="firstname" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="surname" id="s_mod_surname" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="surname" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="email" id="s_mod_email" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="email" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="*" id="s_mod_all" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="allfields" /></span></label></li>
+  </ul>
+</div>
+
+<div id="contactmenu" class="popupmenu">
+  <ul class="toolbarmenu" id="contactmenumenu">
+    <chronomail:if condition="env:qrcode" />
+    <chronomail:button type="link-menuitem" class="qrcode" command="qrcode" label="qrcode" classAct="qrcode active" />
+    <chronomail:endif />
+    <chronomail:button type="link-menuitem" class="assigngroup" command="group-assign-selected" label="groupassign" classAct="assigngroup active" innerclass="folder-selector-link" />
+    <chronomail:button type="link-menuitem" class="removegroup" command="group-remove-selected" label="groupremove" classAct="removegroup active" />
+    <chronomail:if condition="env:contact_move_enabled" />
+    <chronomail:button type="link-menuitem" class="movelink" command="move" label="moveto" classAct="movelink active" innerclass="folder-selector-link" />
+    <chronomail:endif />
+    <chronomail:if condition="env:contact_copy_enabled" />
+    <chronomail:button type="link-menuitem" class="copylink" command="copy" label="copyto" classAct="copylink active" innerclass="folder-selector-link" />
+    <chronomail:endif />
+    <chronomail:container name="contactmenu" id="contactmenumenu" />
+  </ul>
+</div>
+
+<div id="mainscreen">
+
+<div id="directorylistbox">
+<div id="directorylist-title" class="boxtitle"><chronomail:label name="groups" /></div>
+<div id="directorylist-content" class="boxlistcontent">
+  <chronomail:object name="directorylist" id="directorylist" class="treelist" />
+  <chronomail:object name="savedsearchlist" id="savedsearchlist" class="treelist" />
+</div>
+<div id="directorylist-footer" class="boxfooter">
+  <chronomail:button command="group-create" type="link" title="newgroup" class="buttonPas addgroup" classAct="button addgroup" content=" " />
+  <chronomail:button name="groupmenulink" id="groupmenulink" type="link" title="moreactions" class="button groupactions" onclick="chronomail_ui.show_popup('groupmenu');return false" content=" " />
+</div>
+</div>
+
+<div id="addressscreen">
+
+<div id="addresslist">
+<chronomail:object name="addresslisttitle" label="contacts" tag="div" class="boxtitle" />
+<div class="boxlistcontent">
+<chronomail:object name="addresslist" id="contacts-table" class="records-table" cellspacing="0" summary="Contacts list" noheader="true" />
+</div>
+<div class="boxfooter">
+<div id="abookcountbar" class="pagenav">
+  <chronomail:button command="firstpage" type="link" class="buttonPas firstpage" classAct="button firstpage" classSel="button firstpageSel" title="firstpage" content=" " />
+  <chronomail:button command="previouspage" type="link" class="buttonPas prevpage" classAct="button prevpage" classSel="button prevpageSel" title="previouspage" content=" " />
+  <chronomail:object name="recordsCountDisplay" style="padding:0 .5em; float:left" />
+  <chronomail:button command="nextpage" type="link" class="buttonPas nextpage" classAct="button nextpage" classSel="button nextpageSel" title="nextpage" content=" " />
+  <chronomail:button command="lastpage" type="link" class="buttonPas lastpage" classAct="button lastpage" classSel="button lastpageSel" title="lastpage" content=" " />
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+  var addrviewsplit = new chronomail_splitter({id:'addressviewsplitter', p1: 'addresslist', p2: 'contacts-box', orientation: 'v', relative: true, start: 250});
+  chronomail.add_onload('addrviewsplit.init()');
+
+  var addrviewsplitd = new chronomail_splitter({id:'addressviewsplitterd', p1: 'directorylistbox', p2: 'addressscreen', orientation: 'v', relative: true, start: 200});
+  chronomail.add_onload('addrviewsplitd.init()');
+</script>
+
+<div id="contacts-box">
+<chronomail:object name="contentframe" id="contact-frame" width="100%" height="100%" frameborder="0" src="env:blankpage" />
+</div>
+
+</div>
+</div>
+
+<div id="groupoptionsmenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button command="group-rename" type="link" label="grouprename" classAct="active" /></li>
+    <li><chronomail:button command="group-delete" type="link" label="groupdelete" classAct="active" /></li>
+    <li class="separator_above"><chronomail:button command="search-create" type="link" label="searchsave" classAct="active" /></li>
+    <li><chronomail:button command="search-delete" type="link" label="searchdelete" classAct="active" /></li>
+    <chronomail:container name="groupoptions" id="groupoptionsmenu" />
+  </ul>
+</div>
+
+<div id="dragmenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button command="move" type="link" onclick="return chronomail.drag_menu_action('move')" label="move" classAct="active" /></li>
+    <li><chronomail:button command="copy" type="link" onclick="return chronomail.drag_menu_action('copy')" label="copy" classAct="active" /></li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+chronomail_init_mail_ui();
+</script>
+
+</body>
+</html>

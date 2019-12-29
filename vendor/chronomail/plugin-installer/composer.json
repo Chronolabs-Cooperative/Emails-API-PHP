@@ -1,0 +1,33 @@
+{
+    "name": "chronomail/plugin-installer",
+    "description": "A composer-installer for Chronomail plugins.",
+    "type": "composer-installer",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Thomas Bruederli",
+            "email": "thomas@chronomail.net"
+        },
+        {
+            "name": "Till Klampaeckel",
+            "email": "till@php.net"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Chronomail\\Composer": "src/"
+        }
+    },
+    "extra": {
+        "class": "Chronomail\\Composer\\PluginInstaller"
+    },
+    "bin": [
+        "src/bin/chronomailinitdb.sh"
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "composer/composer": "*"
+    }
+}

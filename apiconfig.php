@@ -1,6 +1,6 @@
 <?php
 /**
- * Email Account Propogation REST Services API
+ * Chronolabs Fonting Repository Services REST API API
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -9,31 +9,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @copyright       Chronolabs Cooperative http://syd.au.snails.email
- * @license         ACADEMIC APL 2 (https://sourceforge.net/u/chronolabscoop/wiki/Academic%20Public%20License%2C%20version%202.0/)
- * @license         GNU GPL 3 (http://www.gnu.org/licenses/gpl.html)
- * @package         emails-api
- * @since           1.1.11
- * @author          Dr. Simon Antony Roberts <simon@snails.email>
- * @version         1.1.11
- * @description		A REST API for the creation and management of emails/forwarders and domain name parks for email
- * @link            http://internetfounder.wordpress.com
- * @link            https://github.com/Chronolabs-Cooperative/Emails-API-PHP
- * @link            https://sourceforge.net/p/chronolabs-cooperative
- * @link            https://facebook.com/ChronolabsCoop
- * @link            https://twitter.com/ChronolabsCoop
- * 
+ * @copyright       Chronolabs Cooperative http://labs.coop
+ * @license         General Public License version 3 (http://labs.coop/briefs/legal/general-public-licence/13,3.html)
+ * @package         fonts
+ * @since           2.1.9
+ * @author          Simon Roberts <wishcraft@users.sourceforge.net>
+ * @subpackage		api
+ * @description		Fonting Repository Services REST API
+ * @link			http://sourceforge.net/projects/chronolabsapis
+ * @link			http://cipher.labs.coop
  */
+
 
 
 if (!is_file(__DIR__ . DIRECTORY_SEPARATOR . 'mainfile.php') || !is_file(__DIR__ . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'license.php'))
 {
+    if (strpos($_SERVER["REQUEST_URI"], 'install/')>0)
+        return false;
     header('Location: ' . "./install");
     exit(0);
 }
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'mainfile.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'functions.php';
+error_reporting(E_ALL);
+ini_set('display_errors', true);
 
 /**
  * Opens Access Origin Via networking Route NPN
@@ -48,16 +47,9 @@ ini_set("zlib.output_compression", 'Off');
 ini_set("zlib.output_compression_level", -1);
 
 /**
- * 
+ *
  * @var constants
  */
 define('API_CACHE_SECONDS', 93);
-
-// Seeds the random
-mt_srand(mt_rand(time(), microtime(true) * time() * time()));
-mt_srand(mt_rand(time(), microtime(true) * time() * time()));
-mt_srand(mt_rand(time(), microtime(true) * time() * time()));
-mt_srand(mt_rand(time(), microtime(true) * time() * time()));
-srand(mt_rand(time(), microtime(true) * time() * time()));
 
 ?>

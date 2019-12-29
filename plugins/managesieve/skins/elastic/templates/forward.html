@@ -1,0 +1,23 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+<chronomail:include file="includes/settings-menu.html" />
+
+<h1 class="voice"><chronomail:label name="managesieve.forward" /></h1>
+
+<div id="layout-content" class="selected" role="main">
+	<div class="header">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+	</div>
+	<div class="formcontainer scroller" aria-labelledby="aria-label-forwardform">
+		<div class="formcontent">
+			<h2 class="voice" id="aria-label-forwardform"><chronomail:label name="managesieve.forward" /></h2>
+			<chronomail:object name="forwardform" id="forwardform" class="propform" />
+		</div>
+		<div class="formbuttons">
+			<chronomail:button command="plugin.managesieve-save" class="btn btn-primary submit" label="save" />
+		</div>
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

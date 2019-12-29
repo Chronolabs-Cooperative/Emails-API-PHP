@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe">
+
+<div class="compose-headers-div" id="bounceheaders" role="region" aria-labelledby="aria-label-composeheaders">
+<h2 id="aria-label-composeheaders" class="voice"><chronomail:label name="arialabelmessageheaders" /></h2>
+<chronomail:object name="composeFormHead" role="main" />
+<table id="compose-headers"><tbody>
+	<tr>
+		<td class="title"><label for="_from"><chronomail:label name="from" /></label></td>
+		<td class="editfield formlinks">
+			<chronomail:object name="composeHeaders" part="from" form="form" id="_from" tabindex="1" />
+			<a href="#identities" onclick="return chronomail.command('switch-task', 'settings/identities')" tabindex="1"><chronomail:label name="editidents" /></a>
+		</td>
+	</tr>
+	<tr>
+		<td class="title top"><label for="_to"><chronomail:label name="to" /></label></td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="to" form="form" id="_to" cols="70" rows="1" tabindex="1" /></td>
+	</tr>
+	<tr>
+		<td class="title top"><label for="_cc"><chronomail:label name="cc" /></label></td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="cc" form="form" id="_cc" cols="70" rows="1" tabindex="1" /></td>
+	</tr>
+	<tr>
+		<td class="title top"><label for="_bcc"><chronomail:label name="bcc" /></label></td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="bcc" form="form" id="_bcc" cols="70" rows="1" tabindex="1" /></td>
+	</tr>
+	<chronomail:if condition="!config:no_save_sent_messages" />
+	<tr><td colspan="2" class="bounceopts">
+		<label><chronomail:label name="savesentmessagein" /> <chronomail:object name="storetarget" maxlength="30" style="max-width:12em" tabindex="1" /></label>
+	</td></tr>
+	<chronomail:endif />
+</tbody></table>
+</form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+<div id="layout-sidebar" class="listbox<chronomail:exp expression="!request:_action ? ' selected' : ''"/>" role="navigation" aria-labelledby="aria-label-settingstabs">
+	<div class="header">
+		<a class="button icon task-menu-button" href="#menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+		<span id="aria-label-settingstabs" class="header-title"><chronomail:label name="settings" /></span>
+	</div>
+	<div class="scroller">
+		<ul id="settings-menu" class="listing iconized settings-default-icon<chronomail:exp expression="!request:_action ? ' selection-large-only' : ''"/>">
+			<chronomail:object name="settingstabs" class="listitem" tagname="li" />
+			<chronomail:container name="tabs" id="settings-menu" />
+		</ul>
+	</div>
+</div>

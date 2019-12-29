@@ -1,0 +1,21 @@
+<chronomail:include file="includes/layout.html" />
+
+<chronomail:if condition="!env:framed && !env:extwin" />
+	<chronomail:include file="includes/menu.html" />
+	<div id="layout-content" class="selected" role="main">
+		<div class="header">
+			<a class="button icon task-menu-button" href="#menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+			<span class="header-title"></span>
+		</div>
+		<div class="frame-content scroller">
+<chronomail:else />
+	<div id="layout-content" class="selected" role="main">
+		<div class="frame-content scroller">
+<chronomail:endif />
+
+$__page_content
+
+		</div>
+	</div>
+
+<chronomail:include file="includes/footer.html" />

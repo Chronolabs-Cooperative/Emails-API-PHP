@@ -1,0 +1,54 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body>
+
+<h1 class="voice"><chronomail:object name="productname" /> <chronomail:label name="login" /></h1>
+
+<div id="login-form">
+<div class="box-inner" role="main">
+<chronomail:object name="logo" src="/images/chronomail_logo.png" id="logo" />
+
+<chronomail:form name="form" method="post">
+<chronomail:object name="loginform" form="form" size="40" submit=true />
+</form>
+
+</div>
+
+<div class="box-bottom" role="complementary">
+	<chronomail:object name="message" id="message" />
+	<noscript>
+		<p class="noscriptwarning"><chronomail:label name="noscriptwarning" /></p>
+	</noscript>
+</div>
+
+<div id="bottomline" role="contentinfo">
+	<chronomail:object name="productname" condition="config:display_product_info &gt; 0" /> <chronomail:object name="version" condition="config:display_product_info == 2" />
+	<chronomail:if condition="config:support_url" />
+		&nbsp;&#9679;&nbsp; <a href="<chronomail:var name='config:support_url' />" target="_blank" class="support-link"><chronomail:label name="support" /></a>
+	<chronomail:endif />
+	<chronomail:container name="loginfooter" id="bottomline" />
+</div>
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+<chronomail:object name="preloader" images="
+  /images/ajaxloader.gif
+  /images/ajaxloader_dark.gif
+  /images/buttons.png
+  /images/addcontact.png
+  /images/filetypes.png
+  /images/listicons.png
+  /images/messages.png
+  /images/messages_dark.png
+  /images/quota.png
+  /images/selector.png
+  /images/splitter.png
+  /images/watermark.jpg
+" />
+
+</body>
+</html>

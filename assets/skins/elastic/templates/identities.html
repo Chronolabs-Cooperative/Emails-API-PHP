@@ -1,0 +1,43 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+<chronomail:include file="includes/settings-menu.html" />
+
+<h1 class="voice"><chronomail:label name="settings" /> : <chronomail:label name="identities" /></h1>
+
+<!-- responses list -->
+<div id="layout-list" class="listbox selected" aria-labelledby="aria-label-identitieslist">
+	<div class="header">
+		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><chronomail:label name="settings" /></span></a>
+		<span id="aria-label-identitieslist" class="header-title"><chronomail:label name="identities" /></span>
+		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+	</div>
+	<div class="scroller">
+		<chronomail:object name="identitieslist" id="identities-table" class="listing"
+			noheader="true" role="listbox" data-list="identity_list"
+			data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="add" />
+	</div>
+	<div class="footer"></div>
+</div>
+
+<!-- response details frame -->
+<div id="layout-content" role="main">
+	<h2 id="aria-label-toolbar" class="voice"><chronomail:label name="arialabeltoolbar" /></h2>
+	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+		<!-- toolbar -->
+		<div id="identitiestoolbar" class="toolbar menu">
+			<chronomail:button command="add" type="link" class="create disabled" classAct="create"
+				label="create" title="newidentity" innerClass="inner" 
+				condition="config:identities_level:0<2" data-fab="true" />
+			<chronomail:button command="delete" type="link" class="delete disabled" classAct="delete"
+				label="delete" title="delete" innerClass="inner"
+				condition="config:identities_level:0<2" />
+		</div>
+	</div>
+	<div class="iframe-wrapper">
+		<chronomail:object name="contentframe" id="preferences-frame" src="env:blankpage" title="arialabelidentityeditfrom" />
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

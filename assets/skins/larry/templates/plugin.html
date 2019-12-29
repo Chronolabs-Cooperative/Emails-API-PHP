@@ -1,0 +1,27 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="noscroll">
+
+<chronomail:include file="/includes/header.html" />
+
+<div id="mainscreen" class="offset">
+
+<chronomail:if condition="env:task == 'settings'" />
+	<chronomail:include file="/includes/settingstabs.html" />
+<chronomail:endif />
+
+<div id="pluginbody" class="uibox contentbox">
+<chronomail:object name="plugin.body" />
+</div>
+
+</div>
+
+<chronomail:object name="plugin.footer" />
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

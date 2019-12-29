@@ -1,0 +1,29 @@
+{
+    "name": "chronomail/archive",
+    "type": "chronomail-plugin",
+    "description": "This adds a button to move the selected messages to an archive folder. The folder (and the optional structure of subfolders) can be selected in the settings panel.",
+    "license": "GPLv3+",
+    "version": "3.4",
+    "authors": [
+        {
+            "name": "Thomas Bruederli",
+            "email": "chronomail@gmail.com",
+            "role": "Lead"
+        },
+        {
+            "name": "Aleksander Machniak",
+            "email": "alec@alec.pl",
+            "role": "Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://plugins.chronomail.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "chronomail/plugin-installer": ">=0.1.3"
+    }
+}

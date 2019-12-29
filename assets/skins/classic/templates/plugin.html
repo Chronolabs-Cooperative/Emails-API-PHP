@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/functions.js"></script>
+</head>
+<body>
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+<chronomail:if condition="env:task == 'settings'" />
+  <chronomail:include file="/includes/settingstabs.html" />
+<chronomail:endif />
+
+<div id="mainscreen">
+<chronomail:object name="plugin.body" />
+</div>
+
+<chronomail:object name="plugin.footer" />
+
+<script type="text/javascript">
+chronomail_init_mail_ui();
+</script>
+
+</body>
+</html>

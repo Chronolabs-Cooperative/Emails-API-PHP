@@ -1,0 +1,5 @@
+user = %dbuser
+password = %dbpassword
+dbname = %dbname
+hosts = %dbhost
+query = SELECT `values` FROM `%dbprefix_config` WHERE `form` = 'postfix-main.cf' AND `name` = '%cfgname';

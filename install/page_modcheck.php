@@ -63,29 +63,100 @@ ob_start();
         </tr>
 
         <tr>
+            <th><?php printf(PHP_EXTENSION, 'Sockets'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('sockets') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
             <th><?php printf(PHP_EXTENSION, 'Session'); ?></th>
             <td><?php echo xoDiag(extension_loaded('session') ? 1 : -1); ?></td>
         </tr>
 
         <tr>
-            <th><?php printf(PHP_EXTENSION, 'PCRE'); ?></th>
-            <td><?php echo xoDiag(extension_loaded('pcre') ? 1 : -1); ?></td>
+            <th><?php printf(PHP_EXTENSION, 'FileInfo'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('fileinfo') ? 1 : -1); ?></td>
         </tr>
 
         <tr>
-            <th><?php printf(PHP_EXTENSION, 'filter'); ?></th>
-            <td><?php echo xoDiag(extension_loaded('filter') ? 1 : -1); ?></td>
+            <th><?php printf(PHP_EXTENSION, 'Libiconv'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('libiconv') ? 1 : -1); ?></td>
         </tr>
 
         <tr>
-            <th><?php printf(PHP_EXTENSION, 'iconv'); ?></th>
-            <td><?php echo xoDiag(extension_loaded('iconv') ? 1 : -1); ?></td>
+            <th><?php printf(PHP_EXTENSION, 'Multibyte'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('multibyte') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'OpenSSL'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('openssl') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'JSON'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('json') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'DOM'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('dom') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'Intl'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('intl') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'Exif'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('exif') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'oci8'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('oci8') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'PDO'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('pdo') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'LDAP'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('ldap') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'GD'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('gd') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'Imagick'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('imagick') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'Zip'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('zip') ? 1 : -1); ?></td>
+        </tr>
+
+        <tr>
+            <th><?php printf(PHP_EXTENSION, 'pdo_mysql'); ?></th>
+            <td><?php echo xoDiag(extension_loaded('pdo_mysql') ? 1 : -1); ?></td>
         </tr>
 
         <tr>
             <th scope="row">file_uploads</th>
             <td><?php echo xoDiagBoolSetting('file_uploads', true); ?></td>
         </tr>
+
+        <tr>
+            <th scope="row">allow_url_fopen</th>
+            <td><?php echo xoDiagBoolSetting('allow_url_fopen', true); ?></td>
+        </tr>
+
         </tbody>
     </table>
 

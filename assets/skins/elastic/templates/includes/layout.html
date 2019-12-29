@@ -1,0 +1,35 @@
+<chronomail:add_label name="back" />
+<chronomail:add_label name="errortitle" />
+<chronomail:add_label name="options" />
+<chronomail:add_label name="plaintoggle" />
+<chronomail:add_label name="htmltoggle" />
+<chronomail:add_label name="previous" />
+<chronomail:add_label name="next" />
+<chronomail:add_label name="select" />
+<chronomail:add_label name="close" />
+<chronomail:add_label name="browse" />
+<chronomail:add_label name="choosefile" />
+<chronomail:add_label name="choosefiles" />
+<chronomail:object name="doctype" value="html5" />
+<chronomail:if condition="!env:framed || env:extwin" />
+<html>
+<chronomail:else />
+<html class="iframe">
+<chronomail:endif />
+<head>
+	<chronomail:object name="meta" />
+	<chronomail:object name="links" />
+	<link rel="stylesheet" href="/deps/bootstrap.min.css">
+	<chronomail:if condition="config:devel_mode" />
+		<link rel="stylesheet/less" href="/styles/styles.less">
+		<chronomail:link rel="stylesheet/less" href="/styles/print.less" condition="env:action == 'print'" />
+		<script src="/deps/less.min.js" data-env="development"></script>
+	<chronomail:else />
+		<link rel="stylesheet" href="/styles/styles.css">
+		<chronomail:link rel="stylesheet" href="/styles/print.css" condition="env:action == 'print'" />
+	<chronomail:endif />
+</head>
+<body class="task-<chronomail:exp expression="env:error_task ?: env:task ?: 'error'"> action-<chronomail:exp expression="asciiwords(env:action, true, '-') ?: 'none'">">
+	<chronomail:if condition="!env:framed || env:extwin" />
+		<div id="<chronomail:exp expression="env:action == 'print' ? 'print-' : ''">layout">
+	<chronomail:endif />

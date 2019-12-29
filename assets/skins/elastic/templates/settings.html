@@ -1,0 +1,28 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+<chronomail:include file="includes/settings-menu.html" />
+
+<h1 class="voice"><chronomail:label name="preferences" /></h1>
+
+<div id="layout-list" class="listbox<chronomail:exp expression="!request:_action ? '' : ' selected'"/>" aria-labelledby="aria-label-prefsection">
+	<div class="header">
+		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><chronomail:label name="settings" /></span></a>
+		<span id="aria-label-prefsection" class="header-title"><chronomail:label name="preferences" /></span>
+	</div>
+	<div class="scroller">
+		<chronomail:object name="sectionslist" id="sections-table" class="listing iconized settings-default-icon"
+			noheader="true" role="listbox" data-list="sections_list" />
+	</div>
+</div>
+
+<div id="layout-content" role="main">
+	<div class="header">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+	</div>
+	<div class="iframe-wrapper">
+		<chronomail:object name="contentframe" id="preferences-frame" src="env:blankpage" title="arialabelpreferencesform" />
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

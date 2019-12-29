@@ -1,0 +1,32 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe">
+
+<h1 class="boxtitle"><chronomail:label name="contactproperties" /></h1>
+
+<div id="contact-details" class="boxcontent">
+	<chronomail:if condition="strlen(env:sourcename)" />
+		<div id="sourcename"><chronomail:label name="addressbook" />: <chronomail:var name="env:sourcename" /></div>
+	<chronomail:endif />
+
+	<div id="contactphoto"><chronomail:object name="contactphoto" id="contactpic" placeholder="/images/contactpic.png" placeholderGroup="/images/contactgroup.png" /></div>
+	<chronomail:object name="contacthead" id="contacthead" />
+	<br style="clear:both" />
+
+	<div id="contacttabs" class="tabbed">
+		<chronomail:object name="contactdetails" />
+	</div>
+
+</div>
+
+<div id="headerbuttons" class="formbuttons">
+	<chronomail:button command="edit" type="input" class="button mainaction" label="editcontact" condition="!ENV:readonly" />
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

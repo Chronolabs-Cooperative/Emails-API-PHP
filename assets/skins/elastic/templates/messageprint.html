@@ -1,0 +1,29 @@
+<chronomail:include file="includes/layout.html" />
+
+<chronomail:object name="logo" id="logo" alt="Logo" type="print" class="float-sm-right" />
+
+<div class="print-content" role="main">
+	<div id="message-header">
+		<h2 class="subject">
+			<chronomail:object name="messageHeaders" valueOf="subject" />
+		</h2>
+		<div class="short-header">
+			<chronomail:object name="contactphoto" class="contactphoto" placeholder="/images/contactpic.svg" />
+			<div class="header-content">
+				<div class="message-partheaders">
+					<chronomail:object name="messageHeaders" class="headers-table" addicon="virtual" exclude="subject" max="10" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="message-content">
+		<div role="region">
+			<chronomail:object name="messageAttachments" id="attachment-list" class="attachmentslist" />
+		</div>
+		<div role="region">
+			<chronomail:object name="messageBody" id="messagebody" />
+		</div>
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

@@ -1,0 +1,47 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe">
+
+<h1 class="boxtitle"><chronomail:object name="steptitle" /></h1>
+
+<chronomail:form name="editform" method="post" id="contact-details" class="boxcontent">
+	<chronomail:if condition="strlen(env:sourcename)" />
+		<div id="sourcename"><chronomail:label name="addressbook" />: <chronomail:var name="env:sourcename" condition="env:action!='add'" /><chronomail:object name="sourceselector" id="sourceselect" condition="env:action=='add'" /></div>
+	<chronomail:endif />
+
+	<fieldset id="contactphoto">
+		<legend class="voice"><chronomail:label name="contactphoto" /></legend>
+		<chronomail:object name="contactphoto" id="contactpic" placeholder="/images/contactpic.png" />
+		<chronomail:if condition="env:photocol" />
+		<chronomail:object name="fileDropArea" id="contactpic" />
+		<div class="formlinks">
+			<chronomail:button command="upload-photo" id="uploadformlink" type="link" label="replacephoto" class="iconlink upload disabled" classAct="iconlink upload active" onclick="chronomail.upload_input('upload-form')" condition="env:photocol" /><br/>
+			<chronomail:button command="delete-photo" type="link" label="delete" class="iconlink delete disabled" classAct="iconlink delete active" condition="env:photocol" />
+		</div>
+		<chronomail:endif />
+	</fieldset>
+
+	<chronomail:object name="contactedithead" id="contacthead" size="16" form="editform" />
+	<br style="clear:both" />
+
+	<div id="contacttabs" class="tabbed">
+		<chronomail:object name="contacteditform" size="40" textareacols="60" form="editform" />
+	</div>
+
+</form>
+
+<div class="footerleft formbuttons">
+	<chronomail:button command="save" type="input" class="button mainaction" label="save" />
+	<chronomail:button command="show" type="input" class="button" label="cancel" condition="env:action=='edit'" />
+	<chronomail:button name="cancel" type="input" class="button" label="cancel" onclick="history.back()" condition="env:action=='add'" />
+</div>
+
+<chronomail:object name="photoUploadForm" id="upload-form" mode="smart" />
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

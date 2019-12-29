@@ -1,0 +1,238 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+<chronomail:if condition="config:enable_spellcheck" />
+<link rel="stylesheet" type="text/css" href="/googiespell.css" />
+<chronomail:endif />
+</head>
+<chronomail:if condition="env:extwin" /><body class="extwin"><chronomail:else /><body><chronomail:endif />
+
+<chronomail:include file="/includes/header.html" />
+
+<div id="mainscreen">
+
+<h1 class="voice"><chronomail:object name="pagetitle" /></h1>
+
+<!-- toolbar -->
+<h2 id="aria-label-toolbar" class="voice"><chronomail:label name="arialabeltoolbar" /></h2>
+<div id="messagetoolbar" class="toolbar fullwidth" role="toolbar" aria-labelledby="aria-label-toolbar">
+	<chronomail:button command="list" type="link" class="button back disabled" classAct="button back" label="cancel" condition="!env:extwin" tabindex="2" />
+	<chronomail:button command="close" type="link" class="button close disabled" classAct="button close" label="cancel" condition="env:extwin" tabindex="2" />
+	<span class="spacer"></span>
+	<chronomail:button command="send" type="link" class="button send disabled" classAct="button send" label="send" title="sendmessage" tabindex="2" />
+	<chronomail:button command="savedraft" type="link" class="button savedraft disabled" classAct="button savedraft" label="save" title="savemessage" tabindex="2" />
+	<span class="spacer"></span>
+	<chronomail:if condition="!empty(env:spell_langs)" />
+	<span class="dropbutton">
+		<chronomail:button command="spellcheck" type="link" class="button spellcheck disabled" classAct="button spellcheck" classSel="button spellcheck pressed" label="spellcheck" title="checkspelling" tabindex="2" />
+		<a href="#languages" class="dropbuttontip" id="spellmenulink" onclick="UI.toggle_popup('spellmenu',event);return false" aria-haspopup="true" aria-expanded="false" tabindex="2">Select Spell Language</a>
+	</span>
+	<chronomail:endif />
+	<chronomail:button name="addattachment" type="link" class="button attach" label="attach" title="addattachment" onclick="chronomail.upload_input('uploadform')" aria-haspopup="true" aria-expanded="false" tabindex="2" />
+	<chronomail:button command="insert-sig" type="link" class="button insertsig disabled" classAct="button insertsig" label="signature" title="insertsignature" tabindex="2" />
+	<a href="#responses" class="button responses" label="responses" title="<chronomail:label name='insertresponse' />" id="responsesmenulink" unselectable="on" onmousedown="return false" onclick="UI.toggle_popup('responsesmenu',event);return false" tabindex="2" aria-haspopup="true" aria-expanded="false" aria-owns="textresponsesmenu"><chronomail:label name="responses" /></a>
+	<span class="dropbutton" style="display:none">
+		<chronomail:button command="compose-encrypted" type="link" class="button encrypt disabled" classAct="button encrypt" classSel="button encrypt selected" label="encrypt" title="encryptmessagemailvelope" tabindex="2" />
+		<a href="#compose-encrypted" class="dropbuttontip" id="encryptionmenulink" onclick="UI.toggle_popup('encryptionmenu',event);return false" aria-haspopup="true" aria-expanded="false" tabindex="2" style="display:none"></a>
+	</span>
+	<chronomail:container name="toolbar" id="compose-toolbar" />
+</div>
+
+<div id="mainscreencontent">
+
+<div id="composeview-left">
+
+<!-- inline address book -->
+<div id="compose-contacts" class="uibox listbox" role="region" aria-labelledby="aria-label-composecontacts">
+<h2 id="aria-label-composecontacts" class="boxtitle"><chronomail:label name="contacts" /></h2>
+	<div class="listsearchbox" role="search" aria-labelledby="aria-label-composequicksearch">
+		<h3 id="aria-label-composequicksearch" class="voice"><chronomail:label name="arialabelcontactquicksearch" /></h3>
+		<div class="searchbox">
+			<label for="contactsearchbox" class="voice"><chronomail:label name="arialabelcontactsearchbox" /></label>
+			<chronomail:object name="searchform" id="contactsearchbox" />
+			<a id="searchmenulink" class="iconbutton searchicon"> </a>
+			<chronomail:button command="reset-search" type="link" class="iconbutton reset" title="resetsearch" content=" " />
+		</div>
+	</div>
+	<chronomail:object name="addressbooks" id="directorylist" class="treelist listing" summary="ariasummarycomposecontacts" />
+	<div class="scroller withfooter" tabindex="-1">
+		<chronomail:object name="addresslist" id="contacts-table" class="listing iconized" noheader="true" role="listbox" />
+	</div>
+<div class="boxfooter">
+	<chronomail:button command="add-recipient" prop="to" type="link" title="to" class="listbutton addto disabled" classAct="listbutton addto" innerClass="inner" content="To+" /><chronomail:button command="add-recipient" prop="cc" type="link" title="cc" class="listbutton addcc disabled" classAct="listbutton addcc" innerClass="inner" content="Cc+" /><chronomail:button command="add-recipient" prop="bcc" type="link" title="bcc" class="listbutton addbcc disabled" classAct="listbutton addbcc" innerClass="inner" content="Bcc+" /><chronomail:container name="compose-contacts-toolbar" id="compose-contacts-toolbar" />
+</div>
+<div class="boxpagenav">
+	<chronomail:button command="firstpage" type="link" class="icon firstpage disabled" classAct="icon firstpage" title="firstpage" label="first" />
+	<chronomail:button command="previouspage" type="link" class="icon prevpage disabled" classAct="icon prevpage" title="previouspage" label="previous" />
+	<chronomail:button command="nextpage" type="link" class="icon nextpage disabled" classAct="icon nextpage" title="nextpage" label="next" />
+	<chronomail:button command="lastpage" type="link" class="icon lastpage disabled" classAct="icon lastpage" title="lastpage" label="last" />
+</div>
+</div>
+
+</div>
+
+<div id="composeview-right" role="main">
+
+<chronomail:form name="form" method="post" id="compose-content" class="uibox">
+
+<!-- message headers -->
+<div id="composeheaders" role="region" aria-labelledby="aria-label-composeheaders">
+<h2 id="aria-label-composeheaders" class="voice"><chronomail:label name="arialabelmessageheaders" /></h2>
+
+<a href="#options" id="composeoptionstoggle" class="moreheaderstoggle" title="<chronomail:label name='togglecomposeoptions' />" aria-expanded="false"><span class="iconlink"></span></a>
+
+<table class="headers-table compose-headers">
+<tbody>
+	<tr>
+		<td class="title"><label for="_from"><chronomail:label name="from" /></label></td>
+		<td class="editfield">
+			<chronomail:object name="composeHeaders" part="from" form="form" id="_from" tabindex="1" />
+			<a href="#identities" onclick="return chronomail.command('switch-task', 'settings/identities')" class="iconlink edit" tabindex="0"><chronomail:label name="editidents" /></a>
+		</td>
+	</tr><tr>
+		<td class="title top"><label for="_to"><chronomail:label name="to" /></label></td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="to" form="form" id="_to" cols="70" rows="1" tabindex="1" aria-required="true" /></td>
+	</tr><tr id="compose-cc">
+		<td class="title top">
+			<label for="_cc"><chronomail:label name="cc" /></label>
+			<a href="#cc" onclick="return UI.hide_header_row('cc');" class="iconbutton cancel" title="<chronomail:label name='delete' />" tabindex="3"><chronomail:label name="delete" /> <chronomail:label name="cc" /></a>
+		</td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="cc" form="form" id="_cc" cols="70" rows="1" tabindex="1" /></td>
+	</tr><tr id="compose-bcc">
+		<td class="title top">
+			<label for="_bcc"><chronomail:label name="bcc" /></label>
+			<a href="#bcc" onclick="return UI.hide_header_row('bcc');" class="iconbutton cancel" title="<chronomail:label name='delete' />" tabindex="3"><chronomail:label name="delete" /> <chronomail:label name="bcc" /></a>
+		</td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="bcc" form="form" id="_bcc" cols="70" rows="1" tabindex="1" /></td>
+	</tr><tr id="compose-replyto">
+		<td class="title top">
+			<label for="_replyto"><chronomail:label name="replyto" /></label>
+			<a href="#replyto" onclick="return UI.hide_header_row('replyto');" class="iconbutton cancel" title="<chronomail:label name='delete' />" tabindex="3"><chronomail:label name="delete" /> <chronomail:label name="replyto" /></a>
+		</td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="replyto" form="form" id="_replyto" size="70" tabindex="1" /></td>
+	</tr><tr id="compose-followupto">
+		<td class="title top">
+			<label for="_followupto"><chronomail:label name="followupto" /></label>
+			<a href="#followupto" onclick="return UI.hide_header_row('followupto');" class="iconbutton cancel" title="<chronomail:label name='delete' />" tabindex="3"><chronomail:label name="delete" /> <chronomail:label name="followupto" /></a>
+		</td>
+		<td class="editfield"><chronomail:object name="composeHeaders" part="followupto" form="form" id="_followupto" size="70" tabindex="1" /></td>
+	</tr><tr>
+		<td></td>
+		<td class="formlinks">
+			<a href="#cc" onclick="return UI.show_header_row('cc')" id="cc-link" class="iconlink add" tabindex="3"><chronomail:label name="addcc" /></a>
+			<a href="#bcc" onclick="return UI.show_header_row('bcc')" id="bcc-link" class="iconlink add" tabindex="3"><chronomail:label name="addbcc" /></a>
+			<a href="#reply-to" onclick="return UI.show_header_row('replyto')" id="replyto-link" class="iconlink add" tabindex="3"><chronomail:label name="addreplyto" /></a>
+			<a href="#followup-to" onclick="return UI.show_header_row('followupto')" id="followupto-link" class="iconlink add" tabindex="3"><chronomail:label name="addfollowupto" /></a>
+		</td>
+	</tr><tr>
+		<td class="title"><label for="compose-subject"><chronomail:label name="subject" /></label></td>
+		<td class="editfield"><chronomail:object name="composeSubject" id="compose-subject" form="form" tabindex="1" /></td>
+	</tr>
+</tbody>
+</table>
+
+<div id="composebuttons" class="formbuttons">
+	<chronomail:button command="extwin" type="link" class="button extwin" classSel="button extwin pressed" innerClass="icon" title="openinextwin" label="openinextwin" condition="!env:extwin" />
+</div>
+
+<!-- (collapsible) message options -->
+<div id="composeoptions" role="region" aria-labelledby="aria-label-composeoptions">
+	<h2 id="aria-label-composeoptions" class="voice"><chronomail:label name="arialabelcomposeoptions" /></h2>
+	<chronomail:if condition="!in_array('htmleditor', (array)config:dont_override)" />
+	<span class="composeoption">
+		<label><chronomail:label name="editortype" />
+			<chronomail:object name="editorSelector" editorid="composebody" tabindex="4" /></label>
+	</span>
+	<chronomail:endif />
+	<span class="composeoption">
+		<label for="rcmcomposepriority"><chronomail:label name="priority" />
+			<chronomail:object name="prioritySelector" form="form" id="rcmcomposepriority" tabindex="4" /></label>
+	</span>
+	<chronomail:if condition="!in_array('mdn_default', (array)config:dont_override)" />
+	<span class="composeoption">
+		<label><chronomail:object name="mdnCheckBox" form="form" id="rcmcomposereceipt" tabindex="4" /> <chronomail:label name="returnreceipt" /></label>
+	</span>
+	<chronomail:endif />
+	<chronomail:if condition="!in_array('dsn_default', (array)config:dont_override)" />
+	<span class="composeoption">
+		<label><chronomail:object name="dsnCheckBox" form="form" id="rcmcomposedsn" tabindex="4" /> <chronomail:label name="dsn" /></label>
+	</span>
+	<chronomail:endif />
+	<chronomail:if condition="!config:no_save_sent_messages" />
+	<span class="composeoption">
+		<label><chronomail:label name="savesentmessagein" /> <chronomail:object name="storetarget" maxlength="30" style="max-width:12em" tabindex="4" /></label>
+	</span>
+	<chronomail:endif />
+	<chronomail:container name="composeoptions" id="composeoptions" />
+</div>
+
+</div>
+
+<!-- message compose body -->
+<div id="composeview-bottom">
+	<div id="composebodycontainer">
+		<label for="composebody" class="voice"><chronomail:label name="arialabelmessagebody" /></label>
+		<chronomail:object name="composeBody" id="composebody" form="form" cols="70" rows="20" tabindex="1" />
+	</div>
+	<div id="compose-attachments" class="rightcol" role="region" aria-labelledby="aria-label-composeattachments">
+		<h2 id="aria-label-composeattachments" class="voice"><chronomail:label name="attachments" /></h2>
+		<div class="upload-form" style="text-align:center; margin-bottom:10px">
+            <chronomail:object name="composeAttachmentForm" mode="hint" />
+			<a class="button" tabindex="1" href="#" onclick="chronomail.upload_input('uploadform')"><chronomail:label name="addattachment" /></a>
+		</div>
+		<chronomail:object name="composeAttachmentList" id="attachment-list" class="attachmentslist" tabindex="1" />
+		<chronomail:object name="fileDropArea" id="compose-attachments" />
+	</div>
+<!--
+	<div id="composeformbuttons" class="footerleft formbuttons floating">
+		<chronomail:button type="input" command="send" class="button mainaction" label="sendmessage" tabindex="11" />
+		<chronomail:button type="input" command="savedraft" class="button" label="savemessage" tabindex="12" />
+		<chronomail:button type="input" command="list" class="button" label="cancel" tabindex="13" />
+	</div>
+-->
+</div>
+
+</form>
+
+</div><!-- end mailview-right -->
+
+</div><!-- end mainscreencontent -->
+
+</div><!-- end mainscreen -->
+
+<chronomail:object name="composeAttachmentForm" id="uploadform" mode="smart" />
+
+<div id="spellmenu" class="popupmenu" aria-hidden="true"></div>
+
+<div id="responsesmenu" class="popupmenu" aria-hidden="true">
+	<h3 id="aria-label-responsesmenu" class="voice"><chronomail:label name="arialabelresponsesmenu" /></h3>
+	<ul class="toolbarmenu" id="textresponsesmenu" role="menu" aria-labelledby="aria-label-responsesmenu">
+		<li role="separator" class="separator" id=""><label><chronomail:label name="insertresponse" /></label></li>
+		<chronomail:object name="responseslist" id="responseslist" tagname="ul" itemclass="active" />
+		<li role="separator" class="separator"><label><chronomail:label name="manageresponses" /></label></li>
+		<chronomail:button command="save-response" type="link-menuitem" label="newresponse" classAct="active" unselectable="on" />
+		<chronomail:button name="responses" type="link-menuitem" label="editresponses" class="active" onclick="return chronomail.command('switch-task', 'settings/responses')" />
+	</ul>
+</div>
+
+<div id="attachmentmenu" class="popupmenu" aria-hidden="true">
+	<ul class="toolbarmenu" id="attachmentoptionsmenu" role="menu">
+		<chronomail:button command="open-attachment" id="attachmenuopen" type="link-menuitem" label="open" class="icon" classAct="icon active" innerclass="icon extwin" />
+		<chronomail:button command="download-attachment" id="attachmenudownload" type="link-menuitem" label="download" class="icon" classAct="icon active" innerclass="icon download" />
+		<chronomail:button command="rename-attachment" id="attachmenurename" type="link-menuitem" label="rename" class="icon" classAct="icon active" innerclass="icon rename" />
+		<chronomail:container name="attachmentmenu" id="attachmentoptionsmenu" />
+	</ul>
+</div>
+
+<div id="encryptionmenu" class="popupmenu" aria-hidden="true">
+	<ul class="toolbarmenu" role="menu">
+		<chronomail:button command="compose-encrypted" type="link-menuitem" label="encryptmessage" classAct="active" />
+		<chronomail:button command="compose-encrypted-signed" type="link-menuitem" label="encryptandsign" classAct="active" />
+	</ul>
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

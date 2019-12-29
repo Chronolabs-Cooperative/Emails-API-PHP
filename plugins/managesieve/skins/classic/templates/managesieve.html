@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/functions.js"></script>
+<script type="text/javascript" src="/splitter.js"></script>
+
+<style type="text/css">
+<chronomail:if condition="!env:managesieve_no_set_list" />
+#filterslistbox { width: <chronomail:exp expression="!empty(cookie:sieveviewsplitter) ? cookie:sieveviewsplitter-5 : 210" />px; }
+<chronomail:endif />
+#filter-box { left: <chronomail:exp expression="!empty(cookie:sieveviewsplitter) ? cookie:sieveviewsplitter+5 : 220" />px; }
+#filtersetslistbox { width: <chronomail:exp expression="!empty(cookie:sieveviewsplitter2) ? cookie:sieveviewsplitter2-5 : 175" />px; }
+#filtersscreen { left: <chronomail:exp expression="!empty(cookie:sieveviewsplitter2) ? cookie:sieveviewsplitter2+5 : 185" />px; }
+</style>
+
+</head>
+<body>
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+<chronomail:include file="/includes/settingstabs.html" />
+
+<div id="mainscreen">
+<chronomail:if condition="!env:managesieve_no_set_list" />
+<div id="filtersetslistbox">
+<div id="filtersetslist-title" class="boxtitle"><chronomail:label name="managesieve.filtersets" /></div>
+<div class="boxlistcontent">
+  <chronomail:object name="filtersetslist" id="filtersetslist" class="records-table" cellspacing="0" summary="Filters list" type="list" noheader="true" />
+</div>
+<div class="boxfooter">
+  <chronomail:button command="plugin.managesieve-setadd" type="link" title="managesieve.filtersetadd" class="buttonPas addfilterset" classAct="button addfilterset" content=" " />
+  <chronomail:button name="filtersetmenulink" id="filtersetmenulink" type="link" title="moreactions" class="button groupactions" onclick="chronomail_ui.show_popup('filtersetmenu', undefined, {above:1});return false" content=" " />
+</div>
+</div>
+
+<div id="filtersscreen">
+<chronomail:else />
+<div id="filtersscreen" class="nosetlist">
+<chronomail:endif />
+<div id="filterslistbox">
+<div class="boxtitle"><chronomail:label name="managesieve.filters" /></div>
+<div class="boxlistcontent">
+  <chronomail:object name="filterslist" id="filterslist" class="records-table" cellspacing="0" summary="Filters list" noheader="true" />
+</div>
+<div class="boxfooter">
+  <chronomail:button command="plugin.managesieve-add" type="link" title="managesieve.filteradd" class="buttonPas addfilter" classAct="button addfilter" content=" " />
+  <chronomail:button name="filtermenulink" id="filtermenulink" type="link" title="moreactions" class="button groupactions" onclick="chronomail_ui.show_popup('filtermenu', undefined, {above:1});return false" content=" " />
+</div>
+</div>
+
+<script type="text/javascript">
+  <chronomail:if condition="!env:managesieve_no_set_list" />
+  var sieveviewsplit2 = new chronomail_splitter({id:'sieveviewsplitter2', p1: 'filtersetslistbox', p2: 'filtersscreen', orientation: 'v', relative: true, start: 200});
+  chronomail.add_onload('sieveviewsplit2.init()');
+  <chronomail:endif />
+
+  var sieveviewsplit = new chronomail_splitter({id:'sieveviewsplitter', p1: 'filterslistbox', p2: 'filter-box', orientation: 'v', relative: true, start: 215});
+  chronomail.add_onload('sieveviewsplit.init()');
+</script>
+
+<div id="filter-box">
+  <chronomail:object name="contentframe" id="filter-frame" width="100%" height="100%" frameborder="0" src="env:blankpage" />
+</div>
+
+</div>
+</div>
+
+<div id="filtersetmenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button type="link" command="plugin.managesieve-setact" label="managesieve.enable" classAct="active" /></li>
+    <li><chronomail:button type="link" command="plugin.managesieve-setdel" label="delete" classAct="active" /></li>
+    <li class="separator_above"><chronomail:button type="link" command="plugin.managesieve-setget" label="download" classAct="active" /></li>
+    <chronomail:if condition="env:raw_sieve_editor != false" />
+    <li><chronomail:button type="link" command="plugin.managesieve-seteditraw" label="managesieve.filterseteditraw" classAct="active" /></li>
+    <chronomail:endif />
+    <chronomail:container name="filtersetoptions" id="filtersetmenu" />
+  </ul>
+</div>
+
+<div id="filtermenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button type="link" command="plugin.managesieve-act" label="managesieve.enable" classAct="active" /></li>
+    <li><chronomail:button type="link" command="plugin.managesieve-del" label="delete" classAct="active" /></li>
+    <chronomail:container name="filteroptions" id="filtermenu" />
+  </ul>
+</div>
+
+<script type="text/javascript">
+chronomail_init_mail_ui();
+</script>
+
+</body>
+</html>

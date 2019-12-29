@@ -1,0 +1,29 @@
+{
+    "name": "chronomail/subscriptions_option",
+    "type": "chronomail-plugin",
+    "description": "A plugin which can enable or disable the use of imap subscriptions. It includes a toggle on the settings page under \"Server Settings\". The preference can also be locked.",
+    "license": "GPLv3+",
+    "version": "1.4",
+    "authors": [
+        {
+            "name": "Thomas Bruederli",
+            "email": "chronomail@gmail.com",
+            "role": "Lead"
+        },
+        {
+            "name": "Ziba Scott",
+            "email": "ziba@umich.edu",
+            "role": "Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://plugins.chronomail.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "chronomail/plugin-installer": ">=0.1.3"
+    }
+}

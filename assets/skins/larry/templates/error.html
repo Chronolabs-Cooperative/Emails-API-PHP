@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<chronomail:if condition="!env:framed && env:error_task != 'error-login'" />
+<body class="error<chronomail:exp expression="env:extwin ? ' extwin' : ''" />">
+<chronomail:include file="/includes/header.html" />
+<chronomail:else />
+<body class="error iframe">
+<chronomail:endif />
+
+<div class="uibox centerbox errorbox">
+$__page_content
+</div>
+
+</body>
+</html>

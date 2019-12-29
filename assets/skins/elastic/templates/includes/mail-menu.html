@@ -1,0 +1,92 @@
+<chronomail:add_label name="viewsource" />
+<div id="mailtoolbar" class="toolbar menu" role="toolbar">
+	<chronomail:button command="compose" type="link" class="compose hidden"
+		label="compose" title="writenewmessage" innerclass="inner" />
+	<chronomail:button command="reply" type="link" class="reply disabled" classAct="reply"
+		label="reply" title="replytomessage" innerclass="inner" data-content-button="true" />
+	<span class="dropbutton">
+		<chronomail:button command="reply-all" type="link" class="reply-all disabled" classAct="reply-all"
+			label="replyall" title="replytoallmessage" innerclass="inner" />
+		<a href="#reply-all" id="replyallmenulink" class="dropdown" data-popup="replyall-menu" tabindex="0">
+			<span class="inner"><chronomail:label name="arialabelreplyalloptions" /></span>
+		</a>
+	</span>
+	<span class="dropbutton">
+		<chronomail:button command="forward" type="link" class="forward disabled" classAct="forward"
+			label="forward" title="forwardmessage" innerclass="inner" />
+		<a href="#forward" id="forwardmenulink" class="dropdown" data-popup="forward-menu" tabindex="0">
+			<span class="inner"><chronomail:label name="arialabelforwardingoptions" /></span>
+		</a>
+	</span>
+	<span class="spacer"></span>
+	<chronomail:button command="delete" type="link" class="delete disabled" classAct="delete"
+		label="delete" title="deletemessage" innerclass="inner" />
+	<chronomail:if condition="template:name == 'message'" />
+		<chronomail:button command="print" type="link" class="print disabled" classAct="print"
+			label="print" title="printmessage" innerclass="inner" data-hidden="small"  />
+	<chronomail:endif />
+	<chronomail:container name="toolbar" id="mailtoolbar" />
+	<chronomail:button name="markmenulink" id="markmessagemenulink" type="link" class="markmessage"
+		label="mark" title="markmessages" data-popup="markmessage-menu" innerclass="inner" />
+	<chronomail:button name="messagemenulink" id="messagemenulink" type="link" class="more"
+		label="more" title="moreactions" data-popup="message-menu" innerclass="inner" />
+	<chronomail:if condition="template:name == 'message'" />
+		<span class="spacer"></span>
+		<chronomail:button command="previousmessage" type="link" class="prev disabled" classAct="prev"
+			innerclass="inner" label="previous" title="previousmessage" data-hidden="small" />
+		<chronomail:button command="nextmessage" type="link" class="next disabled" classAct="next"
+			innerclass="inner" label="next" title="nextmessage" data-hidden="small" />
+	<chronomail:endif />
+</div>
+
+<div id="forward-menu" class="popupmenu">
+	<h3 id="aria-label-forward-menu" class="voice"><chronomail:label name="arialabelforwardingoptions" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-forward-menu">
+		<chronomail:button type="link-menuitem" command="forward-inline" label="forwardinline" prop="sub" class="forward inline disabled" classAct="forward inline active" />
+		<chronomail:button type="link-menuitem" command="forward-attachment" label="forwardattachment" prop="sub" class="forward attachment disabled" classAct="forward attachment active" />
+		<chronomail:button type="link-menuitem" command="bounce" label="bouncemsg" class="forward bounce disabled" classAct="forward bounce active" />
+		<chronomail:container name="forwardmenu" id="forward-menu" />
+	</ul>
+</div>
+
+<div id="replyall-menu" class="popupmenu">
+	<h3 id="aria-label-replyall-menu" class="voice"><chronomail:label name="arialabelreplyalloptions" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-replyall-menu">
+		<chronomail:button type="link-menuitem" command="reply-all" label="replyall" prop="sub" class="reply all disabled" classAct="reply all active" />
+		<chronomail:button type="link-menuitem" command="reply-list" label="replylist" prop="sub" class="reply list disabled" classAct="reply list active" />
+		<chronomail:container name="replyallmenu" id="replyall-menu" />
+	</ul>
+</div>
+
+<div id="message-menu" class="popupmenu">
+	<h3 id="aria-label-message-menu" class="voice"><chronomail:label name="arialabelmoremessageactions" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-message-menu">
+		<chronomail:button type="link-menuitem" command="print" label="printmessage" class="print disabled" classAct="print active" data-hidden="small"/>
+		<chronomail:if condition="template:name != 'message'" />
+			<chronomail:button type="link-menuitem" command="import-messages" label="import" class="import disabled" classAct="import active"
+				name="messageimport" onclick="UI.import_dialog()" />
+		<chronomail:endif />
+		<chronomail:button type="link-menuitem" command="download" label="export" class="download disabled" classAct="download active" />
+		<chronomail:button type="link-menuitem" command="edit" prop="new" label="editasnew" class="edit asnew disabled" classAct="edit asnew active" />
+		<chronomail:button type="link-menuitem" command="viewsource" label="viewsource" class="source disabled" classAct="source active" />
+		<chronomail:button type="link-menuitem" command="move" label="moveto" class="move disabled" classAct="move active" innerclass="folder-selector-link" aria-haspopup="true" />
+		<chronomail:button type="link-menuitem" command="copy" label="copyto" class="copy disabled" classAct="copy active" innerclass="folder-selector-link" aria-haspopup="true" />
+		<chronomail:button type="link-menuitem" command="open" label="openinextwin" target="_blank" class="extwin disabled" classAct="extwin active" data-hidden="small" />
+		<chronomail:container name="messagemenu" id="message-menu" />
+	</ul>
+</div>
+
+<div id="markmessage-menu" class="popupmenu">
+	<h3 id="aria-label-markmessage-menu" class="voice"><chronomail:label name="arialabelmarkmessagesas" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-markmessage-menu">
+		<chronomail:button type="link-menuitem" command="mark" prop="read" label="markread" classAct="read active" class="read disabled" />
+		<chronomail:button type="link-menuitem" command="mark" prop="unread" label="markunread" classAct="unread active" class="unread disabled" />
+		<chronomail:button type="link-menuitem" command="mark" prop="flagged" label="markflagged" classAct="flag active" class="flag disabled" />
+		<chronomail:button type="link-menuitem" command="mark" prop="unflagged" label="markunflagged" classAct="unflag active" class="unflag disabled" />
+		<chronomail:container name="markmenu" id="markmessage-menu" />
+	</ul>
+</div>
+
+<chronomail:if condition="template:name != 'message'" />
+	<chronomail:object name="messageimportform" id="uploadform" class="popupmenu formcontent" buttons="no" />
+<chronomail:endif />

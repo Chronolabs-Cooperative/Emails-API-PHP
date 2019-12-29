@@ -2,3 +2,10 @@
 /etc/postfix/mysql-alias_maps.cf||SELECT `destination` FROM `aliases` WHERE `email` = '%s' AND `online` > `offline`||
 /etc/postfix/mysql-body_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'body_checks' AND `deleted` = 0||
 /etc/postfix/mysql-header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-lmtp_body_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'smtp_body_checks' AND `deleted` = 0||
+/etc/postfix/mysql-lmtp_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'smtp_header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-lmtp_mime_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'smtp_mime_header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-lmtp_nested_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'smtp_nested_header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-milter_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-mime_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'mime_header_checks' AND `deleted` = 0||
+/etc/postfix/mysql-nested_header_checks.cf||SELECT `check` FROM `checks` WHERE `typal` = 'nested_header_checks' AND `deleted` = 0||

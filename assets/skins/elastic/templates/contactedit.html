@@ -1,0 +1,29 @@
+<chronomail:include file="includes/layout.html" />
+
+<h1 class="voice"><chronomail:object name="steptitle" /></h1>
+
+<chronomail:form name="editform" method="post" id="contact-details" class="formcontent">
+	<div class="contact-header">
+		<fieldset id="contactphoto" class="contact-photo">
+			<legend class="voice"><chronomail:label name="contactphoto" /></legend>
+			<chronomail:object name="contactphoto" id="contactpic" class="image-upload" placeholder="/images/contactpic.svg" />
+			<chronomail:if condition="env:photocol" />
+				<chronomail:object name="fileDropArea" id="contactpic" />
+			<chronomail:endif />
+		</fieldset>
+		<chronomail:object name="contactedithead" id="contacthead" form="editform"
+			class="propform contact-head" use-labels="true" with-source="true" />
+	</div>
+	<div id="contacttabs" class="tabbed">
+		<chronomail:object name="contacteditform" textareacols="60" form="editform"
+			fieldset-class="propform groupped" compact-form="true" short-legend-labels="true" />
+	</div>
+</form>
+
+<div class="formbuttons">
+	<chronomail:button command="save" class="btn btn-primary submit" label="save" />
+</div>
+
+<chronomail:object name="photoUploadForm" id="upload-form" mode="smart" />
+
+<chronomail:include file="includes/footer.html" />

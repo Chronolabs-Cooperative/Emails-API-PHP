@@ -1,0 +1,24 @@
+{
+    "name": "chronomail/debug_logger",
+    "type": "chronomail-plugin",
+    "description": "Enhanced logging for debugging purposes. It is not recommened to be enabled on production systems without testing because of the somewhat increased memory, cpu and disk i/o overhead.",
+    "license": "GPLv2",
+    "version": "1.0",
+    "authors": [
+        {
+            "name": "Ziba Scott",
+            "email": "ziba@umich.edu",
+            "role": "Lead"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://plugins.chronomail.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "chronomail/plugin-installer": ">=0.1.3"
+    }
+}

@@ -1,0 +1,24 @@
+<chronomail:include file="includes/layout.html" />
+
+<h1 class="voice"><chronomail:object name="productname" /> <chronomail:label name="login" /></h1>
+
+<div id="layout-content" class="selected no-navbar" role="main">
+	<chronomail:object name="logo" src="/images/logo.svg" data-src-small="0" id="logo" alt="Logo" />
+	<chronomail:form id="login-form" name="login-form" method="post" class="propform">
+	<chronomail:object name="loginform" form="login-form" size="40" submit=true />
+		<div id="login-footer" role="contentinfo">
+			<chronomail:object name="productname" condition="config:display_product_info &gt; 0" />
+			<chronomail:object name="version" condition="config:display_product_info == 2" />
+			<chronomail:if condition="config:support_url" />
+				&nbsp;&bull;&nbsp; <a href="<chronomail:var name='config:support_url' />" target="_blank" class="support-link"><chronomail:label name="support" /></a>
+			<chronomail:endif />
+			<chronomail:container name="loginfooter" id="login-footer" />
+		</div>
+	</form>
+</div>
+
+<noscript>
+	<p class="noscriptwarning"><chronomail:label name="noscriptwarning" /></p>
+</noscript>
+
+<chronomail:include file="includes/footer.html" />

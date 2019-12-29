@@ -1,0 +1,16 @@
+<chronomail:include file="includes/layout.html" />
+
+<h1 class="voice"><chronomail:label name="about" /></h1>
+
+<div class="frame-content">
+	<chronomail:object name="aboutcontent" />
+	<h2 class="sysname">Chronomail Webmail <chronomail:object name="version" /></h2>
+	<p class="copyright"><chronomail:object name="copyright" /></p>
+	<p class="license"><chronomail:object name="license" /></p>
+	<div class="readtext">
+		<h3><chronomail:label name="installedplugins" /></h3>
+		<chronomail:object name="pluginlist" id="pluginlist" class="records-table" />
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

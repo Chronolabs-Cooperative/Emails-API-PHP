@@ -1,0 +1,81 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe fullheight">
+
+<div id="messageheader" class="previewheader">
+
+<!-- record navigation -->
+<div id="countcontrols" role="toolbar" aria-labelledby="aria-label-messagetoolbar">
+<h2 id="aria-label-messagetoolbar" class="voice"><chronomail:label name="arialabelmessageactions" /></h2>
+<chronomail:if condition="env:optional_format=='text'" />
+	<span class="buttongroup">
+		<chronomail:button command="change-format" prop="html" type="link" class="button first changeformat html selected" innerClass="icon" title="changeformathtml" content="HTML" /><chronomail:button command="change-format" prop="text" type="link" class="button last changeformat text" classSel="button changeformat text pressed" innerClass="icon" title="changeformattext" content="Text" />
+	</span>
+<chronomail:elseif condition="env:optional_format=='html'" />
+	&nbsp;
+	<span class="buttongroup">
+		<chronomail:button command="change-format" prop="html" type="link" class="button first changeformat html" classSel="button changeformat html pressed" innerClass="icon" title="changeformathtml" content="HTML" /><chronomail:button command="change-format" prop="text" type="link" class="button last changeformat text selected" innerClass="icon" title="changeformattext" content="Text" />
+	</span>
+<chronomail:endif />
+<chronomail:if condition="env:mailbox != config:drafts_mbox || env:message_context">
+	&nbsp;
+	<chronomail:button command="reply" type="link" class="button reply" classSel="button reply pressed" innerClass="icon" title="replytomessage" label="replytomessage" />
+	<chronomail:button command="reply-all" type="link" class="button replyall" classSel="button replyall pressed" innerClass="icon" title="replytoallmessage" label="replytoallmessage" />
+	<chronomail:button command="forward" type="link" class="button forward" classSel="button forward pressed" innerClass="icon" title="forwardmessage" label="forwardmessage" />
+<chronomail:endif />
+<chronomail:if condition="!env:message_context">
+	&nbsp;
+	<chronomail:button command="extwin" type="link" class="button extwin" classSel="button extwin pressed" innerClass="icon" title="openinextwin" label="openinextwin" />
+<chronomail:endif />
+</div>
+
+<h3 class="subject"><span class="flag-icon"></span><span onmouseover="chronomail_webmail.long_subject_title(this)"><span class="voice"><chronomail:label name="subject" />: </span><chronomail:object name="messageHeaders" valueOf="subject" /></span></h3>
+
+<a href="#details" id="previewheaderstoggle" class="moreheaderstoggle" aria-expanded="false"><span class="iconlink" title="<chronomail:label name='togglemoreheaders' />"></span></a>
+<div id="contactphoto"><chronomail:object name="contactphoto" /></div>
+
+<table class="headers-table" id="preview-shortheaders"><tbody><tr>
+<chronomail:if condition="env:mailbox == config:drafts_mbox || env:mailbox == config:sent_mbox">
+	<td class="header-title"><chronomail:label name="to" /></td>
+	<td class="header from"><chronomail:object name="messageHeaders" valueOf="to" max="3" addicon="/images/addcontact.png" /></td>
+<chronomail:else />
+	<td class="header-title"><chronomail:label name="from" /></td>
+	<td class="header from"><chronomail:object name="messageHeaders" valueOf="from" addicon="/images/addcontact.png" /></td>
+<chronomail:endif />
+	<td class="header-title"><chronomail:label name="date" /></td>
+	<td class="header date"><span><chronomail:object name="messageHeaders" valueOf="date" /></span></td>
+</tr></tbody></table>
+
+<chronomail:object name="messageHeaders" id="preview-allheaders" class="headers-table" addicon="/images/addcontact.png" max="10" exclude="subject,replyto" />
+
+<chronomail:object name="messageFullHeaders" id="full-headers" />
+
+</div>
+
+<div id="messagepreview" role="main">
+<div class="rightcol" role="region" aria-labelledby="aria-label-messageattachments">
+<h2 id="aria-label-messageattachments" class="voice"><chronomail:label name="attachments" /></h2>
+<chronomail:object name="messageAttachments" id="attachment-list" class="attachmentslist" />
+</div>
+<div class="leftcol" role="region" aria-labelledby="aria-label-messagebody">
+<h2 id="aria-label-messagebody" class="voice"><chronomail:label name="arialabelmessagebody" /></h2>
+<chronomail:object name="messageObjects" id="message-objects" />
+<chronomail:object name="messageBody" id="messagebody" headertableclass="message-partheaders headers-table" />
+</div>
+</div>
+
+<div id="attachmentmenu" class="popupmenu" aria-hidden="true">
+	<ul class="toolbarmenu" id="attachmentoptionsmenu" role="menu">
+		<chronomail:button command="open-attachment" id="attachmenuopen" type="link-menuitem" label="open" class="icon" classAct="icon active" innerclass="icon extwin" />
+		<chronomail:button command="download-attachment" id="attachmenudownload" type="link-menuitem" label="download" class="icon" classAct="icon active" innerclass="icon download" />
+		<chronomail:container name="attachmentmenu" id="attachmentoptionsmenu" />
+	</ul>
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

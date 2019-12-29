@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/functions.js"></script>
+</head>
+<body>
+
+<chronomail:if condition="!request:_framed" />
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+<chronomail:include file="/includes/settingstabs.html" />
+
+<div id="mainscreen" class="box darkbg crop">
+<chronomail:endif />
+
+<div class="readtext">
+<div id="license">
+<chronomail:object name="aboutcontent" />
+<h2 class="sysname">Chronomail Webmail <chronomail:object name="version" /></h2>
+<p class="copyright"><chronomail:object name="copyright" /></p>
+<p class="license"><chronomail:object name="license" /></p>
+<p class="links"><chronomail:object name="supportlink" label="support" target="_blank" /></p>
+</div>
+
+<h3><chronomail:label name="installedplugins" /></h3>
+<chronomail:object name="pluginlist" id="pluginlist" class="records-table" cellspacing="0" />
+
+</div>
+
+<chronomail:if condition="!request:_framed" />
+</div>
+<chronomail:endif />
+
+</body>
+</html>

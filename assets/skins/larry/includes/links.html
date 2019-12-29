@@ -1,0 +1,11 @@
+<meta name="viewport" content="" id="viewport" />
+<chronomail:object name="meta" />
+<chronomail:object name="links" />
+<link rel="stylesheet" type="text/css" href="/styles.css" />
+<chronomail:if condition="in_array(env:task, array('mail','addressbook','settings'))" />
+<link rel="stylesheet" type="text/css" href="/<chronomail:var name="env:task" />.css" />
+<chronomail:endif />
+<script type="text/javascript" src="/ui.js"></script>
+<chronomail:add_label name="errortitle" />
+<chronomail:add_label name="toggleadvancedoptions" />
+<chronomail:add_label name="options" />

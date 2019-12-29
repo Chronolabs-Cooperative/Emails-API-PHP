@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/splitter.js"></script>
+<script type="text/javascript" src="/functions.js"></script>
+<style type="text/css">
+<chronomail:if condition="env:layout == 'widescreen'" />
+#mailcontframe { width: <chronomail:exp expression="!empty(cookie:mailviewsplitter2) ? cookie:mailviewsplitter2-5 : 395" />px; }
+#mailpreviewframe { left: <chronomail:exp expression="!empty(cookie:mailviewsplitter2) ? cookie:mailviewsplitter2+5 : 405" />px; display: block; }
+<chronomail:elseif condition="env:layout != 'list'" />
+#mailcontframe { height: <chronomail:exp expression="!empty(cookie:mailviewsplitter) ? cookie:mailviewsplitter-5 : 195" />px; }
+#mailpreviewframe { top: <chronomail:exp expression="!empty(cookie:mailviewsplitter) ? cookie:mailviewsplitter+5 : 205" />px; display: block; }
+<chronomail:endif />
+#mailleftcontainer { width: <chronomail:exp expression="!empty(cookie:mailviewsplitterv) ? cookie:mailviewsplitterv-5 : 160" />px; }
+#mailrightcontainer { left: <chronomail:exp expression="!empty(cookie:mailviewsplitterv) ? cookie:mailviewsplitterv+5 : 170" />px; }
+</style>
+</head>
+<body>
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+
+<div id="mainscreen">
+<div id="mailleftcontainer">
+<div id="mailboxlist-container">
+<div id="mailboxlist-title" class="boxtitle"><chronomail:label name="mailboxlist" /></div>
+<div id="mailboxlist-content"  class="boxlistcontent">
+  <chronomail:object name="mailboxlist" id="mailboxlist" class="treelist folderlist" folder_filter="mail" />
+</div>
+<div id="mailboxlist-footer" class="boxfooter">
+  <chronomail:button name="mailboxmenulink" id="mailboxmenulink" type="link" title="folderactions" class="button groupactions" onclick="chronomail_ui.show_popup('mailboxmenu');return false" content=" " />
+
+<chronomail:if condition="env:quota" />
+<img id="quotaimg" src="/images/quota.png" alt="" width="102" height="16" />
+<div id="quota">
+  <chronomail:object name="quotaDisplay" display="image" width="100" height="14" id="quotadisplay" />
+</div>
+<chronomail:endif />
+
+</div>
+</div>
+</div>
+
+<div id="mailrightcontainer" class="<chronomail:var name="env:layout" />">
+<div id="mailrightcontent">
+<div id="mailcontframe">
+<div id="messagelistheader" class="boxfooter"><chronomail:object name="listmenulink" optionsmenuIcon="true" /></div>
+<div id="messagelistcontainer" class="boxlistcontent">
+<chronomail:object name="messages"
+  id="messagelist"
+  class="messagelist fixedheader"
+  cellspacing="0"
+  columns=""
+  summary="Message list"
+  optionsmenuIcon="true" />
+</div>
+<div id="messagelistfooter" class="boxfooter">
+    <div id="listcontrols" class="pagenav">
+        <span><chronomail:label name="select" />:&nbsp;</span>
+        <chronomail:button command="select-all" type="link" title="all" class="buttonPas all" classAct="button all" classSel="button allsel" content=" " />
+        <chronomail:button command="select-all" type="link" prop="page" title="currpage" class="buttonPas page" classAct="button page" classSel="button pagesel" content=" " />
+        <chronomail:button command="select-all" type="link" prop="unread" title="unread" class="buttonPas unread" classAct="button unread" classSel="button unreadsel" content=" " />
+        <chronomail:button command="select-all" type="link" prop="invert" title="invert" class="buttonPas invert" classAct="button invert" classSel="button invertsel" content=" " />
+        <chronomail:button command="select-none" type="link" title="none" class="buttonPas none" classAct="button none" classSel="button nonesel" content=" " />
+        <chronomail:container name="listcontrols" id="listcontrols" />
+    <chronomail:if condition="env:threads" />
+        <span style="margin-left: 12px"><chronomail:label name="threads" />:&nbsp;</span>
+        <chronomail:button command="expand-all" type="link" title="expand-all" class="buttonPas expand-all" classAct="button expand-all" classSel="button expand-allsel" content=" "  />
+        <chronomail:button command="expand-unread" type="link" title="expand-unread" class="buttonPas expand-unread" classAct="button expand-unread" classSel="button expand-unreadsel" content=" " />
+        <chronomail:button command="collapse-all" type="link" title="collapse-all" class="buttonPas collapse-all" classAct="button collapse-all" classSel="button collapse-allsel" content=" " />
+    <chronomail:endif />
+    </div>
+    <div id="countcontrols" class="pagenav">
+        <chronomail:object name="messageCountDisplay" />
+        <chronomail:button command="lastpage" type="link" class="buttonPas lastpage" classAct="button lastpage" classSel="button lastpageSel" title="lastpage" content=" " />
+        <chronomail:button command="nextpage" type="link" class="buttonPas nextpage" classAct="button nextpage" classSel="button nextpageSel" title="nextpage" content=" " />
+        <input id="pagejumper" class="pagejumper" type="text" size="3" disabled="disabled" title="<chronomail:label name="currpage" />" />
+        <chronomail:button command="previouspage" type="link" class="buttonPas prevpage" classAct="button prevpage" classSel="button prevpageSel" title="previouspage" content=" " />
+        <chronomail:button command="firstpage" type="link" class="buttonPas firstpage" classAct="button firstpage" classSel="button firstpageSel" title="firstpage" content=" " />
+    </div>
+</div>
+</div>
+
+<div id="mailpreviewframe">
+<chronomail:object name="contentframe" id="messagecontframe" width="100%" height="100%" frameborder="0" src="env:blankpage" />
+</div>
+
+</div>
+</div>
+</div>
+
+<chronomail:include file="/includes/messagetoolbar.html" />
+
+<div id="searchmenu" class="popupmenu">
+  <ul class="toolbarmenu">
+    <li><label><input type="checkbox" name="s_mods[]" value="subject" id="s_mod_subject" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="subject" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="from" id="s_mod_from" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="from" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="to" id="s_mod_to" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="to" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="cc" id="s_mod_cc" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="cc" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="bcc" id="s_mod_bcc" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="bcc" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="body" id="s_mod_body" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="body" /></span></label></li>
+    <li><label><input type="checkbox" name="s_mods[]" value="text" id="s_mod_text" onclick="chronomail_ui.set_searchmod(this)" /> <span><chronomail:label name="msgtext" /></span></label></li>
+    <li><label class="comment"><chronomail:label name="date" /></label></li>
+    <li><chronomail:object name="searchinterval" id="s_interval" onchange="chronomail.set_searchinterval($(this).val())" /></li>
+    <li><label class="comment"><chronomail:label name="searchscope" /></label></li>
+    <li><label><input type="radio" name="s_scope" value="base" id="s_scope_base" onclick="chronomail.set_searchscope(this.value)" /> <span><chronomail:label name="currentfolder" /></span></label></li>
+    <li><label><input type="radio" name="s_scope" value="sub" id="s_scope_sub" onclick="chronomail.set_searchscope(this.value)" /> <span><chronomail:label name="subfolders" /></span></label></li>
+    <li><label><input type="radio" name="s_scope" value="all" id="s_scope_all" onclick="chronomail.set_searchscope(this.value)" /> <span><chronomail:label name="allfolders" /></span></label></li>
+  </ul>
+</div>
+
+<div id="quicksearchbar">
+<div id="searchfilter">
+  <label for="rcmlistfilter"><chronomail:label name="filter" /></label>:
+  <chronomail:object name="searchfilter" class="searchfilter" />
+</div>
+<chronomail:button name="searchmenulink" id="searchmenulink" image="/images/icons/glass_roll.png" onclick="chronomail_ui.show_popup('searchmenu');return false" title="searchmod" width="16" height="16" />
+<chronomail:object name="searchform" id="quicksearchbox" />
+<chronomail:button command="reset-search" id="searchreset" image="/images/icons/reset.gif" title="resetsearch" width="13" height="13" />
+</div>
+
+<div id="dragmenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button command="move" onclick="return chronomail.drag_menu_action('move')" label="move" classAct="active" /></li>
+    <li><chronomail:button command="copy" onclick="return chronomail.drag_menu_action('copy')" label="copy" classAct="active" /></li>
+  </ul>
+</div>
+
+<div id="mailboxoptionsmenu" class="popupmenu">
+  <ul>
+    <li><chronomail:button command="expunge" type="link" label="compact" classAct="active" /></li>
+    <li><chronomail:button command="purge" type="link" label="empty" classAct="active" /></li>
+    <li><chronomail:button command="mark-all-read" type="link" label="markallread" classAct="active" /></li>
+    <li class="separator_below"><chronomail:button command="import-messages" name="messageimport" type="link" classAct="active" label="importmessages" id="uploadformlink" onclick="if(chronomail.command_enabled('import-messages'))chronomail_ui.show_popup('uploadform', true); return false" /></li>
+    <li><chronomail:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+    <chronomail:container name="mailboxoptions" id="mailboxoptionsmenu" />
+  </ul>
+</div>
+
+<div id="listmenu" style="display: none">
+<chronomail:if condition="!in_array('layout', (array)config:dont_override)" />
+<fieldset id="listoptions-layout"  class="floating"><legend><chronomail:label name="layout" /></legend>
+  <ul class="toolbarmenu">
+    <li><label><input type="radio" name="layout" value="widescreen" /> <span><chronomail:label name="layoutwidescreen" /></span></label></li>
+    <li><label><input type="radio" name="layout" value="desktop" /> <span><chronomail:label name="layoutdesktop" /></span></label></li>
+    <li><label><input type="radio" name="layout" value="list" /> <span><chronomail:label name="layoutlist" /></span></label></li>
+  </ul>
+</fieldset>
+<chronomail:endif />
+<chronomail:if condition="env:threads" />
+<fieldset id="listoptions-view"  class="thinbordered"><legend><chronomail:label name="listmode" /></legend>
+  <ul class="toolbarmenu">
+    <li><label><input type="radio" name="view" value="list" id="view_default" /> <span><chronomail:label name="list" /></span></label></li>
+    <li><label><input type="radio" name="view" value="thread" id="view_thread" /> <span><chronomail:label name="threads" /></span></label></li>
+  </ul>
+</fieldset>
+<chronomail:endif />
+<chronomail:if condition="!in_array('list_cols', (array)config:dont_override)" />
+<fieldset id="listoptions-columns" class="thinbordered"><legend><chronomail:label name="listcolumns" /></legend>
+  <ul class="toolbarmenu">
+    <li><label><input type="checkbox" name="list_col[]" value="threads" id="cols_threads" checked="checked" disabled="disabled" /> <span class="disabled"><chronomail:label name="threads" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="subject" id="cols_subject" checked="checked" disabled="disabled" /> <span class="disabled"><chronomail:label name="subject" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="fromto" id="cols_fromto" /> <span><chronomail:label name="fromto" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="from" id="cols_from" /> <span><chronomail:label name="from" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="to" id="cols_to" /> <span><chronomail:label name="to" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="replyto" id="cols_replyto" /> <span><chronomail:label name="replyto" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="cc" id="cols_cc" /> <span><chronomail:label name="cc" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="date" id="cols_date" /> <span><chronomail:label name="date" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="size" id="cols_size" /> <span><chronomail:label name="size" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="status" id="cols_status" /> <span><chronomail:label name="readstatus" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="attachment" id="cols_attachment" /> <span><chronomail:label name="attachment" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="flag" id="cols_flag" /> <span><chronomail:label name="flag" /></span></label></li>
+    <li><label><input type="checkbox" name="list_col[]" value="priority" id="cols_priority" /> <span><chronomail:label name="priority" /></span></label></li>
+  </ul>
+</fieldset>
+<chronomail:endif />
+<chronomail:if condition="!in_array('message_sort_col', (array)config:dont_override)" />
+<fieldset id="listoptions-sortcol"  class="thinbordered"><legend><chronomail:label name="listsorting" /></legend>
+  <ul class="toolbarmenu">
+    <li><label><input type="radio" name="sort_col" value="" id="sort_default" /> <span><chronomail:label name="nonesort" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="arrival" id="sort_arrival" /> <span><chronomail:label name="arrival" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="date" id="sort_date" /> <span><chronomail:label name="sentdate" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="subject" id="sort_subject" /> <span><chronomail:label name="subject" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="fromto" id="sort_fromto" /> <span><chronomail:label name="fromto" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="from" id="sort_from" /> <span><chronomail:label name="from" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="to" id="sort_to" /> <span><chronomail:label name="to" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="to" id="sort_replyto" /> <span><chronomail:label name="replyto" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="cc" id="sort_cc" /> <span><chronomail:label name="cc" /></span></label></li>
+    <li><label><input type="radio" name="sort_col" value="size" id="sort_size" /> <span><chronomail:label name="size" /></span></label></li>
+  </ul>
+</fieldset>
+<chronomail:endif />
+<chronomail:if condition="!in_array('message_sort_order', (array)config:dont_override)" />
+<fieldset id="listoptions-sortord" ><legend><chronomail:label name="listorder" /></legend> 
+  <ul class="toolbarmenu"> 
+    <li><label><input type="radio" name="sort_ord" value="ASC" id="sort_asc" /> <span><chronomail:label name="asc" /></span></label></li>
+    <li><label><input type="radio" name="sort_ord" value="DESC" id="sort_desc" /> <span><chronomail:label name="desc" /></span></label></li>
+  </ul>
+</fieldset>
+<chronomail:endif />
+<chronomail:container name="listoptions" id="listoptionsmenu" />
+</div>
+
+<chronomail:object name="messageimportform" id="upload-form" attachmentFieldSize="40" class="popupmenu" />
+
+<script type="text/javascript">
+chronomail_init_mail_ui();
+</script>
+
+</body>
+</html>

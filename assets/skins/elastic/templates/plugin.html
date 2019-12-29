@@ -1,0 +1,15 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+<chronomail:include file="includes/settings-menu.html" condition="env:task == 'settings'" />
+
+<div id="layout-content" class="selected" role="main">
+	<div class="header">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+	</div>
+	<chronomail:object name="plugin.body" />
+</div>
+
+<chronomail:object name="plugin.footer" />
+
+<chronomail:include file="includes/footer.html" />

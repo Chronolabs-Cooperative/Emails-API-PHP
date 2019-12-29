@@ -1,0 +1,86 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<chronomail:if condition="env:extwin" /><body class="noscroll extwin"><chronomail:else /><body class="noscroll"><chronomail:endif />
+
+<chronomail:include file="/includes/header.html" />
+
+<h1 class="voice"><chronomail:label name="settings" /> : <chronomail:label name="managesieve.filters" /></h1>
+
+<div id="mainscreen" class="offset">
+
+<chronomail:include file="/includes/settingstabs.html" />
+
+<div id="settings-right" role="main">
+<chronomail:if condition="!env:managesieve_no_set_list" />
+<div id="filtersetslistbox" class="uibox listbox" aria-labelledby="aria-label-filtersets">
+<h2 class="boxtitle" id="aria-label-filtersets"><chronomail:label name="managesieve.filtersets" /></h2>
+<div class="scroller withfooter">
+  <chronomail:object name="filtersetslist" id="filtersetslist" class="listing" summary="managesieve.ariasummaryfiltersetslist" type="list" noheader="true" role="listbox" />
+</div>
+<div class="boxfooter">
+  <chronomail:button command="plugin.managesieve-setadd" type="link" title="managesieve.filtersetadd" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><chronomail:button name="filtersetmenulink" id="filtersetmenulink" type="link" title="moreactions" class="listbutton groupactions" onclick="return UI.toggle_popup('filtersetmenu', event)" innerClass="inner" content="&#9881;" aria-haspopup="true" aria-expanded="false" aria-owns="filtersetmenu-menu" />
+</div>
+</div>
+<div id="filtersscreen">
+<chronomail:else />
+<div id="filtersscreen" class="nosetlist">
+<chronomail:endif />
+<div id="filterslistbox" class="uibox listbox" aria-labelledby="aria-label-filters">
+<h2 class="boxtitle" id="aria-label-filters"><chronomail:label name="managesieve.filters" /></h2>
+<div class="scroller withfooter">
+  <chronomail:object name="filterslist" id="filterslist" class="listing" summary="managesieve.ariasummaryfilterslist" noheader="true" role="listbox" />
+</div>
+<div class="boxfooter">
+  <chronomail:button command="plugin.managesieve-add" type="link" title="managesieve.filteradd" class="listbutton add disabled" classAct="listbutton add" innerClass="inner" content="+" /><chronomail:button name="filtermenulink" id="filtermenulink" type="link" title="moreactions" class="listbutton groupactions" onclick="return UI.toggle_popup('filtermenu', event)" innerClass="inner" content="&#9881;" aria-haspopup="true" aria-expanded="false" aria-owns="filtermenu-menu" />
+</div>
+</div>
+
+<div id="filter-box" class="uibox contentbox">
+  <div class="iframebox" role="complementary" aria-labelledby="aria-label-filterform">
+    <h2 id="aria-label-filterframe" class="voice"><chronomail:label name="managesieve.arialabelfilterform" /></h2>
+    <chronomail:object name="contentframe" id="filter-frame" style="width:100%; height:100%" frameborder="0" src="env:blankpage" title="managesieve.arialabelfilterform" />
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<div id="filtersetmenu" class="popupmenu" aria-hidden="true">
+  <h3 id="aria-label-setactions" class="voice"><chronomail:label name="managesieve.arialabelfiltersetactions" /></h3>
+  <ul class="toolbarmenu" id="filtersetmenu-menu" role="menu" aria-labelledby="aria-label-setactions">
+    <li role="menuitem"><chronomail:button type="link" command="plugin.managesieve-setact" label="managesieve.enable" classAct="active" /></li>
+    <li role="menuitem"><chronomail:button type="link" command="plugin.managesieve-setdel" label="delete" classAct="active" /></li>
+    <chronomail:if condition="env:raw_sieve_editor != false" />
+    <li role="menuitem"><chronomail:button type="link" command="plugin.managesieve-seteditraw" label="managesieve.filterseteditraw" classAct="active" /></li>
+    <chronomail:endif />
+    <li role="menuitem" class="separator_above"><chronomail:button type="link" command="plugin.managesieve-setget" label="download" classAct="active" /></li>
+    <chronomail:container name="filtersetoptions" id="filtersetmenu" />
+  </ul>
+</div>
+
+<div id="filtermenu" class="popupmenu" aria-hidden="true">
+  <h3 id="aria-label-filteractions" class="voice"><chronomail:label name="managesieve.arialabelfilteractions" /></h3>
+  <ul class="toolbarmenu" id="filtermenu-menu" role="menu" aria-labelledby="aria-label-filteractions">
+    <li role="menuitem"><chronomail:button type="link" command="plugin.managesieve-act" label="managesieve.enable" classAct="active" /></li>
+    <li role="menuitem"><chronomail:button type="link" command="plugin.managesieve-del" label="delete" classAct="active" /></li>
+    <chronomail:container name="filteroptions" id="filtermenu" />
+  </ul>
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+<script type="text/javascript">
+  <chronomail:if condition="!env:managesieve_no_set_list" />
+  new chronomail_splitter({ id:'managesievesplitter1', p1:'#filtersetslistbox', p2:'#filtersscreen',
+          orientation:'v', relative:true, start:156, min:120, size:12 }).init();
+  <chronomail:endif />
+  new chronomail_splitter({ id:'managesievesplitter2', p1:'#filterslistbox', p2:'#filter-box',
+          orientation:'v', relative:true, start:186, min:120, size:12 }).init();
+</script>
+
+</body>
+</html>

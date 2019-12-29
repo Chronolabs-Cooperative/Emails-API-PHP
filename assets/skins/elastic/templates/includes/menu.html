@@ -1,0 +1,37 @@
+<div id="layout-menu">
+	<h2 id="aria-label-tasknav" class="voice"><chronomail:label name="arialabeltasknav" /></h2>
+	<div class="popover-header">
+		<chronomail:object name="logo" src="/images/logo.svg" data-src-small="0" id="logo" alt="Logo" />
+		<a class="button icon cancel"><span class="inner"><chronomail:label name="close" /></span></a>
+	</div>
+	<div id="taskmenu" class="menu toolbar" role="navigation" aria-labelledby="aria-label-tasknav">
+		<span class="action-buttons">
+			<chronomail:if condition="env:action == 'compose' and env:task == 'mail'" />
+				<chronomail:button command="compose" type="link" class="compose selected"
+					label="compose" title="writenewmessage" innerclass="inner" />
+			<chronomail:else />
+				<chronomail:button command="compose" type="link" class="compose"
+					label="compose" title="writenewmessage" innerclass="inner"
+					data-fab="true" data-fab-task="mail" data-fab-action="none" />
+			<chronomail:endif />
+		</span>
+		<chronomail:if condition="env:action == 'compose' and env:task == 'mail'" />
+			<chronomail:button command="mail" label="mail" type="link" innerClass="inner"
+				class="mail" />
+		<chronomail:else />
+			<chronomail:button command="mail" label="mail" type="link" innerClass="inner"
+				class="mail" classSel="mail selected" />
+		<chronomail:endif />
+		<chronomail:button command="addressbook" label="contacts" type="link" innerClass="inner"
+			class="contacts" classSel="contacts selected" />
+		<chronomail:container name="taskbar" id="taskmenu" />
+		<chronomail:button command="settings" label="settings" type="link" innerClass="inner"
+			class="settings" classSel="settings selected" />
+		<span class="special-buttons">
+			<chronomail:button name="about" label="about" type="link"
+				class="about" innerClass="inner" onclick="UI.about_dialog(this)" />
+			<chronomail:button command="logout" label="logout" type="link"
+				class="logout" innerClass="inner" />
+		</span>
+	</div>
+</div>

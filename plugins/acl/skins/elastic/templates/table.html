@@ -1,0 +1,36 @@
+<div id="acllist-container" class="table-widget">
+	<div id="acllist-content" class="content">
+		<h2 class="voice" id="aria-label-acltable"><chronomail:label name="acl.ariasummaryacltable" /></h2>
+		<chronomail:object name="acltable" id="acltable" class="records-table options-table" aria-labelledby="aria-label-acltable" role="listbox" />
+	</div>
+	<div id="acllist-footer" class="footer toolbar menu">
+		<chronomail:button command="acl-create" type="link" class="create disabled" classAct="create"
+			label="acl.add" title="acl.newuser" innerClass="inner" />
+		<chronomail:button name="aclmenulink" type="link"
+			label="actions" title="acl.actions" href="#acl-actions"
+			class="actions" innerClass="inner" data-popup="acl-menu" />
+	</div>
+</div>
+
+<div id="acl-menu" class="popupmenu" aria-hidden="true" data-align="bottom">
+	<h3 id="aria-label-aclactions" class="voice"><chronomail:label name="acl.arialabelaclactions" /></h3>
+	<ul class="menu listing iconized" role="menu" aria-labelledby="aria-label-aclactions">
+		<chronomail:button command="acl-edit" label="edit" type="link-menuitem" class="edit disabled" classAct="edit active" />
+		<chronomail:button command="acl-delete" label="delete" type="link-menuitem" class="delete disabled" classAct="delete active" />
+		<chronomail:if condition="!in_array('acl_advanced_mode', (array)config:dont_override)" />
+			<chronomail:button name="acl-switch" type="link-menuitem" class="active check" id="acl-switch" onclick="chronomail.command('acl-mode-switch')" label="acl.advanced" />
+		<chronomail:endif />
+	</ul>
+</div>
+
+<div id="aclform" class="popupmenu formcontent" aria-labelledby="aria-label-aclform" role="form">
+	<h3 id="aria-label-aclform" class="voice"><chronomail:label name="acl.arialabelaclform" /></h3>
+	<div class="row form-group">
+		<label class="col-sm-4 col-form-label"><chronomail:label name="acl.identifier" /></label>
+		<chronomail:object name="acluser" id="acluser" class="proplist col-sm-8" />
+	</div>
+	<div class="row form-group">
+		<label class="col-sm-4 col-form-label"><chronomail:label name="acl.myrights" /></label>
+		<chronomail:object name="aclrights" class="proplist col-sm-8" />
+	</div>
+</div>

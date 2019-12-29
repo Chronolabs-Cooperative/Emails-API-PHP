@@ -1,0 +1,61 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+<chronomail:include file="includes/settings-menu.html" />
+
+<h1 class="voice"><chronomail:label name="folders" /></h1>
+
+<!-- folders list -->
+<div id="layout-list" class="listbox selected" aria-labelledby="aria-label-folderslist">
+	<div class="header">
+		<a class="button icon back-sidebar-button" href="#sidebar"><span class="inner"><chronomail:label name="settings" /></span></a>
+		<span id="aria-label-folderslist" class="header-title"><chronomail:label name="folders" /></span>
+		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+	</div>
+	<chronomail:object name="searchform" id="foldersearch" wrapper="searchbar menu" ariatag="h2"
+		label="foldersearchform" buttontitle="findfolders" options="foldersearchmenu" />
+	<div id="foldersearchmenu" class="hidden searchoptions scroller propform formcontainer" aria-labelledby="aria-label-search-menu" aria-controls="subscription-table">
+		<h3 id="aria-label-search-menu" class="voice"><chronomail:label name="searchmod" /></h3>
+		<div class="formcontent">
+			<chronomail:object name="folderfilter" id="folderlist-filter" noheader="true" noevent="true" />
+		</div>
+		<div class="formbuttons">
+			<button type="button" class="btn btn-primary icon search" onclick="chronomail.folder_filter($('#folderlist-filter').val())"><chronomail:label name="search" /></button>
+		</div>
+	</div>
+	<div class="scroller" tabindex="-1">
+		<chronomail:object name="foldersubscription" id="subscription-table"
+			class="treelist listing folderlist iconized" role="listbox" data-list="subscription_list"
+			data-label-msg="listempty" data-label-ext="listusebutton" data-create-command="folder-create" />
+	</div>
+	<div class="footer small">
+		<chronomail:if condition="env:quota" />
+			<div id="quotadisplay" class="quota-widget">
+				<span class="voice"><chronomail:label name="quota"></span>
+				<chronomail:object name="quotaDisplay" class="count" display="text" />
+			</div>
+		<chronomail:endif />
+	</div>
+</div>
+
+<!-- folder info frame -->
+<div id="layout-content" role="main">
+	<h2 id="aria-label-toolbar" class="voice"><chronomail:label name="arialabeltoolbar" /></h2>
+	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+		<!-- toolbar -->
+		<div id="folderstoolbar" class="toolbar menu">
+			<chronomail:button command="create-folder" type="link" class="create disabled" classAct="create"
+				label="create" title="createfolder" innerClass="inner" data-fab="true" />
+			<chronomail:button command="delete-folder" type="link" class="delete disabled" classAct="delete"
+				label="delete" title="delete" innerclass="inner" />
+			<chronomail:button command="purge" type="link" class="purge disabled" classAct="purge"
+				label="empty" title="empty" innerclass="inner" />
+		</div>
+	</div>
+	<div class="iframe-wrapper">
+		<chronomail:object name="contentframe" id="preferences-frame" src="env:blankpage" />
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

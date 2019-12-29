@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+<script type="text/javascript" src="/functions.js"></script>
+</head>
+<body class="iframe">
+
+<div id="contact-title" class="boxtitle"><chronomail:label name="editcontact" /></div>
+<div id="contact-details" class="boxcontent">
+<chronomail:form name="editform" method="post">
+  <chronomail:if condition="strlen(env:sourcename)" />
+    <div id="sourcename"><chronomail:label name="addressbook" />: <chronomail:var name="env:sourcename" /></div>
+  <chronomail:endif />
+  <div id="contactphoto">
+    <chronomail:object name="contactphoto" id="contactpic" placeholder="/images/contactpic.png" />
+    <div class="formlinks">
+      <chronomail:button command="upload-photo" id="uploadformlink" type="link" label="replacephoto" class="disabled" classAct="active" onclick="chronomail_ui.show_popup('uploadform', true);return false" condition="env:photocol" /><br/>
+      <chronomail:button command="delete-photo" type="link" label="delete" class="disabled" classAct="active" condition="env:photocol" />
+    </div>
+  </div>
+  <chronomail:object name="contactedithead" id="contacthead" size="16" form="editform" />
+  <div style="clear:both"></div>
+  <div id="contacttabs">
+    <chronomail:object name="contacteditform" size="40" textareacols="60" deleteIcon="/images/icons/delete.png" form="editform" />
+  </div>
+  <p>
+    <chronomail:button command="show" type="input" class="button" label="cancel" />&nbsp;
+    <chronomail:button command="save" type="input" class="button mainaction" label="save" />
+  </p>
+</form>
+</div>
+
+<chronomail:object name="photoUploadForm" id="upload-form" size="30" class="popupmenu" />
+<chronomail:object name="fileDropArea" id="contactpic" />
+
+<script type="text/javascript">
+chronomail_init_tabs('contacttabs');
+chronomail_init_mail_ui();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<?php
+
+/*
+ +-----------------------------------------------------------------------+
+ | Localization file of the Chronomail Webmail ACL plugin                 |
+ |                                                                       |
+ | Copyright (C) The Chronomail Dev Team                                  |
+ |                                                                       |
+ | Licensed under the GNU General Public License version 3 or            |
+ | any later version with exceptions for skins & plugins.                |
+ | See the README file for a full license statement.                     |
+ +-----------------------------------------------------------------------+
+
+ For translation see https://www.transifex.com/projects/p/chronomail-webmail/resource/plugin-acl/
+*/
+
+$labels['sharing'] = 'Jakaminen';
+$labels['myrights'] = 'Käyttöoikeudet';
+$labels['username'] = 'Käyttäjä:';
+$labels['advanced'] = 'Edistynyt tila';
+$labels['add'] = 'Lisää';
+$labels['newuser'] = 'LIsää kohde';
+$labels['editperms'] = 'Muokkaa oikeuksia';
+$labels['anyone'] = 'Kaikki käyttäjät (kuka tahansa)';
+$labels['anonymous'] = 'Vieraat (anonyymit)';
+$labels['aclr'] = 'Lue viestit';
+$labels['aclc'] = 'Luo alikansioita';
+$labels['aclk'] = 'Luo alikansioita';
+$labels['acld'] = 'Poista viestejä';
+$labels['aclt'] = 'Poista viestejä';
+$labels['aclx'] = 'Poista kansio';
+$labels['aclfull'] = 'Täydet käyttöoikeudet';
+$labels['aclother'] = 'Muu';
+$labels['aclread'] = 'Luku';
+$labels['aclwrite'] = 'Kirjoitus';
+$labels['acldelete'] = 'Poisto';
+$labels['shortaclr'] = 'Lue';
+$labels['shortacls'] = 'Säilytä';
+$labels['shortaclw'] = 'Kirjoitus';
+$labels['shortacli'] = 'Lisää';
+$labels['shortaclc'] = 'Luo';
+$labels['shortaclk'] = 'Luo';
+$labels['shortacld'] = 'Poista';
+$labels['shortaclt'] = 'Poista';
+$labels['shortaclx'] = 'Kansion poisto';
+$labels['shortaclother'] = 'Muu';
+$labels['shortaclread'] = 'Luku';
+$labels['shortaclwrite'] = 'Kirjoitus';
+$labels['shortacldelete'] = 'Poisto';
+$labels['longaclr'] = 'Kansion voi avata lukua varten';
+$labels['longaclx'] = 'Kansio voidaan poistaa tai nimetä uudelleen';
+$labels['longacla'] = 'Kansion käyttöoikeuksia voi muuttaa';
+$labels['longaclread'] = 'Kansion voi avata lukua varten';
+$labels['arialabelaclactions'] = 'Listatoiminnot';
+$messages['deleting'] = 'Poistetaan käyttöoikeuksia...';
+$messages['saving'] = 'Tallennetaan käyttöoikeuksia...';
+$messages['updatesuccess'] = 'Käyttöoikeuksia muutettiin onnistuneesti';
+$messages['deletesuccess'] = 'Käyttöoikeuksia poistettiin onnistuneesti';
+$messages['createsuccess'] = 'Käyttöoikeuksia lisättiin onnistuneesti';
+$messages['updateerror'] = 'Käyttöoikeuksien päivitys epäonnistui';
+$messages['deleteerror'] = 'Käyttöoikeuksien poistaminen epäonnistui';
+$messages['createerror'] = 'Käyttöoikeuksien lisääminen epäonnistui';
+$messages['norights'] = 'Oikeuksia ei ole määritelty!';
+$messages['nouser'] = 'Käyttäjänimeä ei ole määritelty!';
+?>

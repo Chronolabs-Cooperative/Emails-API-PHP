@@ -1,0 +1,209 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+
+<h1 class="voice"><chronomail:label name="mail" /></h1>
+
+<!-- folders list -->
+<div id="layout-sidebar" class="listbox" role="navigation" aria-labelledby="aria-label-folderlist">
+	<div class="header">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title username"><chronomail:object name="username" /></span>
+		<chronomail:button name="folderactions" type="link" title="folderactions" label="actions"
+			class="button icon sidebar-menu" innerclass="inner" data-popup="mailboxoptions-menu" />
+	</div>
+	<h2 id="aria-label-folderlist" class="voice"><chronomail:label name="arialabelfolderlist" /></h2>
+	<div id="folderlist-content" class="scroller">
+		<chronomail:object name="mailboxlist" id="mailboxlist" class="treelist listing folderlist" folder_filter="mail" unreadwrap="%s" />
+	</div>
+	<div class="footer small">
+		<chronomail:if condition="env:quota" />
+			<div id="quotadisplay" class="quota-widget">
+				<span class="voice"><chronomail:label name="quota"></span>
+				<chronomail:object name="quotaDisplay" class="count" display="text" />
+			</div>
+		<chronomail:endif />
+	</div>
+</div>
+
+<!-- messages list -->
+<div id="layout-list" class="listbox selected">
+	<div id="messagelist-header" class="header">
+		<a class="button icon task-menu-button" href="#menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+		<a class="button icon back-sidebar-button folders" href="#sidebar"><span class="inner"><chronomail:label name="mailboxlist" /></span></a>
+		<span class="header-title"></span>
+		<div class="toolbar menu" role="toolbar">
+			<a href="#select" class="select disabled" data-popup="listselect-menu" data-toggle-button="list-toggle-button" title="<chronomail:label name="select" />"><span class="inner"><chronomail:label name="select" /></span></a>
+			<chronomail:if condition="env:threads" />
+				<a href="#threads" class="threads disabled" data-popup="threadselect-menu" title="<chronomail:label name="threads" />"><span class="inner"><chronomail:label name="threads" /></span></a>
+			<chronomail:endif />
+			<chronomail:object name="listmenulink" class="options active" label="options" innerclass="inner" />
+			<chronomail:container name="listcontrols" id="listcontrols" />
+		</div>
+		<chronomail:button command="checkmail" type="link" class="button icon toolbar-button refresh"
+			label="refresh" title="checkmail" innerclass="inner" />
+		<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+	</div>
+	<chronomail:add_label name="showunread" />
+	<chronomail:object name="searchform" id="mailsearchform" wrapper="searchbar menu"
+		label="mailquicksearchbox" buttontitle="findmail" options="searchmenu" ariatag="h2" />
+	<div id="searchmenu" class="hidden searchoptions scroller propform formcontainer" aria-labelledby="aria-label-search-menu" aria-controls="messagelist">
+		<h3 id="aria-label-search-menu" class="voice"><chronomail:label name="searchmod" /></h3>
+		<div class="formcontent">
+			<ul class="proplist">
+				<li><label><input type="checkbox" name="s_mods[]" value="subject" /><chronomail:label name="subject" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="from" /><chronomail:label name="from" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="to" /><chronomail:label name="to" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="cc" /><chronomail:label name="cc" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="bcc" /><chronomail:label name="bcc" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="body" /><chronomail:label name="body" /></label></li>
+				<li><label><input type="checkbox" name="s_mods[]" value="text" /><chronomail:label name="msgtext" /></label></li>
+			</ul>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<label for="searchfilter" class="input-group-text"><chronomail:label name="type" /></label>
+				</div>
+				<chronomail:object name="searchfilter" id="searchfilter" noevent="true" />
+			</div>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<label for="s_interval" class="input-group-text"><chronomail:label name="date" /></label>
+				</div>
+				<chronomail:object name="searchinterval" id="s_interval" />
+			</div>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<label for="s_scope" class="input-group-text"><chronomail:label name="searchscope" /></label>
+				</div>
+				<select name="s_scope" id="s_scope">
+					<option value="base"><chronomail:label name="currentfolder" /></option>
+					<option value="sub"><chronomail:label name="subfolders" /></option>
+					<option value="all"><chronomail:label name="allfolders" /></option>
+				</select>
+			</div>
+		</div>
+		<div class="formbuttons">
+			<button type="button" class="btn btn-primary icon search" onclick="return chronomail.command('search')"><chronomail:label name="search" /></button>
+		</div>
+	</div>
+	<div id="messagelist-content" class="scroller" tabindex="-1">
+		<h2 id="aria-label-messagelist" class="voice"><chronomail:label name="arialabelmessagelist" /></h2>
+		<chronomail:object name="messages" id="messagelist" optionsmenuIcon="true"
+			class="listing messagelist sortheader fixedheader"
+			aria-labelledby="aria-label-messagelist"
+			data-list="message_list" data-label-msg="listempty"
+		/>
+	</div>
+	<chronomail:include file="includes/pagenav.html" />
+</div>
+
+<!-- message preview -->
+<div id="layout-content">
+	<h2 id="aria-label-toolbar" class="voice"><chronomail:label name="arialabeltoolbar" /></h2>
+	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+		<a class="button icon back-list-button" href="#back"><span class="inner"><chronomail:label name="back" /></span></a>
+		<span class="header-title"></span>
+		<chronomail:include file="includes/mail-menu.html" />
+	</div>
+	<h2 id="aria-label-mailpreviewframe" class="voice"><chronomail:label name="arialabelmailpreviewframe" /></h2>
+	<div class="iframe-wrapper">
+		<chronomail:object name="contentframe"
+			id="messagecontframe"
+			aria-labelledby="aria-label-mailpreviewframe"
+			src="env:blankpage"
+			title="arialabelmailpreviewframe"
+		/>
+	</div>
+</div>
+
+<!-- popup menus -->
+
+<div id="dragmessage-menu" class="popupmenu">
+	<h3 id="aria-label-dragmessage-menu" class="voice"><chronomail:label name="arialabeldropactionmenu" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-dragmessage-menu">
+		<chronomail:button command="move" type="link-menuitem" onclick="return chronomail.drag_menu_action('move')" label="move" class="disabled" classAct="active" />
+		<chronomail:button command="copy" type="link-menuitem" onclick="return chronomail.drag_menu_action('copy')" label="copy" class="disabled" classAct="active" />
+	</ul>
+</div>
+
+<div id="mailboxoptions-menu" class="popupmenu">
+	<h3 id="aria-label-mailboxoptions-menu" class="voice"><chronomail:label name="arialabelmailboxmenu" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-mailboxoptions-menu">
+		<chronomail:button command="expunge" type="link-menuitem" label="compact" class="expunge disabled" classAct="expunge active" />
+		<chronomail:button command="purge" type="link-menuitem" label="empty" class="purge disabled" classAct="purge active" />
+		<chronomail:button command="mark-all-read" type="link-menuitem" label="markallread" class="read disabled" classAct="read active" />
+		<chronomail:button command="folders" task="settings" type="link-menuitem" label="managefolders" class="folders disabled" classAct="folders active" />
+		<chronomail:container name="mailboxoptions" id="mailboxoptionsmenu" />
+	</ul>
+</div>
+
+<div id="listselect-menu" class="popupmenu">
+	<h3 id="aria-label-listselect-menu" class="voice"><chronomail:label name="arialabellistselectmenu" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-listselect-menu">
+		<chronomail:button type="link-menuitem" label="selection" class="selection disabled" classAct="selection active"
+			name="list-toggle-button" id="list-toggle-button"
+			onclick="if ($(this).is('.active')) $('#messagelist').toggleClass('withselection');" />
+		<chronomail:button command="select-all" type="link-menuitem" label="all" class="select all disabled" classAct="select all active" />
+		<chronomail:button command="select-all" type="link-menuitem" prop="page" label="currpage" class="select page disabled" classAct="select page active" />
+		<chronomail:button command="select-all" type="link-menuitem" prop="unread" label="unread" class="select unread disabled" classAct="select unread active" />
+		<chronomail:button command="select-all" type="link-menuitem" prop="flagged" label="flagged" class="select flagged disabled" classAct="select flagged active" />
+		<chronomail:button command="select-all" type="link-menuitem" prop="invert" label="invert" class="select invert disabled" classAct="select invert active" />
+		<chronomail:button command="select-none" type="link-menuitem" label="none" class="select none disabled" classAct="select none active" />
+	</ul>
+</div>
+
+<div id="threadselect-menu" class="popupmenu">
+	<h3 id="aria-label-threadselectmenu" class="voice"><chronomail:label name="arialabelthreadselectmenu" /></h3>
+	<ul class="menu listing" role="menu" aria-labelledby="aria-label-threadselectmenu">
+		<chronomail:button command="expand-unread" type="link-menuitem" label="expand-unread" class="expand unread disabled" classAct="expand unread active" />
+		<chronomail:button command="expand-all" type="link-menuitem" label="expand-all" class="expand all disabled" classAct="expand all active" />
+		<chronomail:button command="collapse-all" type="link-menuitem" label="collapse-all" class="expand none disabled" classAct="expand none active" />
+	</ul>
+</div>
+
+<div id="listoptions-menu" class="popupmenu propform" role="dialog" aria-labelledby="aria-label-listoptions">
+	<h3 id="aria-label-listoptions" class="voice"><chronomail:label name="arialabelmessagelistoptions" /></h3>
+	<chronomail:if condition="!in_array('message_sort_col', (array)config:dont_override)" />
+	<div class="form-group row">
+		<label for="listoptions-sortcol" class="col-form-label col-sm-4"><chronomail:label name="listsorting" /></label>
+		<div class="col-sm-8">
+			<select id="listoptions-sortcol" name="sort_col">
+				<option value=""><chronomail:label name="nonesort" /></option>
+				<option value="arrival"><chronomail:label name="arrival" /></option>
+				<option value="date"><chronomail:label name="sentdate" /></option>
+				<option value="subject"><chronomail:label name="subject" /></option>
+				<option value="fromto"><chronomail:label name="fromto" /></option>
+				<option value="from"><chronomail:label name="from" /></option>
+				<option value="to"><chronomail:label name="to" /></option>
+				<option value="cc"><chronomail:label name="cc" /></option>
+				<option value="size"><chronomail:label name="size" /></option>
+			</select>
+		</div>
+	</div>
+	<chronomail:endif />
+	<chronomail:if condition="!in_array('message_sort_order', (array)config:dont_override)" />
+	<div class="form-group row">
+		<label for="listoptions-sortord" class="col-form-label col-sm-4"><chronomail:label name="listorder" /></label>
+		<div class="col-sm-8">
+			<select id="listoptions-sortord" name="sort_ord">
+				<option value="ASC"><chronomail:label name="asc" /></option>
+				<option value="DESC"><chronomail:label name="desc" /></option>
+			</select>
+		</div>
+	</div>
+	<chronomail:endif />
+	<chronomail:if condition="env:threads" />
+	<div class="form-group row">
+		<label for="listoptions-threads" class="col-form-label col-sm-4"><chronomail:label name="lmode" /></label>
+		<div class="col-sm-8">
+			<select id="listoptions-threads" name="mode">
+				<option value="list"><chronomail:label name="list" /></option>
+				<option value="threads"><chronomail:label name="threads" /></option>
+			</select>
+		</div>
+	</div>
+	<chronomail:endif />
+	<chronomail:container name="listoptions" id="listoptionsmenu" />
+	<chronomail:add_label name="listoptionstitle" />
+</div>
+
+<chronomail:include file="includes/footer.html" />

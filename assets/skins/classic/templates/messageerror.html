@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<chronomail:include file="/includes/links.html" />
+
+<chronomail:if condition="env:action!='show'" />
+
+</head>
+<body class="iframe" style="background-color:#F2F2F2;">
+
+<div style="margin:20px auto; text-align:center">
+<img src="/images/watermark.gif" width="260" height="228" alt="" />
+</div>
+
+</body>
+
+<chronomail:else />
+
+<script type="text/javascript" src="/splitter.js"></script>
+<script type="text/javascript" src="/functions.js"></script>
+<style type="text/css">
+#mailboxlist-container { width: <chronomail:exp expression="!empty(cookie:mailviewsplitterv) ? cookie:mailviewsplitterv-5 : 170" />px; }
+#messageframe { left: <chronomail:exp expression="!empty(cookie:mailviewsplitterv) ? cookie:mailviewsplitterv+5 : 180" />px; }
+</style>
+</head>
+
+<body>
+
+<chronomail:include file="/includes/taskbar.html" />
+<chronomail:include file="/includes/header.html" />
+
+<div id="messagetoolbar">
+<chronomail:button command="list" type="link" class="button back" classAct="button back" classSel="button backSel" title="backtolist" content=" " />
+<chronomail:button command="compose" type="link" class="button compose" classAct="button compose" classSel="button composeSel" title="writenewmessage" content=" " />
+</div>
+
+<div id="mainscreen">
+<div id="mailleftcontainer">
+<div id="mailboxlist-container">
+<div class="boxtitle"><chronomail:label name="mailboxlist" /></div>
+<div class="boxlistcontent">
+    <chronomail:object name="mailboxlist" id="mailboxlist" class="treelist" folder_filter="mail" />
+</div>
+<div class="boxfooter"></div>
+</div>
+</div>
+
+<div id="messageframe" style="background-color:#F2F2F2;">
+<div style="margin:20px auto; text-align:center">
+<img src="/images/watermark.gif" width="260" height="228" alt="" />
+</div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+    var mailviewsplitv = new chronomail_splitter({id:'mailviewsplitterv', p1: 'mailboxlist-container', p2: 'messageframe', orientation: 'v', relative: true, start: 165});
+    chronomail.add_onload('mailviewsplitv.init()');
+</script>
+
+<script type="text/javascript">
+chronomail_init_mail_ui();
+</script>
+
+</body>
+<chronomail:endif />
+
+</html>

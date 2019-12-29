@@ -1,0 +1,21 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe fullheight">
+
+<div class="readtext">
+<chronomail:object name="aboutcontent" />
+<h2 class="sysname">Chronomail Webmail <chronomail:object name="version" /></h2>
+<p class="copyright"><chronomail:object name="copyright" /></p>
+<p class="license"><chronomail:object name="license" /></p>
+</div>
+
+<div class="readtext">
+<h3><chronomail:label name="installedplugins" /></h3>
+<chronomail:object name="pluginlist" id="pluginlist" class="records-table" />
+</div>
+
+</body>
+</html>

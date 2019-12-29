@@ -1,0 +1,24 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe">
+
+<h1 class="boxtitle"><chronomail:label name="folderproperties" /></h1>
+
+<div class="boxcontent">
+<chronomail:object name="folderdetails" class="propform" />
+</div>
+
+<div class="footerleft formbuttons">
+	<chronomail:button command="save" type="input" class="button mainaction" label="save" />
+	<chronomail:if condition="!strlen(request:_mbox)" />
+	<input type="button" value="<chronomail:label name="cancel" />" class="button" onclick="history.back()" />&nbsp;
+	<chronomail:endif />
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

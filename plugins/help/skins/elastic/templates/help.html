@@ -1,0 +1,31 @@
+<chronomail:include file="includes/layout.html" />
+<chronomail:include file="includes/menu.html" />
+
+<div id="layout-sidebar" class="listbox" role="navigation" aria-labelledby="aria-label-helpnav">
+	<div class="header">
+		<a class="button icon task-menu-button" href="#menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+		<span id="aria-label-helpnav" class="header-title"><chronomail:label name="help.help" /></span>
+	</div>
+	<div class="scroller">
+		<ul class="listing iconized" data-menu="toolbar-small">
+			<chronomail:object name="tablink" action="index" type="link-menuitem" label="help.help" class="help active" />
+			<chronomail:object name="tablink" action="about" type="link-menuitem" label="help.about" class="about active" />
+			<chronomail:object name="tablink" action="license" type="link-menuitem" label="help.license" class="license active" />
+			<chronomail:container name="helptabs" id="helptabsbar" />
+		</ul>
+	</div>
+</div>
+
+<h1 class="voice"><chronomail:label name="help.help" /></h1>
+
+<div id="layout-content" class="selected" role="main">
+	<div class="header">
+		<a class="button icon task-menu-button" href="#menu"><span class="inner"><chronomail:label name="menu" /></span></a>
+		<span class="header-title"><chronomail:label name="help.help" /></span>
+	</div>
+	<div class="iframe-wrapper">
+		<chronomail:object name="contentframe" id="helpcontentframe" src="env:blankpage" title="arialabelhelpcontent" />
+	</div>
+</div>
+
+<chronomail:include file="includes/footer.html" />

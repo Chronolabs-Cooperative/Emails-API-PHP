@@ -1,0 +1,10 @@
+<link rel="index" href="$__comm_path" />
+<chronomail:object name="meta" />
+<chronomail:object name="links" />
+<link rel="stylesheet" type="text/css" href="/common.css" />
+<chronomail:if condition="in_array(env:task, array('mail', 'addressbook', 'settings'))" />
+<link rel="stylesheet" type="text/css" href="/<chronomail:var name="env:task" />.css" />
+<chronomail:endif />
+<chronomail:if condition="browser:safari" />
+<link rel="stylesheet" type="text/css" href="/safari.css" />
+<chronomail:endif />

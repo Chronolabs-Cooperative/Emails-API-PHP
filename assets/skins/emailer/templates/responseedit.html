@@ -1,0 +1,21 @@
+<chronomail:object name="doctype" value="html5" />
+<html>
+<head>
+<chronomail:include file="/includes/links.html" />
+</head>
+<body class="iframe">
+
+<h1 class="boxtitle"><chronomail:object name="steptitle" /></h1>
+
+<div id="preferences-details" class="boxcontent">
+<chronomail:object name="responseform" class="propform" size="60" textareacols="60" textarearows="18" />
+</div>
+
+<div class="footerleft formbuttons">
+	<chronomail:button command="save" type="input" class="button mainaction" label="save" condition="!env:readonly" />
+</div>
+
+<chronomail:include file="/includes/footer.html" />
+
+</body>
+</html>

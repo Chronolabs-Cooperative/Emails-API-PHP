@@ -1,0 +1,14 @@
+<chronomail:if condition="!env:framed || env:extwin" />
+</div>
+<chronomail:if condition="config:support_url" />
+<a href="<chronomail:var name='config:support_url' />" target="_blank" id="supportlink" class="hidden"><chronomail:label name="support" /></a>
+<chronomail:endif />
+<chronomail:endif />
+
+<chronomail:object name="message" id="messagestack" />
+
+<script src="/deps/bootstrap.bundle.min.js"></script>
+<script src="/ui.js"></script>
+
+</body>
+</html>
